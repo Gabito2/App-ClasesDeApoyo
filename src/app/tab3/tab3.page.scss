@@ -61,6 +61,23 @@ ion-list {
   font-size: 0.95rem;
 }
 
+.search-wrapper {
+  padding: 8px 12px 0;
+
+  ion-searchbar {
+    --background: #ffffff;
+    --color: #550000;
+    --placeholder-color: #b0b0b0;
+    --icon-color: #b0b0b0;
+    --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.02);
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    font-size: 0.9rem;
+    height: 44px;
+  }
+}
+
 /* ── Modal ── */
 
 .modal-header {
@@ -131,21 +148,34 @@ ion-grid {
     background: #f0f6f1;
     border: 1.5px solid #507858;
 
-    ion-icon { color: #507858; }
-    .tap-hint { color: #507858; font-weight: 500; }
+    ion-icon {
+      color: #507858;
+    }
+
+    .tap-hint {
+      color: #507858;
+      font-weight: 500;
+    }
   }
 
   &.pendiente {
     background: #fafafa;
     border: 1.5px solid #e8e8e8;
 
-    ion-icon { color: #d0d0d0; }
+    ion-icon {
+      color: #d0d0d0;
+    }
   }
 
   &.actual {
     border-width: 2px;
 
-    &.pendiente { border-color: #550000; }
-    &.pagado { border-color: #507858; }
+    &.pendiente {
+      border-color: #550000;
+    }
+
+    &.pagado {
+      border-color: #507858;
+    }
   }
 }

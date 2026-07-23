@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonGrid, IonRow, IonCol, IonCard, IonCardContent } from '@ionic/angular/standalone';
+import { FormsModule } from '@angular/forms';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonSearchbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { people, checkmarkCircle, closeCircle, chevronForward } from 'ionicons/icons';
 import { AlumnoService } from '../services/alumno.service';
@@ -18,7 +19,7 @@ interface MesInfo {
   selector: 'app-tab3',
   templateUrl: 'tab3.page.html',
   styleUrls: ['tab3.page.scss'],
-  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonGrid, IonRow, IonCol, IonCard, IonCardContent],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonSearchbar],
 })
 export class Tab3Page {
   private alumnoService = inject(AlumnoService);
@@ -26,6 +27,7 @@ export class Tab3Page {
   selectedAlumno: Alumno | null = null;
   meses: MesInfo[] = [];
   isModalOpen = false;
+  busqueda = '';
 
   private readonly MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
@@ -33,8 +35,16 @@ export class Tab3Page {
     addIcons({ people, checkmarkCircle, closeCircle, chevronForward });
   }
 
-  ionViewWillEnter() {
+  ionViewDidEnter() {
     this.alumnos = this.alumnoService.getActivos();
+  }
+
+  get alumnosFiltrados(): Alumno[] {
+    if (!this.busqueda.trim()) return this.alumnos;
+    const term = this.busqueda.toLowerCase().trim();
+    return this.alumnos.filter(
+      (a) => a.nombre.toLowerCase().includes(term) || a.apellido.toLowerCase().includes(term)
+    );
   }
 
   abrirModal(alumno: Alumno) {
@@ -54,18 +64,13 @@ export class Tab3Page {
     const anioActual = ahora.getFullYear();
     this.meses = [];
 
-    for (let i = 11; i >= 0; i--) {
-      let m = mesActual - i;
-      let a = anioActual;
-      while (m <= 0) { m += 12; a--; }
-      while (m > 12) { m -= 12; a++; }
-
+    for (let m = 1; m <= 12; m++) {
       this.meses.push({
-        label: `${this.MESES[m - 1]} ${a}`,
+        label: `${this.MESES[m - 1]} ${anioActual}`,
         mes: m,
-        anio: a,
-        pagado: this.alumnoService.estaPagadoMes(alumno, m, a),
-        esActual: m === mesActual && a === anioActual,
+        anio: anioActual,
+        pagado: this.alumnoService.estaPagadoMes(alumno, m, anioActual),
+        esActual: m === mesActual,
       });
     }
   }

@@ -95,12 +95,13 @@
 
     <ion-row>
       <ion-col size="12">
-        <ion-card class="recomendacion-card" [class.positivo]="recomendacion.tipo === 'positivo'" [class.atencion]="recomendacion.tipo === 'atencion'" [class.info]="recomendacion.tipo === 'info'">
+        <ion-card class="recomendacion-card" [class.positivo]="recomendacion.tipo === 'positivo'"
+          [class.atencion]="recomendacion.tipo === 'atencion'" [class.info]="recomendacion.tipo === 'info'">
           <ion-card-header>
             <ion-icon name="bulb" class="icon-primary"></ion-icon>
             <ion-card-title>Recomendación</ion-card-title>
           </ion-card-header>
-          <ion-card-content>
+          <ion-card-content style="height: 60px;">
             <p>{{ recomendacion.texto }}</p>
             <div class="reco-badge">
               {{ recomendacion.tipo === 'positivo' ? 'OK' : recomendacion.tipo === 'atencion' ? '!' : 'i' }}

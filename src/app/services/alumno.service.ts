@@ -60,6 +60,15 @@ export class AlumnoService {
     this.actualizar(id, { activo: false });
   }
 
+  eliminarDefinitivo(id: number): void {
+    const alumnos = this.getAll().filter((a) => a.id !== id);
+    this.storage.setData(this.STORAGE_KEY, alumnos);
+  }
+
+  reactivar(id: number): void {
+    this.actualizar(id, { activo: true });
+  }
+
   togglePagoMes(id: number, mes: number, anio: number): Alumno | undefined {
     const alumno = this.getById(id);
     if (!alumno) return undefined;

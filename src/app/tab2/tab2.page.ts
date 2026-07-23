@@ -20,7 +20,7 @@ export class Tab2Page {
     addIcons({ calendar, checkmarkCircle, closeCircle, time });
   }
 
-  ionViewWillEnter() {
+  ionViewDidEnter() {
     this.cargar();
   }
 

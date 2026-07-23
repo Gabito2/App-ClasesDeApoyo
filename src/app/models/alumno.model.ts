@@ -8,6 +8,7 @@ export interface Pago {
 export interface Alumno {
   id: number;
   nombre: string;
+  apellido: string;
   diaEntrada: number;
   montoMensual: number;
   pagos: Pago[];

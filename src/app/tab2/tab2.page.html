@@ -20,7 +20,7 @@
       <ion-icon [name]="a.pagoAlDia ? 'checkmark-circle' : 'close-circle'" slot="start" [class.pagado]="a.pagoAlDia"
         [class.pendiente]="!a.pagoAlDia"></ion-icon>
       <ion-label>
-        <h2>{{ a.nombre }}</h2>
+        <h2>{{ a.nombre }} {{ a.apellido }}</h2>
         <p>Vence día {{ a.diaEntrada }} · ${{ a.montoMensual }}</p>
       </ion-label>
       <ion-badge slot="end" [color]="a.diasInfo.pasado ? 'danger' : 'warning'">

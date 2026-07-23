@@ -21,7 +21,7 @@ export class Tab4Page {
     addIcons({ statsChart, people, cash, checkmarkCircle, closeCircle, trendingUp, bulb });
   }
 
-  ionViewWillEnter() {
+  ionViewDidEnter() {
     this.stats = this.alumnoService.getStats();
     this.recomendacion = this.alumnoService.getRecomendacion();
   }
