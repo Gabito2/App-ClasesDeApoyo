@@ -1,0 +1,113 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Dashboard</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6">
+        <ion-card>
+          <ion-card-header>
+            <ion-icon name="people" class="icon-primary"></ion-icon>
+            <ion-card-title>Alumnos</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h1>{{ stats.total }}</h1>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="6">
+        <ion-card>
+          <ion-card-header>
+            <ion-icon name="checkmark-circle" class="icon-success"></ion-icon>
+            <ion-card-title>Pagaron</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h1>{{ stats.pagados }}</h1>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="6">
+        <ion-card>
+          <ion-card-header>
+            <ion-icon name="close-circle" class="icon-danger"></ion-icon>
+            <ion-card-title>Pendientes</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h1>{{ stats.pendientes }}</h1>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="6">
+        <ion-card>
+          <ion-card-header>
+            <ion-icon name="trending-up" class="icon-primary"></ion-icon>
+            <ion-card-title>Cobrado</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h1>${{ stats.montoCobrado }}</h1>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-card class="total-card">
+          <ion-card-header>
+            <ion-icon name="cash" class="icon-primary"></ion-icon>
+            <ion-card-title>Ingresos del mes</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h2>${{ totalMes }}</h2>
+            <div class="stat-row">
+              <div class="stat-item cobrado">
+                <span class="value">${{ stats.montoCobrado }}</span>
+                <span class="desc">Cobrado ({{ porcentajeCobro }}%)</span>
+              </div>
+              <div class="stat-item pendiente">
+                <span class="value">${{ stats.montoPendiente }}</span>
+                <span class="desc">Pendiente ({{ 100 - porcentajeCobro }}%)</span>
+              </div>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div class="fill" [style.width.%]="porcentajeCobro"></div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-card class="recomendacion-card" [class.positivo]="recomendacion.tipo === 'positivo'" [class.atencion]="recomendacion.tipo === 'atencion'" [class.info]="recomendacion.tipo === 'info'">
+          <ion-card-header>
+            <ion-icon name="bulb" class="icon-primary"></ion-icon>
+            <ion-card-title>Recomendación</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>{{ recomendacion.texto }}</p>
+            <div class="reco-badge">
+              {{ recomendacion.tipo === 'positivo' ? 'OK' : recomendacion.tipo === 'atencion' ? '!' : 'i' }}
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

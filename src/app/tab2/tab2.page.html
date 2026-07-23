@@ -1,17 +1,31 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
+    <ion-title>Vencimientos</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
+      <ion-title size="large">Vencimientos</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  @if (alumnos.length === 0) {
+  <div class="empty-state">No hay alumnos registrados</div>
+  }
+
+  <ion-list>
+    <ion-item *ngFor="let a of alumnos" class="vencimiento-item">
+      <ion-icon [name]="a.pagoAlDia ? 'checkmark-circle' : 'close-circle'" slot="start" [class.pagado]="a.pagoAlDia"
+        [class.pendiente]="!a.pagoAlDia"></ion-icon>
+      <ion-label>
+        <h2>{{ a.nombre }}</h2>
+        <p>Vence día {{ a.diaEntrada }} · ${{ a.montoMensual }}</p>
+      </ion-label>
+      <ion-badge slot="end" [color]="a.diasInfo.pasado ? 'danger' : 'warning'">
+        {{ a.diasInfo.texto }}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
 </ion-content>

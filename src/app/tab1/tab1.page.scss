@@ -1,0 +1,119 @@
+:host {
+  display: block;
+  padding-bottom: 8px;
+}
+
+.page-header {
+  padding: 20px 20px 0;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+}
+
+ion-card {
+  margin: 16px;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: none;
+  background: #ffffff;
+
+  ion-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 20px 0;
+
+    ion-icon {
+      font-size: 22px;
+      color: #550000;
+    }
+
+    ion-card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #2d2d2d;
+    }
+  }
+
+  ion-card-content {
+    padding: 12px 20px 20px;
+  }
+}
+
+ion-list {
+  background: transparent;
+  padding: 8px 16px;
+}
+
+ion-item {
+  --background: #ffffff;
+  --border-color: #f0f0f0;
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 16px;
+  --min-height: 56px;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.02);
+  border: none;
+
+  ion-label {
+    h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    p {
+      font-size: 0.8rem;
+      color: #8a8a8a;
+      font-weight: 400;
+    }
+  }
+}
+
+ion-button {
+  --background: #550000;
+  --background-hover: #6b1a1a;
+  --background-activated: #4a0000;
+  --border-radius: 12px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  height: 48px;
+  margin-top: 16px;
+  letter-spacing: 0.3px;
+  text-transform: none;
+}
+
+.calendario-item {
+  --min-height: 280px;
+  align-items: flex-start;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+
+  ion-label {
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  ion-datetime {
+    width: 100%;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+}
+
+ion-text p {
+  text-align: center;
+  margin-top: 12px;
+  font-weight: 500;
+  font-size: 0.85rem;
+}

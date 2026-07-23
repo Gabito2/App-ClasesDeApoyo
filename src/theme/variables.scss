@@ -1,2 +1,16 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+ion-toolbar {
+  --background: #550000;
+  --color: #ffffff;
+  --border-width: 0;
+  font-weight: 500;
+
+  ion-title {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+}
+
+ion-content ion-header ion-toolbar {
+  --background: var(--app-bg);
+  --color: #2d2d2d;
+}
