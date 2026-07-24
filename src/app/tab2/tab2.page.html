@@ -15,8 +15,23 @@
   <div class="empty-state">No hay alumnos registrados</div>
   }
 
+  @if (alumnos.length > 0) {
+  <div class="search-wrapper">
+    <ion-searchbar
+      [(ngModel)]="busqueda"
+      placeholder="Buscar alumno..."
+      debounce="200"
+      mode="ios"
+    ></ion-searchbar>
+  </div>
+  }
+
+  @if (alumnosFiltrados.length === 0 && busqueda.trim()) {
+  <div class="empty-state">No se encontraron resultados</div>
+  }
+
   <ion-list>
-    <ion-item *ngFor="let a of alumnos" class="vencimiento-item">
+    <ion-item *ngFor="let a of alumnosFiltrados" class="vencimiento-item">
       <ion-icon [name]="a.pagoAlDia ? 'checkmark-circle' : 'close-circle'" slot="start" [class.pagado]="a.pagoAlDia"
         [class.pendiente]="!a.pagoAlDia"></ion-icon>
       <ion-label>

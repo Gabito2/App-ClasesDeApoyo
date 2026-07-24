@@ -12,15 +12,25 @@
   </ion-header>
 
   @if (alumnos.length === 0) {
-    <div class="empty-state">
-      <ion-icon name="person-add"></ion-icon>
-      <p>No hay alumnos registrados</p>
-      <p class="hint">Tocá el botón + para agregar uno</p>
-    </div>
+  <div class="empty-state">
+    <ion-icon name="person-add"></ion-icon>
+    <p>No hay alumnos registrados</p>
+    <p class="hint">Tocá el botón + para agregar uno</p>
+  </div>
+  }
+
+  @if (alumnos.length > 0) {
+  <div class="search-wrapper">
+    <ion-searchbar [(ngModel)]="busqueda" placeholder="Buscar alumno..." debounce="200" mode="ios"></ion-searchbar>
+  </div>
+  }
+
+  @if (alumnosFiltrados.length === 0 && busqueda.trim()) {
+  <div class="empty-state">No se encontraron resultados</div>
   }
 
   <ion-list>
-    <ion-item *ngFor="let a of alumnos" class="alumno-card">
+    <ion-item *ngFor="let a of alumnosFiltrados" class="alumno-card">
       <div class="card-content">
         <div class="card-main">
           <div class="avatar">{{ a.nombre.charAt(0) }}{{ a.apellido.charAt(0) }}</div>
@@ -56,21 +66,13 @@
       <ion-content>
         <div class="form-wrapper">
           <ion-item>
-            <ion-label position="floating">Nombre</ion-label>
-            <ion-input [(ngModel)]="formNombre" type="text"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Apellido</ion-label>
-            <ion-input [(ngModel)]="formApellido" type="text"></ion-input>
+            <ion-label position="floating">Nombre y apellido</ion-label>
+            <ion-input [(ngModel)]="formNombreCompleto" type="text"></ion-input>
           </ion-item>
           <ion-item class="calendario-item">
-            <ion-label position="stacked">Día de pago</ion-label>
-            <ion-datetime
-              [value]="formFecha"
-              presentation="date"
-              (ionChange)="onFechaChange($event)"
-              locale="es-AR"
-            ></ion-datetime>
+            <ion-label style="font-size: 24px;" position="stacked">Día de pago</ion-label>
+            <ion-datetime class="calendario" [value]="formFecha" presentation="date" (ionChange)="onFechaChange($event)"
+              locale="es-AR"></ion-datetime>
           </ion-item>
           <ion-item>
             <ion-label position="floating">Monto mensual ($)</ion-label>
@@ -82,9 +84,9 @@
           </ion-button>
 
           @if (mensaje) {
-            <ion-text [color]="mensaje.includes('actualizado') || mensaje.includes('agregado') ? 'success' : 'danger'">
-              <p class="form-msg">{{ mensaje }}</p>
-            </ion-text>
+          <ion-text [color]="mensaje.includes('actualizado') || mensaje.includes('agregado') ? 'success' : 'danger'">
+            <p class="form-msg">{{ mensaje }}</p>
+          </ion-text>
           }
         </div>
       </ion-content>
@@ -92,9 +94,6 @@
   </ion-modal>
 
   <!-- Action Sheet -->
-  <ion-action-sheet
-    [isOpen]="showActions"
-    [buttons]="actionSheetButtons"
-    (didDismiss)="showActions = false"
-  ></ion-action-sheet>
+  <ion-action-sheet [isOpen]="showActions" [buttons]="actionSheetButtons"
+    (didDismiss)="showActions = false"></ion-action-sheet>
 </ion-content>

@@ -77,7 +77,10 @@ export class Tab3Page {
 
   toggleMes(mes: MesInfo) {
     if (!this.selectedAlumno) return;
-    this.alumnoService.togglePagoMes(this.selectedAlumno.id, mes.mes, mes.anio);
+    const actualizado = this.alumnoService.togglePagoMes(this.selectedAlumno.id, mes.mes, mes.anio);
+    if (actualizado) {
+      this.selectedAlumno = actualizado;
+    }
     mes.pagado = !mes.pagado;
   }
 

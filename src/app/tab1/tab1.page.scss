@@ -161,19 +161,25 @@ ion-button.save-btn {
 }
 
 .calendario-item {
+  height: 400px;
   --min-height: 260px;
   align-items: flex-start;
 
   ion-label {
     margin-bottom: 8px;
     font-size: 0.85rem;
-    color: #666;
+    color: #4a0000;
   }
 
   ion-datetime {
     width: 100%;
-    border: 1px solid #f0f0f0;
+    border: 1px solid #550000;
     border-radius: 10px;
     overflow: hidden;
+    margin-top: 10px;
   }
+}
+
+.calendario {
+  height: 80%;
 }

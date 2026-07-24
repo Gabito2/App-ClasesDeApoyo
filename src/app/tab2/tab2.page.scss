@@ -33,8 +33,14 @@ ion-list {
 
   ion-icon {
     font-size: 22px;
-    &.pagado { color: #507858; }
-    &.pendiente { color: #c0392b; }
+
+    &.pagado {
+      color: #507858;
+    }
+
+    &.pendiente {
+      color: #c0392b;
+    }
   }
 
   h2 {

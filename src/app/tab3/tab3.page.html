@@ -17,12 +17,7 @@
 
   @if (alumnos.length > 0) {
   <div class="search-wrapper">
-    <ion-searchbar
-      [(ngModel)]="busqueda"
-      placeholder="Buscar alumno..."
-      debounce="200"
-      mode="ios"
-    ></ion-searchbar>
+    <ion-searchbar [(ngModel)]="busqueda" placeholder="Buscar alumno..." debounce="200" mode="ios"></ion-searchbar>
   </div>
   }
 
@@ -37,7 +32,7 @@
         <h2>{{ a.nombre }} {{ a.apellido }}</h2>
         <p>${{ a.montoMensual }} / mes</p>
       </ion-label>
-      <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+      <ion-icon style="color: #550000;" name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
     </ion-item>
   </ion-list>
 
