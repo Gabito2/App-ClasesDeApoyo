@@ -1,10 +1,15 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>Alumnos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="abrirModalNuevo()">
+        <ion-icon style="color: white;" name="person-add" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" style="--padding-bottom: 80px">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Alumnos</ion-title>
@@ -15,7 +20,7 @@
   <div class="empty-state">
     <ion-icon name="person-add"></ion-icon>
     <p>No hay alumnos registrados</p>
-    <p class="hint">Tocá el botón + para agregar uno</p>
+    <p class="hint">Tocá el botón + de arriba para agregar uno</p>
   </div>
   }
 
@@ -46,21 +51,15 @@
     </ion-item>
   </ion-list>
 
-  <ion-fab slot="fixed" horizontal="end" vertical="bottom">
-    <ion-fab-button (click)="abrirModalNuevo()">
-      <ion-icon name="person-add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-
   <!-- Modal Agregar / Editar -->
   <ion-modal [isOpen]="isModalOpen" (didDismiss)="cerrarModal()">
     <ng-template>
       <ion-header class="modal-header">
         <ion-toolbar>
           <ion-title>{{ editando ? 'Editar Alumno' : 'Nuevo Alumno' }}</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="cerrarModal()">Cancelar</ion-button>
-          </ion-buttons>
+          <!-- <ion-buttons slot="end">
+            <ion-button style="background-color: aliceblue;" (click)="cerrarModal()">Cancelar</ion-button>
+          </ion-buttons> -->
         </ion-toolbar>
       </ion-header>
       <ion-content>

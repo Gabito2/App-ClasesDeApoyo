@@ -1,4 +1,4 @@
-package com.clasesapoyo.app;
+package com.clases;
 
 import com.getcapacitor.BridgeActivity;
 

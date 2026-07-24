@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonFab, IonFabButton, IonActionSheet, IonInput, IonText, IonDatetime, IonSearchbar } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonActionSheet, IonInput, IonText, IonDatetime, IonSearchbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { personAdd, chevronForward, create, trash, close, calendar, cash, ellipsisVertical, personRemove, eye, search } from 'ionicons/icons';
 import { AlumnoService } from '../services/alumno.service';
@@ -11,7 +11,7 @@ import { Alumno } from '../models/alumno.model';
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonFab, IonFabButton, IonActionSheet, IonInput, IonText, IonDatetime, IonSearchbar],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonActionSheet, IonInput, IonText, IonDatetime, IonSearchbar, IonButtons],
 })
 export class Tab1Page {
   private alumnoService = inject(AlumnoService);

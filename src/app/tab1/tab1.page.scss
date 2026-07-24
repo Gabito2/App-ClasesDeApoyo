@@ -1,6 +1,5 @@
 :host {
   display: block;
-  padding-bottom: 80px;
 }
 
 ion-list {
@@ -106,19 +105,6 @@ ion-list {
     color: #d0d0d0;
     margin-top: 8px;
   }
-}
-
-/* ── FAB ── */
-
-ion-fab-button {
-  --background: #550000;
-  --background-hover: #6b1a1a;
-  --background-activated: #4a0000;
-  --box-shadow: 0 4px 16px rgba(85, 0, 0, 0.3);
-  --border-radius: 16px;
-  width: 56px;
-  height: 56px;
-  margin-bottom: 16px;
 }
 
 /* ── Modal ── */

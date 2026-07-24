@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Clases de Apoyo</string>
-    <string name="title_activity_main">Clases de Apoyo</string>
-    <string name="package_name">com.clasesapoyo.app</string>
-    <string name="custom_url_scheme">com.clasesapoyo.app</string>
+    <string name="app_name">Clases de apoyo</string>
+    <string name="title_activity_main">Clases de apoyo</string>
+    <string name="package_name">com.clases</string>
+    <string name="custom_url_scheme">com.clases</string>
 </resources>
