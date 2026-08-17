@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonSearchbar } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSearchbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { people, checkmarkCircle, closeCircle, chevronForward } from 'ionicons/icons';
+import { people, checkmarkCircle, closeCircle, chevronForward, chevronBack } from 'ionicons/icons';
 import { AlumnoService } from '../services/alumno.service';
-import { Alumno } from '../models/alumno.model';
+import { Alumno, HistorialMonto } from '../models/alumno.model';
+import { NotificationService } from '../services/notification.service';
 
 interface MesInfo {
   label: string;
@@ -19,20 +20,22 @@ interface MesInfo {
   selector: 'app-tab3',
   templateUrl: 'tab3.page.html',
   styleUrls: ['tab3.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonSearchbar],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSearchbar],
 })
 export class Tab3Page {
   private alumnoService = inject(AlumnoService);
+  private notificationService = inject(NotificationService);
   alumnos: Alumno[] = [];
   selectedAlumno: Alumno | null = null;
   meses: MesInfo[] = [];
   isModalOpen = false;
   busqueda = '';
+  anioSeleccionado = new Date().getFullYear();
 
   private readonly MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   constructor() {
-    addIcons({ people, checkmarkCircle, closeCircle, chevronForward });
+    addIcons({ people, checkmarkCircle, closeCircle, chevronForward, chevronBack });
   }
 
   ionViewDidEnter() {
@@ -49,8 +52,14 @@ export class Tab3Page {
 
   abrirModal(alumno: Alumno) {
     this.selectedAlumno = alumno;
+    this.anioSeleccionado = new Date().getFullYear();
     this.generarMeses(alumno);
     this.isModalOpen = true;
+  }
+
+  cambiarAnio(delta: number) {
+    this.anioSeleccionado += delta;
+    if (this.selectedAlumno) this.generarMeses(this.selectedAlumno);
   }
 
   cerrarModal() {
@@ -62,15 +71,16 @@ export class Tab3Page {
     const ahora = new Date();
     const mesActual = ahora.getMonth() + 1;
     const anioActual = ahora.getFullYear();
+    const anio = this.anioSeleccionado;
     this.meses = [];
 
     for (let m = 1; m <= 12; m++) {
       this.meses.push({
-        label: `${this.MESES[m - 1]} ${anioActual}`,
+        label: `${this.MESES[m - 1]} ${anio}`,
         mes: m,
-        anio: anioActual,
-        pagado: this.alumnoService.estaPagadoMes(alumno, m, anioActual),
-        esActual: m === mesActual,
+        anio,
+        pagado: this.alumnoService.estaPagadoMes(alumno, m, anio),
+        esActual: m === mesActual && anio === anioActual,
       });
     }
   }
@@ -82,9 +92,15 @@ export class Tab3Page {
       this.selectedAlumno = actualizado;
     }
     mes.pagado = !mes.pagado;
+    this.notificationService.checkAndSchedule();
   }
 
   get pagados(): number {
     return this.meses.filter((m) => m.pagado).length;
+  }
+
+  get historialRecientes(): HistorialMonto[] {
+    if (!this.selectedAlumno?.historialMontos) return [];
+    return [...this.selectedAlumno.historialMontos].reverse();
   }
 }

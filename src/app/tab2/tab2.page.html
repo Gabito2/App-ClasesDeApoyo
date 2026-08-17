@@ -36,7 +36,7 @@
         [class.pendiente]="!a.pagoAlDia"></ion-icon>
       <ion-label>
         <h2>{{ a.nombre }} {{ a.apellido }}</h2>
-        <p>Vence día {{ a.diaEntrada }} · ${{ a.montoMensual }}</p>
+        <p>Vence día {{ a.diaEntrada }} · ${{ a.montoMensual | number }}</p>
       </ion-label>
       <ion-badge slot="end" [color]="a.diasInfo.pasado ? 'danger' : 'warning'">
         {{ a.diasInfo.texto }}

@@ -1,0 +1,38 @@
+import { Injectable } from '@angular/core';
+
+export interface AppSettings {
+  diasAnticipacion: number;
+  horaNotificacion: string; // formato 'HH:MM'
+}
+
+const DEFAULTS: AppSettings = {
+  diasAnticipacion: 3,
+  horaNotificacion: '12:00',
+};
+
+@Injectable({ providedIn: 'root' })
+export class SettingsService {
+  private readonly STORAGE_KEY = 'app_settings';
+
+  get(): AppSettings {
+    try {
+      const data = localStorage.getItem(this.STORAGE_KEY);
+      if (!data) return { ...DEFAULTS };
+      const parsed = JSON.parse(data);
+      return { ...DEFAULTS, ...parsed };
+    } catch {
+      return { ...DEFAULTS };
+    }
+  }
+
+  set(cambios: Partial<AppSettings>): AppSettings {
+    const actual = this.get();
+    const nuevo = { ...actual, ...cambios };
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(nuevo));
+    } catch {
+      console.error('Error guardando la configuración');
+    }
+    return nuevo;
+  }
+}

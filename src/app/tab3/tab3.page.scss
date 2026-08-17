@@ -109,6 +109,72 @@ ion-list {
   }
 }
 
+.historial-card {
+  margin: 0 16px 12px;
+  border-radius: 12px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  box-shadow: none;
+
+  ion-card-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8a8a8a;
+  }
+
+  .historial-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    span:first-child {
+      font-weight: 600;
+      color: #550000;
+      font-size: 0.9rem;
+    }
+
+    .historial-fecha {
+      font-size: 0.75rem;
+      color: #8a8a8a;
+      font-weight: 400;
+    }
+  }
+}
+
+.anio-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px 4px;
+
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    --color: #550000;
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+
+  .anio-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    min-width: 64px;
+    text-align: center;
+  }
+}
+
 ion-grid {
   padding: 8px 12px;
 }

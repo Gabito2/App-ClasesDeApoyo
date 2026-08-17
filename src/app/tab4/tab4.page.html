@@ -58,7 +58,7 @@
             <ion-card-title>Cobrado</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <h1>${{ stats.montoCobrado }}</h1>
+            <h1>${{ stats.montoCobrado | number }}</h1>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -72,14 +72,14 @@
             <ion-card-title>Ingresos del mes</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <h2>${{ totalMes }}</h2>
+            <h2>${{ totalMes | number }}</h2>
             <div class="stat-row">
               <div class="stat-item cobrado">
-                <span class="value">${{ stats.montoCobrado }}</span>
+                <span class="value">${{ stats.montoCobrado | number }}</span>
                 <span class="desc">Cobrado ({{ porcentajeCobro }}%)</span>
               </div>
               <div class="stat-item pendiente">
-                <span class="value">${{ stats.montoPendiente }}</span>
+                <span class="value">${{ stats.montoPendiente | number }}</span>
                 <span class="desc">Pendiente ({{ 100 - porcentajeCobro }}%)</span>
               </div>
             </div>
@@ -88,6 +88,32 @@
                 <div class="fill" [style.width.%]="porcentajeCobro"></div>
               </div>
             </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-card class="historial-card">
+          <ion-card-header>
+            <ion-icon name="stats-chart" class="icon-primary"></ion-icon>
+            <ion-card-title>Ingresos últimos 6 meses</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            @if (historial.length > 0) {
+            <div class="chart">
+              <div class="bar-col" *ngFor="let h of historial">
+                <div class="bar-value">${{ h.total | number }}</div>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.height.%]="(h.total / maxIngreso) * 100"></div>
+                </div>
+                <div class="bar-label">{{ MESES_CORTOS[h.mes - 1] }} '{{ h.anio % 100 }}</div>
+              </div>
+            </div>
+            } @else {
+            <p class="chart-empty">Sin datos todavía</p>
+            }
           </ion-card-content>
         </ion-card>
       </ion-col>

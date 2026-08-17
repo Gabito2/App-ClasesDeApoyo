@@ -16,6 +16,9 @@ export class Tab4Page {
 
   stats = { total: 0, pagados: 0, pendientes: 0, montoCobrado: 0, montoPendiente: 0 };
   recomendacion = { texto: '', tipo: 'info' as 'positivo' | 'atencion' | 'info' };
+  historial: { mes: number; anio: number; total: number }[] = [];
+
+  readonly MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
   constructor() {
     addIcons({ statsChart, people, cash, checkmarkCircle, closeCircle, trendingUp, bulb });
@@ -24,6 +27,11 @@ export class Tab4Page {
   ionViewDidEnter() {
     this.stats = this.alumnoService.getStats();
     this.recomendacion = this.alumnoService.getRecomendacion();
+    this.historial = this.alumnoService.getHistorialIngresos(6);
+  }
+
+  get maxIngreso(): number {
+    return Math.max(...this.historial.map((h) => h.total), 1);
   }
 
   get porcentajeCobro(): number {

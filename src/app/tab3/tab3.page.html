@@ -30,7 +30,7 @@
       <ion-icon name="people" slot="start"></ion-icon>
       <ion-label>
         <h2>{{ a.nombre }} {{ a.apellido }}</h2>
-        <p>${{ a.montoMensual }} / mes</p>
+        <p>${{ a.montoMensual | number }} / mes</p>
       </ion-label>
       <ion-icon style="color: #550000;" name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
     </ion-item>
@@ -51,10 +51,34 @@
           <ion-card-content>
             <div class="resumen">
               <span>Pagados: <strong>{{ pagados }}/12</strong></span>
-              <span>Cuota: <strong>${{ selectedAlumno?.montoMensual }}</strong></span>
+              <span>Cuota: <strong>${{ selectedAlumno?.montoMensual | number }}</strong></span>
             </div>
           </ion-card-content>
         </ion-card>
+
+        @if (historialRecientes.length > 0) {
+        <ion-card class="historial-card">
+          <ion-card-header>
+            <ion-card-title>Historial de cuotas</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="historial-item" *ngFor="let h of historialRecientes">
+              <span>${{ h.monto | number }}</span>
+              <span class="historial-fecha">{{ h.fecha | date: 'dd/MM/yyyy' }}</span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+        }
+
+        <div class="anio-nav">
+          <ion-button fill="clear" (click)="cambiarAnio(-1)">
+            <ion-icon name="chevron-back" slot="icon-only"></ion-icon>
+          </ion-button>
+          <span class="anio-label">{{ anioSeleccionado }}</span>
+          <ion-button fill="clear" (click)="cambiarAnio(1)">
+            <ion-icon name="chevron-forward" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
 
         <ion-grid>
           <ion-row>

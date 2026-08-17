@@ -1,0 +1,107 @@
+:host {
+  display: block;
+}
+
+.settings-list {
+  background: transparent;
+  padding: 8px 12px;
+
+  ion-list-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #550000;
+    padding-inline-start: 4px;
+  }
+
+  ion-item {
+    --background: #ffffff;
+    --border-radius: 12px;
+    --padding-start: 14px;
+    --padding-end: 14px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.02);
+
+    ion-icon[slot="start"] {
+      font-size: 20px;
+      color: #550000;
+    }
+
+    ion-label h2 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    ion-label p {
+      font-size: 0.78rem;
+      color: #8a8a8a;
+      white-space: normal;
+    }
+
+    ion-range {
+      --bar-background: #e8e8e8;
+      --bar-background-active: #550000;
+      --knob-background: #550000;
+      --pin-background: #550000;
+      width: 160px;
+    }
+
+    ion-input[type="time"] {
+      max-width: 110px;
+      text-align: right;
+      font-weight: 600;
+      color: #550000;
+    }
+  }
+}
+
+/* ── Modales ── */
+
+.modal-header {
+  --background: #550000;
+  --color: #ffffff;
+
+  ion-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+}
+
+.form-wrapper {
+  padding: 16px;
+
+  .hint {
+    font-size: 0.85rem;
+    color: #8a8a8a;
+    margin: 0 0 12px;
+  }
+
+  .json-area {
+    --background: #fafafa;
+    --border-radius: 10px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    border: 1px solid #e8e8e8;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 0.75rem;
+    min-height: 220px;
+    width: 100%;
+  }
+
+  .btn-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+
+    ion-button {
+      --border-radius: 12px;
+      font-weight: 600;
+      text-transform: none;
+    }
+  }
+}

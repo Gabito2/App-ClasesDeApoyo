@@ -7,6 +7,41 @@ ion-list {
   padding: 8px 16px;
 }
 
+.estado-segment {
+  margin: 12px 16px 4px;
+  --background: #f0e8e8;
+  --color: #8a8a8a;
+  --color-checked: #ffffff;
+  --background-checked: #550000;
+  --border-radius: 10px;
+}
+
+.search-wrapper {
+  margin-top: 8px;
+}
+
+.sort-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 20px 4px;
+
+  .sort-label {
+    font-size: 0.78rem;
+    color: #8a8a8a;
+  }
+
+  .sort-select {
+    --padding-start: 4px;
+    --padding-end: 8px;
+    max-width: 150px;
+    font-size: 0.8rem;
+    color: #550000;
+    font-weight: 600;
+  }
+}
+
 .alumno-card {
   --background: #ffffff;
   --border-radius: 14px;

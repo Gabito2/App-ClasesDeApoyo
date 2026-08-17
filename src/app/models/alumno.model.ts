@@ -5,6 +5,11 @@ export interface Pago {
   fechaPago?: string;
 }
 
+export interface HistorialMonto {
+  monto: number;
+  fecha: string;
+}
+
 export interface Alumno {
   id: number;
   nombre: string;
@@ -13,4 +18,5 @@ export interface Alumno {
   montoMensual: number;
   pagos: Pago[];
   activo: boolean;
+  historialMontos?: HistorialMonto[];
 }

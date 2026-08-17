@@ -1,12 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Alumno, Pago } from '../models/alumno.model';
 import { StorageService } from './storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class AlumnoService {
   private readonly STORAGE_KEY = 'alumnos';
-
-  constructor(private storage: StorageService) { }
+  private storage = inject(StorageService);
 
   getAll(): Alumno[] {
     const data = this.storage.getData<any>(this.STORAGE_KEY);
@@ -22,6 +21,7 @@ export class AlumnoService {
       const anio = new Date().getFullYear();
       a.pagos = [{ mes, anio, pagado: a.pagado ?? false, fechaPago: a.fechaPago }];
     }
+    if (!a.historialMontos) a.historialMontos = [];
     return a as Alumno;
   }
 
@@ -36,11 +36,15 @@ export class AlumnoService {
   crear(alumno: Omit<Alumno, 'id' | 'activo' | 'pagos'>): Alumno {
     const alumnos = this.getAll();
     const ahora = new Date();
+    // Evita colisiones de ID si dos alumnos se crean en el mismo milisegundo
+    let id = Date.now();
+    while (alumnos.some((a) => a.id === id)) id++;
     const nuevo: Alumno = {
       ...alumno,
-      id: Date.now(),
+      id,
       activo: true,
       pagos: [{ mes: ahora.getMonth() + 1, anio: ahora.getFullYear(), pagado: false }],
+      historialMontos: [{ monto: alumno.montoMensual, fecha: ahora.toISOString() }],
     };
     alumnos.push(nuevo);
     this.storage.setData(this.STORAGE_KEY, alumnos);
@@ -51,6 +55,14 @@ export class AlumnoService {
     const alumnos = this.getAll();
     const idx = alumnos.findIndex((a) => a.id === id);
     if (idx === -1) return undefined;
+
+    // Si cambia el monto, se guarda el valor anterior en el historial de cuotas
+    if (cambios.montoMensual !== undefined && cambios.montoMensual !== alumnos[idx].montoMensual) {
+      const historial = alumnos[idx].historialMontos ?? [];
+      historial.push({ monto: alumnos[idx].montoMensual, fecha: new Date().toISOString() });
+      alumnos[idx].historialMontos = historial;
+    }
+
     alumnos[idx] = { ...alumnos[idx], ...cambios };
     this.storage.setData(this.STORAGE_KEY, alumnos);
     return alumnos[idx];
@@ -107,6 +119,62 @@ export class AlumnoService {
     };
   }
 
+  getHistorialIngresos(meses: number = 6): { mes: number; anio: number; total: number }[] {
+    const alumnos = this.getAll();
+    const ahora = new Date();
+    const resultado: { mes: number; anio: number; total: number }[] = [];
+
+    for (let i = meses - 1; i >= 0; i--) {
+      const fecha = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1);
+      const mes = fecha.getMonth() + 1;
+      const anio = fecha.getFullYear();
+      const total = alumnos
+        .filter((a) => this.estaPagadoMes(a, mes, anio))
+        .reduce((sum, a) => sum + a.montoMensual, 0);
+      resultado.push({ mes, anio, total });
+    }
+    return resultado;
+  }
+
+  exportar(): string {
+    return JSON.stringify({ version: 1, exportado: new Date().toISOString(), alumnos: this.getAll() }, null, 2);
+  }
+
+  importar(json: string, reemplazar: boolean): { ok: boolean; cantidad: number; error?: string } {
+    try {
+      const parsed = JSON.parse(json);
+      const lista: any[] = Array.isArray(parsed) ? parsed : parsed?.alumnos;
+      if (!Array.isArray(lista) || lista.length === 0) {
+        return { ok: false, cantidad: 0, error: 'El archivo no contiene alumnos válidos' };
+      }
+
+      const validos = lista
+        .filter((a: any) => a && typeof a.id === 'number' && typeof a.nombre === 'string')
+        .map((a: any) => this.migrar(a));
+
+      if (validos.length === 0) {
+        return { ok: false, cantidad: 0, error: 'No se encontraron alumnos válidos en el archivo' };
+      }
+
+      if (reemplazar) {
+        this.storage.setData(this.STORAGE_KEY, validos);
+      } else {
+        const actuales = this.getAll();
+        const ids = new Set(actuales.map((a) => a.id));
+        for (const alumno of validos) {
+          if (!ids.has(alumno.id)) {
+            actuales.push(alumno);
+            ids.add(alumno.id);
+          }
+        }
+        this.storage.setData(this.STORAGE_KEY, actuales);
+      }
+      return { ok: true, cantidad: validos.length };
+    } catch {
+      return { ok: false, cantidad: 0, error: 'El archivo no es un JSON válido' };
+    }
+  }
+
   getRecomendacion(): { texto: string; tipo: 'positivo' | 'atencion' | 'info' } {
     const activos = this.getActivos();
     const ahora = new Date();
@@ -120,7 +188,7 @@ export class AlumnoService {
     const sinPagar = activos.filter((a) => !this.estaPagadoMes(a, mes, anio));
     if (sinPagar.length === 0) {
       const totalMes = activos.reduce((s, a) => s + a.montoMensual, 0);
-      return { texto: `¡Todos pagaron! Ingreso del mes: $${totalMes}`, tipo: 'positivo' };
+      return { texto: `¡Todos pagaron! Ingreso del mes: $${totalMes.toLocaleString('es-AR')}`, tipo: 'positivo' };
     }
 
     if (sinPagar.length === 1) {

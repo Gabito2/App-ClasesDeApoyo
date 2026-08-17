@@ -1,11 +1,13 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>Alumnos</ion-title>
+    @if (filtroEstado === 'activos') {
     <ion-buttons slot="end">
       <ion-button (click)="abrirModalNuevo()">
         <ion-icon style="color: white;" name="person-add" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 
@@ -16,17 +18,37 @@
     </ion-toolbar>
   </ion-header>
 
+  @if (hayAlumnosTotal) {
+  <ion-segment [(ngModel)]="filtroEstado" (ionChange)="cargar()" class="estado-segment">
+    <ion-segment-button value="activos">Activos</ion-segment-button>
+    <ion-segment-button value="inactivos">Inactivos</ion-segment-button>
+  </ion-segment>
+  }
+
   @if (alumnos.length === 0) {
   <div class="empty-state">
     <ion-icon name="person-add"></ion-icon>
+    @if (filtroEstado === 'activos') {
     <p>No hay alumnos registrados</p>
     <p class="hint">Tocá el botón + de arriba para agregar uno</p>
+    } @else {
+    <p>No hay alumnos dados de baja</p>
+    }
   </div>
   }
 
   @if (alumnos.length > 0) {
   <div class="search-wrapper">
     <ion-searchbar [(ngModel)]="busqueda" placeholder="Buscar alumno..." debounce="200" mode="ios"></ion-searchbar>
+  </div>
+
+  <div class="sort-wrapper">
+    <ion-label class="sort-label">Ordenar</ion-label>
+    <ion-select [(ngModel)]="orden" interface="popover" class="sort-select">
+      <ion-select-option value="nombre">Nombre</ion-select-option>
+      <ion-select-option value="dia">Día de pago</ion-select-option>
+      <ion-select-option value="monto">Monto</ion-select-option>
+    </ion-select>
   </div>
   }
 
@@ -41,7 +63,7 @@
           <div class="avatar">{{ a.nombre.charAt(0) }}{{ a.apellido.charAt(0) }}</div>
           <div class="info">
             <h2>{{ a.nombre }} {{ a.apellido }}</h2>
-            <p>${{ a.montoMensual }} / mes · Día {{ a.diaEntrada }}</p>
+            <p>${{ a.montoMensual | number }} / mes · Día {{ a.diaEntrada }}</p>
           </div>
         </div>
         <ion-button fill="clear" class="menu-btn" (click)="abrirAcciones(a, $event)">
@@ -57,9 +79,6 @@
       <ion-header class="modal-header">
         <ion-toolbar>
           <ion-title>{{ editando ? 'Editar Alumno' : 'Nuevo Alumno' }}</ion-title>
-          <!-- <ion-buttons slot="end">
-            <ion-button style="background-color: aliceblue;" (click)="cerrarModal()">Cancelar</ion-button>
-          </ion-buttons> -->
         </ion-toolbar>
       </ion-header>
       <ion-content>
@@ -81,12 +100,6 @@
           <ion-button expand="full" (click)="guardar()" class="save-btn">
             {{ editando ? 'Guardar Cambios' : 'Agregar Alumno' }}
           </ion-button>
-
-          @if (mensaje) {
-          <ion-text [color]="mensaje.includes('actualizado') || mensaje.includes('agregado') ? 'success' : 'danger'">
-            <p class="form-msg">{{ mensaje }}</p>
-          </ion-text>
-          }
         </div>
       </ion-content>
     </ng-template>
@@ -95,4 +108,11 @@
   <!-- Action Sheet -->
   <ion-action-sheet [isOpen]="showActions" [buttons]="actionSheetButtons"
     (didDismiss)="showActions = false"></ion-action-sheet>
+
+  <!-- Confirmación eliminación definitiva -->
+  <ion-alert [isOpen]="isAlertOpen" header="Eliminar alumno"
+    [message]="'Se eliminarán permanentemente ' + (alumnoAEliminar?.nombre || '') + ' y todo su historial de pagos. Esta acción no se puede deshacer.'"
+    [buttons]="alertButtons" (didDismiss)="isAlertOpen = false"></ion-alert>
+
+  <ion-toast [isOpen]="toastOpen" [message]="toastMsg" [duration]="2000" (didDismiss)="toastOpen = false"></ion-toast>
 </ion-content>
