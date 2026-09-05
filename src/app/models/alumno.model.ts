@@ -18,5 +18,6 @@ export interface Alumno {
   montoMensual: number;
   pagos: Pago[];
   activo: boolean;
+  telefono?: string;
   historialMontos?: HistorialMonto[];
 }

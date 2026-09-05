@@ -13,6 +13,20 @@
 
   <ion-list class="settings-list">
     <ion-list-header>
+      <ion-label>Apariencia</ion-label>
+    </ion-list-header>
+
+    <ion-radio-group [(ngModel)]="temaSeleccionado" (ionChange)="cambiarTema($event)">
+      @for (t of temas; track t.id) {
+      <ion-item>
+        <div slot="start" class="color-dot" [style.background]="t.primario"></div>
+        <ion-label>{{ t.nombre }}</ion-label>
+        <ion-radio slot="end" [value]="t.id"></ion-radio>
+      </ion-item>
+      }
+    </ion-radio-group>
+
+    <ion-list-header>
       <ion-label>Notificaciones</ion-label>
     </ion-list-header>
 
@@ -34,6 +48,19 @@
     </ion-item>
 
     <ion-list-header>
+      <ion-label>Widget</ion-label>
+    </ion-list-header>
+
+    <ion-item button (click)="anclarWidget()">
+      <ion-icon name="apps" slot="start"></ion-icon>
+      <ion-label>
+        <h2>Agregar widget a la pantalla de inicio</h2>
+        <p>Muestra quién tiene la cuota vencida o por vencer</p>
+      </ion-label>
+      <ion-icon name="chevron-forward" slot="end"></ion-icon>
+    </ion-item>
+
+    <ion-list-header>
       <ion-label>Datos</ion-label>
     </ion-list-header>
 
@@ -43,9 +70,15 @@
       <ion-icon name="chevron-forward" slot="end"></ion-icon>
     </ion-item>
 
+    <ion-item button (click)="exportarCSV()">
+      <ion-icon name="document" slot="start"></ion-icon>
+      <ion-label>Exportar alumnos (CSV)</ion-label>
+      <ion-icon name="chevron-forward" slot="end"></ion-icon>
+    </ion-item>
+
     <ion-item button (click)="solicitarImportar()">
       <ion-icon name="cloud-upload" slot="start"></ion-icon>
-      <ion-label>Importar respaldo (JSON)</ion-label>
+      <ion-label>Importar respaldo (JSON o CSV)</ion-label>
       <ion-icon name="chevron-forward" slot="end"></ion-icon>
     </ion-item>
 
@@ -69,14 +102,14 @@
       </ion-header>
       <ion-content>
         <div class="form-wrapper">
-          <p class="hint">Copiá o compartí este JSON para guardar un respaldo de tus datos.</p>
+          <p class="hint">Se genera un archivo .json con tus datos para compartir o guardar. También podés copiar el contenido.</p>
           <ion-textarea [value]="jsonExport" readonly class="json-area"></ion-textarea>
           <div class="btn-row">
             <ion-button expand="block" fill="outline" (click)="copiar()">
               <ion-icon name="copy" slot="start"></ion-icon> Copiar
             </ion-button>
             <ion-button expand="block" (click)="compartir()">
-              <ion-icon name="share-social" slot="start"></ion-icon> Compartir
+              <ion-icon name="share-social" slot="start"></ion-icon> Compartir archivo
             </ion-button>
           </div>
         </div>
@@ -97,7 +130,12 @@
       </ion-header>
       <ion-content>
         <div class="form-wrapper">
-          <p class="hint">Pegá el JSON del respaldo exportado y elegí cómo importarlo.</p>
+          <p class="hint">Pegá el JSON del respaldo o elegí un archivo .json o .csv exportado.</p>
+          <input #archivoInput type="file" accept=".json,.csv,application/json,text/csv" hidden
+            (change)="onArchivoSeleccionado($event)" />
+          <ion-button expand="block" fill="outline" (click)="archivoInput.click()">
+            <ion-icon name="document" slot="start"></ion-icon> Elegir archivo (.json o .csv)
+          </ion-button>
           <ion-textarea [(ngModel)]="jsonImport" class="json-area"
             placeholder='{"version":1,"alumnos":[...]}'></ion-textarea>
           <div class="btn-row">

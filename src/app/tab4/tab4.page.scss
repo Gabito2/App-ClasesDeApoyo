@@ -65,9 +65,59 @@ ion-card {
   }
 }
 
-.icon-primary { color: #550000; }
+.icon-primary { color: var(--ion-color-primary); }
 .icon-success { color: #507858; }
 .icon-danger { color: #c0392b; }
+
+.empty-card {
+  margin: 16px 6px;
+  border: 1.5px dashed #d8d8da;
+
+  ion-card-content {
+    padding: 32px 24px;
+    text-align: center;
+
+    .empty-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: #f0e8e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      ion-icon {
+        font-size: 36px;
+        color: var(--ion-color-primary);
+      }
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 0 0 8px;
+    }
+
+    p {
+      font-size: 0.85rem;
+      color: #8a8a8a;
+      line-height: 1.5;
+      margin: 0 0 20px;
+    }
+
+    .empty-btn {
+      --background: var(--ion-color-primary);
+      --background-hover: var(--ion-color-primary-tint);
+      --border-radius: 12px;
+      font-weight: 600;
+      height: 48px;
+      text-transform: none;
+      margin: 0;
+    }
+  }
+}
 
 .progress-container {
   margin-top: 12px;
@@ -117,7 +167,7 @@ ion-card {
       }
 
       &.cobrado .value { color: #507858; }
-      &.pendiente .value { color: #550000; }
+      &.pendiente .value { color: var(--ion-color-primary); }
     }
   }
 }
@@ -142,7 +192,7 @@ ion-card {
   .bar-value {
     font-size: 0.58rem;
     font-weight: 600;
-    color: #550000;
+    color: var(--ion-color-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -161,10 +211,14 @@ ion-card {
 
   .bar-fill {
     width: 100%;
-    background: linear-gradient(180deg, #6b9a78 0%, #507858 100%);
+    background: linear-gradient(180deg, #8aaa94 0%, #6b9a78 100%);
     border-radius: 6px 6px 0 0;
     min-height: 2px;
     transition: height 0.4s ease;
+
+    &.ultimo {
+      background: linear-gradient(180deg, #6b9a78 0%, #507858 100%);
+    }
   }
 
   .bar-label {
@@ -181,6 +235,80 @@ ion-card {
   }
 }
 
+/* ── Tendencia ── */
+
+.tendencia-card {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f3f4 100%) !important;
+
+  ion-card-header {
+    ion-icon {
+      font-size: 18px;
+      &.positivo { color: #507858; }
+      &.negativo { color: #c0392b; }
+    }
+  }
+
+  .tendencia-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    .tendencia-col {
+      flex: 1;
+      text-align: center;
+
+      .tendencia-label {
+        display: block;
+        font-size: 0.65rem;
+        color: #8a8a8a;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+      }
+
+      .tendencia-value {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-top: 2px;
+      }
+    }
+
+    .tendencia-arrow {
+      ion-icon {
+        font-size: 20px;
+        &.positivo { color: #507858; }
+        &.negativo { color: #c0392b; }
+      }
+    }
+  }
+
+  .tendencia-pct {
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: inline-block;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+
+    &.positivo {
+      color: #507858;
+      background: #f0f6f1;
+    }
+
+    &.negativo {
+      color: #c0392b;
+      background: #fdf0f0;
+    }
+  }
+}
+
 .recomendacion-card {
   border-radius: 14px;
   position: relative;
@@ -188,7 +316,7 @@ ion-card {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
 
   ion-card-header {
-    ion-icon { font-size: 18px; color: #550000; }
+    ion-icon { font-size: 18px; color: var(--ion-color-primary); }
     ion-card-title { color: #2d2d2d; text-transform: none; font-size: 0.9rem; letter-spacing: 0; }
   }
 
@@ -226,7 +354,84 @@ ion-card {
   }
 
   &.info {
-    border-left: 3px solid #550000;
-    .reco-badge { background: #550000; }
+    border-left: 3px solid var(--ion-color-primary);
+    .reco-badge { background: var(--ion-color-primary); }
+  }
+}
+
+/* ── Deuda acumulada ── */
+
+.deuda-card {
+  &.sin-deuda {
+    border-left: 3px solid #507858;
+  }
+
+  .deuda-info {
+    font-size: 0.8rem;
+    color: #8a8a8a;
+    margin-top: 2px;
+  }
+
+  .deuda-vacia {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #507858;
+    font-weight: 600;
+    padding: 4px 0;
+  }
+}
+
+/* ── Estadísticas anuales ── */
+
+.anual-card {
+  .anual-grid {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    .anual-item {
+      flex: 1;
+      text-align: center;
+      background: #fafafa;
+      border-radius: 10px;
+      padding: 10px 8px;
+
+      .anual-label {
+        display: block;
+        font-size: 0.62rem;
+        color: #8a8a8a;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      .anual-value {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.3px;
+      }
+    }
+  }
+
+  .anual-mejor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #fdf8e9;
+    color: #8a6d00;
+    border-radius: 10px;
+    padding: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+
+    ion-icon {
+      color: #d4a017;
+    }
   }
 }

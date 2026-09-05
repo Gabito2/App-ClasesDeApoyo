@@ -1,5 +1,5 @@
 ion-toolbar {
-  --background: #550000;
+  --background: var(--ion-color-primary);
   --color: #ffffff;
   --border-width: 0;
   font-weight: 500;
@@ -12,5 +12,5 @@ ion-toolbar {
 
 ion-content ion-header ion-toolbar {
   --background: var(--app-bg);
-  --color: #2d2d2d;
+  --color: var(--ion-color-primary);
 }

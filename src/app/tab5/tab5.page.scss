@@ -11,7 +11,7 @@
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #550000;
+    color: var(--ion-color-primary);
     padding-inline-start: 4px;
   }
 
@@ -25,7 +25,7 @@
 
     ion-icon[slot="start"] {
       font-size: 20px;
-      color: #550000;
+      color: var(--ion-color-primary);
     }
 
     ion-label h2 {
@@ -42,9 +42,9 @@
 
     ion-range {
       --bar-background: #e8e8e8;
-      --bar-background-active: #550000;
-      --knob-background: #550000;
-      --pin-background: #550000;
+      --bar-background-active: var(--ion-color-primary);
+      --knob-background: var(--ion-color-primary);
+      --pin-background: var(--ion-color-primary);
       width: 160px;
     }
 
@@ -52,15 +52,24 @@
       max-width: 110px;
       text-align: right;
       font-weight: 600;
-      color: #550000;
+      color: var(--ion-color-primary);
     }
+  }
+
+  .color-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #f0f0f0;
+    margin-right: 10px;
+    flex-shrink: 0;
   }
 }
 
 /* ── Modales ── */
 
 .modal-header {
-  --background: #550000;
+  --background: var(--ion-color-primary);
   --color: #ffffff;
 
   ion-title {

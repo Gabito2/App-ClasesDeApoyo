@@ -4,4 +4,6 @@
     <string name="title_activity_main">Clases de apoyo</string>
     <string name="package_name">com.clases</string>
     <string name="custom_url_scheme">com.clases</string>
+    <string name="widget_label">Cuotas vencidas</string>
+    <string name="widget_description">Muestra los alumnos con la cuota vencida o por vencer</string>
 </resources>

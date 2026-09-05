@@ -12,6 +12,25 @@
   </ion-header>
 
   <ion-grid>
+    @if (stats.total === 0) {
+    <ion-row>
+      <ion-col size="12">
+        <ion-card class="empty-card">
+          <ion-card-content>
+            <div class="empty-icon">
+              <ion-icon name="people"></ion-icon>
+            </div>
+            <h2>Tu dashboard te espera</h2>
+            <p>Cuando cargues tus alumnos, acá vas a ver al instante los cobros del mes, tendencias y recomendaciones.</p>
+            <ion-button expand="block" routerLink="/tabs/tab1" class="empty-btn">
+              <ion-icon name="person-add" slot="start"></ion-icon>
+              Agregar mi primer alumno
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    } @else {
     <ion-row>
       <ion-col size="6">
         <ion-card>
@@ -93,6 +112,61 @@
       </ion-col>
     </ion-row>
 
+    <!-- Tendencia vs mes anterior -->
+    @if (tendencia.anterior > 0 || tendencia.actual > 0) {
+    <ion-row>
+      <ion-col size="12">
+        <ion-card class="tendencia-card">
+          <ion-card-header>
+            <ion-icon [name]="tendencia.variacion >= 0 ? 'arrow-up' : 'arrow-down'"
+              [class.positivo]="tendencia.variacion >= 0" [class.negativo]="tendencia.variacion < 0"></ion-icon>
+            <ion-card-title>Tendencia</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="tendencia-row">
+              <div class="tendencia-col">
+                <span class="tendencia-label">Mes anterior</span>
+                <span class="tendencia-value">${{ tendencia.anterior | number }}</span>
+              </div>
+              <div class="tendencia-arrow">
+                <ion-icon [name]="tendencia.variacion >= 0 ? 'arrow-up' : 'arrow-down'"
+                  [class.positivo]="tendencia.variacion >= 0" [class.negativo]="tendencia.variacion < 0"></ion-icon>
+              </div>
+              <div class="tendencia-col">
+                <span class="tendencia-label">Este mes</span>
+                <span class="tendencia-value">${{ tendencia.actual | number }}</span>
+              </div>
+            </div>
+            <div class="tendencia-pct" [class.positivo]="tendencia.variacion >= 0" [class.negativo]="tendencia.variacion < 0">
+              {{ tendencia.variacion > 0 ? '+' : '' }}{{ tendencia.variacion }}% vs mes anterior
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    }
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-card class="deuda-card" [class.sin-deuda]="deuda.monto === 0">
+          <ion-card-header>
+            <ion-icon name="warning" class="icon-danger"></ion-icon>
+            <ion-card-title>Deuda acumulada</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            @if (deuda.monto > 0) {
+            <h2>${{ deuda.monto | number }}</h2>
+            <div class="deuda-info">
+              <span>{{ deuda.alumnosConDeuda }} alumno{{ deuda.alumnosConDeuda === 1 ? '' : 's' }} debe{{ deuda.alumnosConDeuda === 1 ? '' : 'n' }} {{ deuda.meses }} mes{{ deuda.meses === 1 ? '' : 'es' }}</span>
+            </div>
+            } @else {
+            <div class="deuda-vacia">Sin deudas. ¡Todos al día!</div>
+            }
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
     <ion-row>
       <ion-col size="12">
         <ion-card class="historial-card">
@@ -103,16 +177,48 @@
           <ion-card-content>
             @if (historial.length > 0) {
             <div class="chart">
-              <div class="bar-col" *ngFor="let h of historial">
+              @for (h of historial; track h.mes + '-' + h.anio; let i = $index) {
+              <div class="bar-col">
                 <div class="bar-value">${{ h.total | number }}</div>
                 <div class="bar-track">
-                  <div class="bar-fill" [style.height.%]="(h.total / maxIngreso) * 100"></div>
+                  <div class="bar-fill" [style.height.%]="(h.total / maxIngreso) * 100"
+                    [class.ultimo]="i === historial.length - 1"></div>
                 </div>
                 <div class="bar-label">{{ MESES_CORTOS[h.mes - 1] }} '{{ h.anio % 100 }}</div>
               </div>
+              }
             </div>
             } @else {
             <p class="chart-empty">Sin datos todavía</p>
+            }
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-card class="anual-card">
+          <ion-card-header>
+            <ion-icon name="calendar-number" class="icon-primary"></ion-icon>
+            <ion-card-title>Año {{ anioDashboard }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="anual-grid">
+              <div class="anual-item">
+                <span class="anual-label">Total cobrado</span>
+                <span class="anual-value">${{ anioStats.total | number }}</span>
+              </div>
+              <div class="anual-item">
+                <span class="anual-label">Promedio mensual</span>
+                <span class="anual-value">${{ anioStats.promedio | number }}</span>
+              </div>
+            </div>
+            @if (anioStats.mejorMes.total > 0) {
+            <div class="anual-mejor">
+              <ion-icon name="trophy"></ion-icon>
+              Mejor mes: <strong>{{ anioStats.mejorMes.nombre }}</strong> · ${{ anioStats.mejorMes.total | number }}
+            </div>
             }
           </ion-card-content>
         </ion-card>
@@ -136,5 +242,6 @@
         </ion-card>
       </ion-col>
     </ion-row>
+    }
   </ion-grid>
 </ion-content>

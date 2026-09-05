@@ -8,8 +8,8 @@ ion-tab-bar {
 
 ion-tab-button {
   --color: #b0b0b0;
-  --color-selected: #550000;
-  --ripple-color: rgba(85, 0, 0, 0.06);
+  --color-selected: var(--ion-color-primary);
+  --ripple-color: rgba(var(--ion-color-primary-rgb), 0.06);
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.6px;

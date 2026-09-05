@@ -2,27 +2,44 @@ import { Injectable, inject } from '@angular/core';
 import { Alumno, Pago } from '../models/alumno.model';
 import { StorageService } from './storage.service';
 
+interface AlumnoLegado extends Partial<Alumno> {
+  id: number;
+  nombre: string;
+  pagado?: boolean;
+  fechaPago?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AlumnoService {
   private readonly STORAGE_KEY = 'alumnos';
   private storage = inject(StorageService);
+  private cache: Alumno[] | null = null;
+  private readonly MESES_ABREV = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
   getAll(): Alumno[] {
-    const data = this.storage.getData<any>(this.STORAGE_KEY);
-    return data
-      .filter((a: any) => a && typeof a.id === 'number' && typeof a.nombre === 'string')
-      .map((a: any) => this.migrar(a));
+    if (this.cache) return [...this.cache];
+    const data = this.storage.getData<AlumnoLegado>(this.STORAGE_KEY);
+    this.cache = data
+      .filter((a): a is AlumnoLegado => !!a && typeof a.id === 'number' && typeof a.nombre === 'string')
+      .map((a) => this.migrar(a));
+    return [...this.cache];
   }
 
-  private migrar(a: any): Alumno {
-    if (!a.apellido) a.apellido = '';
-    if (!a.pagos) {
-      const mes = new Date().getMonth() + 1;
-      const anio = new Date().getFullYear();
-      a.pagos = [{ mes, anio, pagado: a.pagado ?? false, fechaPago: a.fechaPago }];
+  private invalidar(): void {
+    this.cache = null;
+  }
+
+  private migrar(a: AlumnoLegado): Alumno {
+    const alumno = { ...a };
+    if (!alumno.apellido) alumno.apellido = '';
+    if (alumno.activo === undefined) alumno.activo = true;
+    if (!alumno.pagos) {
+      const ahora = new Date();
+      alumno.pagos = [{ mes: ahora.getMonth() + 1, anio: ahora.getFullYear(), pagado: a.pagado ?? false, fechaPago: a.fechaPago }];
     }
-    if (!a.historialMontos) a.historialMontos = [];
-    return a as Alumno;
+    if (!alumno.historialMontos) alumno.historialMontos = [];
+    if (!alumno.telefono) alumno.telefono = undefined;
+    return alumno as Alumno;
   }
 
   getActivos(): Alumno[] {
@@ -48,6 +65,7 @@ export class AlumnoService {
     };
     alumnos.push(nuevo);
     this.storage.setData(this.STORAGE_KEY, alumnos);
+    this.invalidar();
     return nuevo;
   }
 
@@ -65,6 +83,7 @@ export class AlumnoService {
 
     alumnos[idx] = { ...alumnos[idx], ...cambios };
     this.storage.setData(this.STORAGE_KEY, alumnos);
+    this.invalidar();
     return alumnos[idx];
   }
 
@@ -75,6 +94,7 @@ export class AlumnoService {
   eliminarDefinitivo(id: number): void {
     const alumnos = this.getAll().filter((a) => a.id !== id);
     this.storage.setData(this.STORAGE_KEY, alumnos);
+    this.invalidar();
   }
 
   reactivar(id: number): void {
@@ -99,6 +119,32 @@ export class AlumnoService {
   estaPagadoMes(alumno: Alumno, mes: number, anio: number): boolean {
     const pago = alumno.pagos.find((p) => p.mes === mes && p.anio === anio);
     return pago?.pagado ?? false;
+  }
+
+  getEstadoPagoMes(alumno: Alumno): { texto: string; pasado: boolean; pagoAlDia: boolean } {
+    const ahora = new Date();
+    const mes = ahora.getMonth() + 1;
+    const anio = ahora.getFullYear();
+    const pagoAlDia = this.estaPagadoMes(alumno, mes, anio);
+
+    if (pagoAlDia) {
+      const pago = alumno.pagos.find((p) => p.mes === mes && p.anio === anio);
+      return { texto: pago?.fechaPago ? 'Pagado' : 'Al día', pasado: false, pagoAlDia: true };
+    }
+
+    const ultimoDiaMes = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0).getDate();
+    const diaPago = Math.min(alumno.diaEntrada, ultimoDiaMes);
+    const fechaPago = new Date(ahora.getFullYear(), ahora.getMonth(), diaPago);
+
+    if (ahora.toDateString() === fechaPago.toDateString()) {
+      return { texto: 'Vence hoy', pasado: false, pagoAlDia: false };
+    }
+    if (ahora > fechaPago) {
+      const diff = Math.floor((ahora.getTime() - fechaPago.getTime()) / (1000 * 60 * 60 * 24));
+      return { texto: `Venció hace ${diff} día${diff !== 1 ? 's' : ''}`, pasado: true, pagoAlDia: false };
+    }
+    const diff = Math.floor((fechaPago.getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
+    return { texto: `Faltan ${diff} día${diff !== 1 ? 's' : ''}`, pasado: false, pagoAlDia: false };
   }
 
   getStats(): { total: number; pagados: number; pendientes: number; montoCobrado: number; montoPendiente: number } {
@@ -136,43 +182,288 @@ export class AlumnoService {
     return resultado;
   }
 
+  getTendencia(): { actual: number; anterior: number; variacion: number } {
+    const alumnos = this.getAll();
+    const ahora = new Date();
+    const mesActual = ahora.getMonth() + 1;
+    const anioActual = ahora.getFullYear();
+    const mesAnterior = mesActual === 1 ? 12 : mesActual - 1;
+    const anioAnterior = mesActual === 1 ? anioActual - 1 : anioActual;
+
+    const actual = alumnos
+      .filter((a) => this.estaPagadoMes(a, mesActual, anioActual))
+      .reduce((sum, a) => sum + a.montoMensual, 0);
+    const anterior = alumnos
+      .filter((a) => this.estaPagadoMes(a, mesAnterior, anioAnterior))
+      .reduce((sum, a) => sum + a.montoMensual, 0);
+
+    const variacion = anterior === 0 ? (actual > 0 ? 100 : 0) : Math.round(((actual - anterior) / anterior) * 100);
+    return { actual, anterior, variacion };
+  }
+
+  getMesesImpagos(alumno: Alumno): number {
+    const ahora = new Date();
+    let contador = 0;
+    let mes = ahora.getMonth() + 1;
+    let anio = ahora.getFullYear();
+    while (!this.estaPagadoMes(alumno, mes, anio)) {
+      contador++;
+      mes--;
+      if (mes === 0) {
+        mes = 12;
+        anio--;
+      }
+      if (contador > 120) break;
+    }
+    return contador;
+  }
+
+  getDeudaAlumno(alumno: Alumno): { meses: number; monto: number } {
+    const meses = this.getMesesImpagos(alumno);
+    return { meses, monto: meses * alumno.montoMensual };
+  }
+
+  getDeudaTotal(): { meses: number; monto: number; alumnosConDeuda: number } {
+    const activos = this.getActivos();
+    let mesesTotal = 0;
+    let montoTotal = 0;
+    let alumnosConDeuda = 0;
+    for (const a of activos) {
+      const deuda = this.getDeudaAlumno(a);
+      if (deuda.meses > 0) {
+        mesesTotal += deuda.meses;
+        montoTotal += deuda.monto;
+        alumnosConDeuda++;
+      }
+    }
+    return { meses: mesesTotal, monto: montoTotal, alumnosConDeuda };
+  }
+
+  getEstadisticasAnio(anio: number): { total: number; mejorMes: { nombre: string; total: number }; promedio: number } {
+    const alumnos = this.getAll();
+    const porMes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    for (const a of alumnos) {
+      for (let m = 1; m <= 12; m++) {
+        if (this.estaPagadoMes(a, m, anio)) {
+          porMes[m - 1] += a.montoMensual;
+        }
+      }
+    }
+    const nombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    let mejorIdx = 0;
+    for (let i = 1; i < 12; i++) {
+      if (porMes[i] > porMes[mejorIdx]) mejorIdx = i;
+    }
+    const total = porMes.reduce((s, x) => s + x, 0);
+    return {
+      total,
+      mejorMes: { nombre: nombres[mejorIdx], total: porMes[mejorIdx] },
+      promedio: Math.round(total / 12),
+    };
+  }
+
   exportar(): string {
     return JSON.stringify({ version: 1, exportado: new Date().toISOString(), alumnos: this.getAll() }, null, 2);
   }
 
+  exportarCSV(): string {
+    const alumnos = this.getAll();
+    const ahora = new Date();
+    const anio = ahora.getFullYear();
+    const nombresMes = this.MESES_ABREV;
+    const header = [
+      'Nombre',
+      'Apellido',
+      'Día de pago',
+      'Monto mensual',
+      'Estado',
+      'Deuda (meses)',
+      ...nombresMes.map((n) => `${n} ${anio}`),
+    ].join(',');
+    const rows = alumnos.map((a) => {
+      const deuda = this.getMesesImpagos(a);
+      const mensuales = nombresMes.map((_, m) => (this.estaPagadoMes(a, m + 1, anio) ? 'Sí' : 'No'));
+      return [
+        `"${a.nombre}"`,
+        `"${a.apellido}"`,
+        a.diaEntrada,
+        a.montoMensual,
+        a.activo ? 'Activo' : 'Inactivo',
+        deuda,
+        ...mensuales,
+      ].join(',');
+    });
+    return [header, ...rows].join('\n');
+  }
+
+  /**
+   * Parsea un CSV exportado por la app (o compatible) y devuelve los alumnos
+   * listos para importar. Los alumnos reciben ids negativos provisorios para
+   * distinguirlos de un respaldo JSON: al importar se les asigna un id real.
+   */
+  csvAAlumnos(csv: string): Alumno[] {
+    const filas = this.parsearCSV(csv);
+    if (filas.length < 2) return [];
+
+    const headers = filas[0].map((h) => this.normalizarEncabezado(h));
+    const idxNombre = headers.indexOf('nombre');
+    if (idxNombre === -1) return [];
+
+    const idxApellido = headers.indexOf('apellido');
+    const idxDia = headers.indexOf('dia de pago');
+    const idxMonto = headers.indexOf('monto mensual');
+    const idxEstado = headers.indexOf('estado');
+    const idxTelefono = headers.indexOf('telefono');
+    const idxMeses: { col: number; mes: number; anio: number }[] = [];
+    headers.forEach((h, col) => {
+      const match = /^(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\s+(\d{4})$/.exec(h);
+      if (match) {
+        const mes = this.MESES_ABREV.findIndex((m) => m.toLowerCase() === match[1]) + 1;
+        idxMeses.push({ col, mes, anio: parseInt(match[2], 10) });
+      }
+    });
+
+    let id = -1;
+    const alumnos: Alumno[] = [];
+    for (let r = 1; r < filas.length; r++) {
+      const fila = filas[r];
+      const nombre = (fila[idxNombre] ?? '').trim();
+      if (!nombre) continue;
+
+      const dia = parseInt((fila[idxDia] ?? '').trim(), 10);
+      // El CSV exportado usa el punto como decimal (p. ej. 1500.5). Si el archivo
+      // viene con comas (formato europeo, p. ej. 1.500,50) se normaliza.
+      let montoTexto = (fila[idxMonto] ?? '').trim();
+      if (montoTexto.includes(',')) {
+        montoTexto = montoTexto.replace(/\./g, '').replace(',', '.');
+      }
+      const monto = parseFloat(montoTexto);
+      const estado = (fila[idxEstado] ?? '').trim().toLowerCase();
+      const telefono = idxTelefono !== -1 ? (fila[idxTelefono] ?? '').trim() : '';
+      const pagos: Pago[] = idxMeses.map(({ col, mes, anio }) => ({
+        mes,
+        anio,
+        pagado: ['sí', 'si', 'true', '1'].includes((fila[col] ?? '').trim().toLowerCase()),
+      }));
+
+      alumnos.push({
+        id: id--,
+        nombre,
+        apellido: (fila[idxApellido] ?? '').trim(),
+        diaEntrada: Number.isFinite(dia) ? dia : 1,
+        montoMensual: Number.isFinite(monto) ? monto : 0,
+        pagos,
+        activo: estado === '' ? true : estado === 'activo',
+        telefono: telefono || undefined,
+      });
+    }
+    return alumnos;
+  }
+
   importar(json: string, reemplazar: boolean): { ok: boolean; cantidad: number; error?: string } {
     try {
-      const parsed = JSON.parse(json);
-      const lista: any[] = Array.isArray(parsed) ? parsed : parsed?.alumnos;
-      if (!Array.isArray(lista) || lista.length === 0) {
+      const parsed: unknown = JSON.parse(json);
+      const lista: unknown[] = Array.isArray(parsed) ? parsed : (parsed as { alumnos?: unknown[] } | null)?.alumnos ?? [];
+      if (lista.length === 0) {
         return { ok: false, cantidad: 0, error: 'El archivo no contiene alumnos válidos' };
       }
 
       const validos = lista
-        .filter((a: any) => a && typeof a.id === 'number' && typeof a.nombre === 'string')
-        .map((a: any) => this.migrar(a));
+        .filter((a): a is AlumnoLegado => !!a && typeof (a as AlumnoLegado).id === 'number' && typeof (a as AlumnoLegado).nombre === 'string')
+        .map((a) => this.migrar(a));
 
       if (validos.length === 0) {
         return { ok: false, cantidad: 0, error: 'No se encontraron alumnos válidos en el archivo' };
       }
 
       if (reemplazar) {
-        this.storage.setData(this.STORAGE_KEY, validos);
+        // Los alumnos de CSV traen ids negativos provisorios: se les asigna uno real
+        let contador = 0;
+        this.storage.setData(this.STORAGE_KEY, validos.map((a) => (a.id >= 0 ? a : { ...a, id: Date.now() + ++contador })));
       } else {
         const actuales = this.getAll();
         const ids = new Set(actuales.map((a) => a.id));
         for (const alumno of validos) {
-          if (!ids.has(alumno.id)) {
+          if (alumno.id < 0) {
+            // Alumno proveniente de CSV: evitar duplicados por nombre completo
+            const clave = `${alumno.nombre}|${alumno.apellido}`.toLowerCase();
+            const yaExiste = actuales.some((a) => `${a.nombre}|${a.apellido}`.toLowerCase() === clave);
+            if (!yaExiste) {
+              const nuevo = { ...alumno, id: this.generarIdNuevo(actuales, ids) };
+              actuales.push(nuevo);
+              ids.add(nuevo.id);
+            }
+          } else if (!ids.has(alumno.id)) {
             actuales.push(alumno);
             ids.add(alumno.id);
           }
         }
         this.storage.setData(this.STORAGE_KEY, actuales);
       }
+      this.invalidar();
       return { ok: true, cantidad: validos.length };
     } catch {
       return { ok: false, cantidad: 0, error: 'El archivo no es un JSON válido' };
     }
+  }
+
+  private generarIdNuevo(alumnos: Alumno[], ids: Set<number>): number {
+    let id = Date.now();
+    while (alumnos.some((a) => a.id === id) || ids.has(id)) id++;
+    return id;
+  }
+
+  private parsearCSV(texto: string): string[][] {
+    const filas: string[][] = [];
+    let fila: string[] = [];
+    let campo = '';
+    let entreComillas = false;
+    for (let i = 0; i < texto.length; i++) {
+      const c = texto[i];
+      if (entreComillas) {
+        if (c === '"') {
+          if (texto[i + 1] === '"') {
+            campo += '"';
+            i++;
+          } else {
+            entreComillas = false;
+          }
+        } else {
+          campo += c;
+        }
+      } else if (c === '"') {
+        entreComillas = true;
+      } else if (c === ',') {
+        fila.push(campo);
+        campo = '';
+      } else if (c === '\n' || c === '\r') {
+        if (c === '\r' && texto[i + 1] === '\n') i++;
+        fila.push(campo);
+        campo = '';
+        if (fila.some((f) => f.trim() !== '')) filas.push(fila);
+        fila = [];
+      } else {
+        campo += c;
+      }
+    }
+    fila.push(campo);
+    if (fila.some((f) => f.trim() !== '')) filas.push(fila);
+    return filas;
+  }
+
+  private normalizarEncabezado(encabezado: string): string {
+    return encabezado
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  getHistorialPagos(alumnoId: number): { mes: number; anio: number; pagado: boolean; fechaPago?: string }[] {
+    const alumno = this.getById(alumnoId);
+    if (!alumno) return [];
+    return [...alumno.pagos]
+      .sort((a, b) => (b.anio * 12 + b.mes) - (a.anio * 12 + a.mes));
   }
 
   getRecomendacion(): { texto: string; tipo: 'positivo' | 'atencion' | 'info' } {
@@ -201,8 +492,8 @@ export class AlumnoService {
         const aa = m <= 0 ? anio - 1 : anio;
         return !this.estaPagadoMes(alum, mm, aa);
       }).length;
-      return impagos > (max.impagos || 0) ? { alumno: alum, impagos } : max;
-    }, { alumno: null as any, impagos: 0 });
+      return impagos > max.impagos ? { alumno: alum, impagos } : max;
+    }, { alumno: sinPagar[0], impagos: 0 });
 
     if (moroso.impagos > 0) {
       return {

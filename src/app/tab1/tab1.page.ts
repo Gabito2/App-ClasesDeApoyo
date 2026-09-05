@@ -2,11 +2,13 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonToast, IonAlert, IonSegment, IonSegmentButton, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { ActionSheetButton, DatetimeCustomEvent } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { personAdd, chevronForward, create, trash, close, calendar, cash, ellipsisVertical, personRemove, eye, search } from 'ionicons/icons';
+import { personAdd, create, trash, close, ellipsisVertical, personRemove } from 'ionicons/icons';
 import { AlumnoService } from '../services/alumno.service';
 import { Alumno } from '../models/alumno.model';
 import { NotificationService } from '../services/notification.service';
+import { WidgetService } from '../services/widget.service';
 
 type FiltroEstado = 'activos' | 'inactivos';
 type Orden = 'nombre' | 'dia' | 'monto';
@@ -20,11 +22,13 @@ type Orden = 'nombre' | 'dia' | 'monto';
 export class Tab1Page {
   private alumnoService = inject(AlumnoService);
   private notificationService = inject(NotificationService);
+  private widgetService = inject(WidgetService);
   alumnos: Alumno[] = [];
   busqueda = '';
   filtroEstado: FiltroEstado = 'activos';
   hayAlumnosTotal = false;
   orden: Orden = 'nombre';
+  private estadoCache = new Map<number, { texto: string; pasado: boolean; pagoAlDia: boolean }>();
 
   isModalOpen = false;
   editando: Alumno | null = null;
@@ -34,6 +38,7 @@ export class Tab1Page {
   formNombreCompleto = '';
   formDiaEntrada = 1;
   formMontoMensual = 0;
+  formTelefono = '';
   formFecha: string = new Date().toISOString();
 
   toastOpen = false;
@@ -42,7 +47,7 @@ export class Tab1Page {
   isAlertOpen = false;
   alumnoAEliminar: Alumno | null = null;
 
-  actionSheetButtons: any[] = [];
+  actionSheetButtons: ActionSheetButton[] = [];
 
   alertButtons = [
     { text: 'Cancelar', role: 'cancel' },
@@ -56,7 +61,7 @@ export class Tab1Page {
   ];
 
   constructor() {
-    addIcons({ personAdd, chevronForward, create, trash, close, calendar, cash, ellipsisVertical, personRemove, eye, search });
+    addIcons({ personAdd, create, trash, close, ellipsisVertical, personRemove });
   }
 
   get alumnosFiltrados(): Alumno[] {
@@ -66,14 +71,25 @@ export class Tab1Page {
         )
       : [...this.alumnos];
 
+    const nombreStr = (a: Alumno) => `${a.nombre} ${a.apellido}`.toLowerCase();
+
     switch (this.orden) {
       case 'dia':
-        return lista.sort((x, y) => x.diaEntrada - y.diaEntrada);
+        return lista.sort((x, y) => x.diaEntrada - y.diaEntrada || nombreStr(x).localeCompare(nombreStr(y), 'es'));
       case 'monto':
-        return lista.sort((x, y) => y.montoMensual - x.montoMensual);
+        return lista.sort((x, y) => y.montoMensual - x.montoMensual || nombreStr(x).localeCompare(nombreStr(y), 'es'));
       default:
-        return lista.sort((x, y) => `${x.nombre} ${x.apellido}`.localeCompare(`${y.nombre} ${y.apellido}`, 'es'));
+        return lista.sort((x, y) => nombreStr(x).localeCompare(nombreStr(y), 'es'));
     }
+  }
+
+  getEstado(alumno: Alumno): { texto: string; pasado: boolean; pagoAlDia: boolean } {
+    let estado = this.estadoCache.get(alumno.id);
+    if (!estado) {
+      estado = this.alumnoService.getEstadoPagoMes(alumno);
+      this.estadoCache.set(alumno.id, estado);
+    }
+    return estado;
   }
 
   ionViewWillEnter() {
@@ -81,9 +97,11 @@ export class Tab1Page {
   }
 
   cargar() {
+    const todos = this.alumnoService.getAll();
     const activos = this.filtroEstado === 'activos';
-    this.alumnos = this.alumnoService.getAll().filter((a) => a.activo === activos);
-    this.hayAlumnosTotal = this.alumnoService.getAll().length > 0;
+    this.alumnos = todos.filter((a) => a.activo === activos);
+    this.hayAlumnosTotal = todos.length > 0;
+    this.estadoCache.clear();
   }
 
   abrirModalNuevo() {
@@ -91,6 +109,7 @@ export class Tab1Page {
     this.formNombreCompleto = '';
     this.formDiaEntrada = 1;
     this.formMontoMensual = 0;
+    this.formTelefono = '';
     this.formFecha = new Date().toISOString();
     this.isModalOpen = true;
   }
@@ -100,10 +119,11 @@ export class Tab1Page {
     this.formNombreCompleto = `${alumno.nombre} ${alumno.apellido}`;
     this.formDiaEntrada = alumno.diaEntrada;
     this.formMontoMensual = alumno.montoMensual;
+    this.formTelefono = alumno.telefono ?? '';
     // El calendario muestra el día real de pago del alumno (ajustado al último día del mes si aplica)
     const ahora = new Date();
     const ultimoDia = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0).getDate();
-    this.formFecha = new Date(ahora.getFullYear(), ahora.getMonth(), Math.min(alumno.diaEntrada, ultimoDia)).toISOString();
+    this.formFecha = new Date(ahora.getFullYear(), ahora.getMonth(), Math.min(alumno.diaEntrada, ultimoDia), 12, 0, 0).toISOString();
     this.isModalOpen = true;
   }
 
@@ -112,14 +132,20 @@ export class Tab1Page {
     this.editando = null;
   }
 
-  onFechaChange(event: any) {
-    const date = new Date(event.detail.value);
+  onFechaChange(event: DatetimeCustomEvent) {
+    const value = event.detail.value;
+    if (typeof value !== 'string') return;
+    const date = new Date(value);
     this.formDiaEntrada = date.getDate();
   }
 
   guardar() {
-    if (!this.formNombreCompleto.trim() || this.formMontoMensual <= 0) {
-      this.mostrarToast('Completá todos los campos');
+    if (!this.formNombreCompleto.trim()) {
+      this.mostrarToast('Ingresá el nombre del alumno');
+      return;
+    }
+    if (this.formMontoMensual <= 0) {
+      this.mostrarToast('El monto mensual debe ser mayor a $0');
       return;
     }
 
@@ -133,6 +159,7 @@ export class Tab1Page {
         apellido,
         diaEntrada: this.formDiaEntrada,
         montoMensual: this.formMontoMensual,
+        telefono: this.formTelefono.trim() || undefined,
       });
       this.mostrarToast('Alumno actualizado');
     } else {
@@ -141,12 +168,14 @@ export class Tab1Page {
         apellido,
         diaEntrada: this.formDiaEntrada,
         montoMensual: this.formMontoMensual,
+        telefono: this.formTelefono.trim() || undefined,
       });
       this.mostrarToast('Alumno agregado');
     }
 
     this.cargar();
     this.notificationService.checkAndSchedule();
+    this.widgetService.actualizar();
     setTimeout(() => this.cerrarModal(), 500);
   }
 
@@ -154,7 +183,7 @@ export class Tab1Page {
     event.stopPropagation();
     this.selectedAlumno = alumno;
 
-    const acciones: any[] = alumno.activo
+    const acciones: ActionSheetButton[] = alumno.activo
       ? [
           { text: 'Editar', icon: 'create', handler: () => this.abrirModalEditar(alumno) },
           {
@@ -187,12 +216,14 @@ export class Tab1Page {
     this.alumnoService.eliminar(alumno.id);
     this.cargar();
     this.notificationService.checkAndSchedule();
+    this.widgetService.actualizar();
   }
 
   reactivar(alumno: Alumno) {
     this.alumnoService.reactivar(alumno.id);
     this.cargar();
     this.notificationService.checkAndSchedule();
+    this.widgetService.actualizar();
     this.mostrarToast(`${alumno.nombre} reactivado`);
   }
 
@@ -205,6 +236,7 @@ export class Tab1Page {
     this.alumnoService.eliminarDefinitivo(alumno.id);
     this.cargar();
     this.notificationService.checkAndSchedule();
+    this.widgetService.actualizar();
   }
 
   private mostrarToast(mensaje: string) {

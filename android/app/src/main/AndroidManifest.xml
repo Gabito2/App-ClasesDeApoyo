@@ -27,6 +27,14 @@
             android:grantUriPermissions="true">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
         </provider>
+
+        <!-- Widget de cuotas vencidas -->
+        <receiver android:name=".CuotasWidgetProvider" android:exported="true" android:label="@string/widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/cuotas_widget_info" />
+        </receiver>
     </application>
 
     <!-- Permissions -->

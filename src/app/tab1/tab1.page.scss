@@ -12,7 +12,7 @@ ion-list {
   --background: #f0e8e8;
   --color: #8a8a8a;
   --color-checked: #ffffff;
-  --background-checked: #550000;
+  --background-checked: var(--ion-color-primary);
   --border-radius: 10px;
 }
 
@@ -37,7 +37,7 @@ ion-list {
     --padding-end: 8px;
     max-width: 150px;
     font-size: 0.8rem;
-    color: #550000;
+    color: var(--ion-color-primary);
     font-weight: 600;
   }
 }
@@ -74,7 +74,7 @@ ion-list {
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: #550000;
+  background: var(--ion-color-primary);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -103,6 +103,37 @@ ion-list {
     font-size: 0.8rem;
     color: #8a8a8a;
     margin: 2px 0 0;
+  }
+}
+
+.estado-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  ion-icon {
+    font-size: 0.8rem;
+  }
+
+  &.ok {
+    background: rgba(80, 120, 88, 0.12);
+    color: #507858;
+  }
+
+  &.pendiente {
+    background: rgba(212, 160, 23, 0.15);
+    color: #9a730f;
+  }
+
+  &.mora {
+    background: rgba(192, 57, 43, 0.1);
+    color: #c0392b;
   }
 }
 
@@ -145,7 +176,7 @@ ion-list {
 /* ── Modal ── */
 
 .modal-header {
-  --background: #550000;
+  --background: var(--ion-color-primary);
   --color: #ffffff;
 
   ion-title {
@@ -166,8 +197,8 @@ ion-item {
 
 ion-button.save-btn {
   margin-top: 24px;
-  --background: #550000;
-  --background-hover: #6b1a1a;
+  --background: var(--ion-color-primary);
+  --background-hover: var(--ion-color-primary-tint);
   --border-radius: 12px;
   font-weight: 600;
   height: 48px;
@@ -189,12 +220,12 @@ ion-button.save-btn {
   ion-label {
     margin-bottom: 8px;
     font-size: 0.85rem;
-    color: #4a0000;
+    color: var(--ion-color-primary-shade);
   }
 
   ion-datetime {
     width: 100%;
-    border: 1px solid #550000;
+    border: 1px solid var(--ion-color-primary);
     border-radius: 10px;
     overflow: hidden;
     margin-top: 10px;

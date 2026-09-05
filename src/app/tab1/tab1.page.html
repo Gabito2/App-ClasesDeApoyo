@@ -4,7 +4,7 @@
     @if (filtroEstado === 'activos') {
     <ion-buttons slot="end">
       <ion-button (click)="abrirModalNuevo()">
-        <ion-icon style="color: white;" name="person-add" slot="icon-only"></ion-icon>
+        <ion-icon name="person-add" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     }
@@ -43,11 +43,11 @@
   </div>
 
   <div class="sort-wrapper">
-    <ion-label class="sort-label">Ordenar</ion-label>
+    <ion-label class="sort-label">Ordenar por:</ion-label>
     <ion-select [(ngModel)]="orden" interface="popover" class="sort-select">
-      <ion-select-option value="nombre">Nombre</ion-select-option>
+      <ion-select-option value="nombre">Nombre (A-Z)</ion-select-option>
       <ion-select-option value="dia">Día de pago</ion-select-option>
-      <ion-select-option value="monto">Monto</ion-select-option>
+      <ion-select-option value="monto">Monto (mayor a menor)</ion-select-option>
     </ion-select>
   </div>
   }
@@ -57,13 +57,21 @@
   }
 
   <ion-list>
-    <ion-item *ngFor="let a of alumnosFiltrados" class="alumno-card">
+    @for (a of alumnosFiltrados; track a.id) {
+    <ion-item class="alumno-card">
       <div class="card-content">
         <div class="card-main">
           <div class="avatar">{{ a.nombre.charAt(0) }}{{ a.apellido.charAt(0) }}</div>
           <div class="info">
             <h2>{{ a.nombre }} {{ a.apellido }}</h2>
             <p>${{ a.montoMensual | number }} / mes · Día {{ a.diaEntrada }}</p>
+            @if (filtroEstado === 'activos') {
+            <div class="estado-pill" [class.ok]="getEstado(a).pagoAlDia" [class.mora]="!getEstado(a).pagoAlDia && getEstado(a).pasado"
+              [class.pendiente]="!getEstado(a).pagoAlDia && !getEstado(a).pasado">
+              <ion-icon [name]="getEstado(a).pagoAlDia ? 'checkmark-circle' : 'close-circle'"></ion-icon>
+              {{ getEstado(a).texto }}
+            </div>
+            }
           </div>
         </div>
         <ion-button fill="clear" class="menu-btn" (click)="abrirAcciones(a, $event)">
@@ -71,6 +79,7 @@
         </ion-button>
       </div>
     </ion-item>
+    }
   </ion-list>
 
   <!-- Modal Agregar / Editar -->
@@ -95,6 +104,10 @@
           <ion-item>
             <ion-label position="floating">Monto mensual ($)</ion-label>
             <ion-input [(ngModel)]="formMontoMensual" type="number" min="0"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Teléfono (WhatsApp, opcional)</ion-label>
+            <ion-input [(ngModel)]="formTelefono" type="tel"></ion-input>
           </ion-item>
 
           <ion-button expand="full" (click)="guardar()" class="save-btn">

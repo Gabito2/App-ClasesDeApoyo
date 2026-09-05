@@ -12,28 +12,37 @@
   </ion-header>
 
   @if (alumnos.length === 0) {
-  <div class="empty-state">No hay alumnos registrados</div>
+  <div class="empty-state">
+    <ion-icon name="people"></ion-icon>
+    <p>No hay alumnos activos</p>
+    <p class="hint">Registrá alumnos en la pestaña Alumnos para registrar sus pagos</p>
+  </div>
   }
 
   @if (alumnos.length > 0) {
   <div class="search-wrapper">
-    <ion-searchbar [(ngModel)]="busqueda" placeholder="Buscar alumno..." debounce="200" mode="ios"></ion-searchbar>
+    <ion-searchbar [ngModel]="busqueda" (ionInput)="onBuscar($event)" placeholder="Buscar alumno..." debounce="200" mode="ios"></ion-searchbar>
   </div>
   }
 
   @if (alumnosFiltrados.length === 0 && busqueda.trim()) {
-  <div class="empty-state">No se encontraron resultados</div>
+  <div class="empty-state">
+    <ion-icon name="search"></ion-icon>
+    <p>No se encontraron resultados</p>
+  </div>
   }
 
   <ion-list>
-    <ion-item *ngFor="let a of alumnosFiltrados" button (click)="abrirModal(a)" class="alumno-item">
+    @for (a of alumnosFiltrados; track a.id) {
+    <ion-item button (click)="abrirModal(a)" class="alumno-item">
       <ion-icon name="people" slot="start"></ion-icon>
       <ion-label>
         <h2>{{ a.nombre }} {{ a.apellido }}</h2>
         <p>${{ a.montoMensual | number }} / mes</p>
       </ion-label>
-      <ion-icon style="color: #550000;" name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+      <ion-icon style="color: var(--ion-color-primary);" name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
     </ion-item>
+    }
   </ion-list>
 
   <ion-modal [isOpen]="isModalOpen" (didDismiss)="cerrarModal()">
@@ -47,6 +56,28 @@
         </ion-toolbar>
       </ion-header>
       <ion-content>
+        @if (selectedAlumno) {
+        <div class="perfil">
+          <div class="perfil-avatar">{{ selectedAlumno.nombre.charAt(0) }}{{ selectedAlumno.apellido.charAt(0) }}</div>
+          <h2>{{ selectedAlumno.nombre }} {{ selectedAlumno.apellido }}</h2>
+          <div class="perfil-meta">
+            <span><ion-icon name="cash-outline"></ion-icon> ${{ selectedAlumno.montoMensual | number }} / mes</span>
+            <span><ion-icon name="calendar-outline"></ion-icon> Día {{ selectedAlumno.diaEntrada }}</span>
+          </div>
+          <div class="estado-pill" [class.ok]="estadoDetalle.pagoAlDia" [class.mora]="!estadoDetalle.pagoAlDia && estadoDetalle.pasado"
+            [class.pendiente]="!estadoDetalle.pagoAlDia && !estadoDetalle.pasado">
+            <ion-icon [name]="estadoDetalle.pagoAlDia ? 'checkmark-circle' : 'close-circle'"></ion-icon>
+            {{ estadoDetalle.texto }}
+          </div>
+          @if (selectedAlumno.telefono && !estadoDetalle.pagoAlDia) {
+          <ion-button expand="block" class="wa-btn" (click)="recordarWhatsApp()">
+            <ion-icon name="logo-whatsapp" slot="start"></ion-icon>
+            Recordar por WhatsApp
+          </ion-button>
+          }
+        </div>
+        }
+
         <ion-card class="resumen-card">
           <ion-card-content>
             <div class="resumen">
@@ -56,16 +87,51 @@
           </ion-card-content>
         </ion-card>
 
-        @if (historialRecientes.length > 0) {
-        <ion-card class="historial-card">
+        <ion-card class="deuda-detalle-card" [class.sin-deuda]="deudaDetalle.meses === 0">
+          <ion-card-content>
+            @if (deudaDetalle.meses > 0) {
+            <div class="deuda-titulo">Deuda acumulada</div>
+            <div class="deuda-dato"><strong>{{ deudaDetalle.meses }} mes{{ deudaDetalle.meses === 1 ? '' : 'es' }}</strong> · ${{ deudaDetalle.monto | number }}</div>
+            } @else {
+            <div class="deuda-titulo ok">Sin deudas, ¡al día!</div>
+            }
+          </ion-card-content>
+        </ion-card>
+
+        @if (historialMontos.length > 0) {
+        <ion-card class="montos-card">
           <ion-card-header>
-            <ion-card-title>Historial de cuotas</ion-card-title>
+            <ion-card-title>Historial de cuota</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <div class="historial-item" *ngFor="let h of historialRecientes">
-              <span>${{ h.monto | number }}</span>
-              <span class="historial-fecha">{{ h.fecha | date: 'dd/MM/yyyy' }}</span>
+            @for (hm of historialMontos; track $index) {
+            <div class="monto-item">
+              <span class="monto-valor">${{ hm.monto | number }}</span>
+              <span class="monto-fecha">{{ hm.fecha | date:"MMMM yyyy" }}</span>
             </div>
+            }
+          </ion-card-content>
+        </ion-card>
+        }
+
+        @if (historialPagos.length > 0) {
+        <ion-card class="historial-card">
+          <ion-card-header>
+            <ion-card-title>Historial de pagos</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            @for (p of historialPagos; track p.mes + '-' + p.anio) {
+            <div class="historial-item">
+              <div class="historial-left">
+                <ion-icon [name]="p.pagado ? 'checkmark-circle' : 'close-circle'"
+                  [class.pagado]="p.pagado" [class.pendiente]="!p.pagado"></ion-icon>
+                <span class="historial-mes">{{ mesLabel(p.mes) }} {{ p.anio }}</span>
+              </div>
+              <span class="historial-estado" [class.pagado]="p.pagado">
+                {{ p.pagado ? (p.fechaPago ? 'Pagado ' + (p.fechaPago | date:'dd/MM') : 'Pagado') : 'Pendiente' }}
+              </span>
+            </div>
+            }
           </ion-card-content>
         </ion-card>
         }
@@ -82,7 +148,8 @@
 
         <ion-grid>
           <ion-row>
-            <ion-col size="6" *ngFor="let m of meses">
+            @for (m of meses; track m.mes + '-' + m.anio) {
+            <ion-col size="6">
               <div class="mes-card" [class.pagado]="m.pagado" [class.pendiente]="!m.pagado" [class.actual]="m.esActual"
                 (click)="toggleMes(m)">
                 <ion-icon [name]="m.pagado ? 'checkmark-circle' : 'close-circle'"></ion-icon>
@@ -90,6 +157,7 @@
                 <span class="tap-hint">{{ m.pagado ? 'Pagado' : 'Tocá para marcar' }}</span>
               </div>
             </ion-col>
+            }
           </ion-row>
         </ion-grid>
       </ion-content>

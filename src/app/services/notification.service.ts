@@ -16,12 +16,22 @@ export class NotificationService {
         if (result.display !== 'granted') return;
       }
 
+      // Garantiza que el canal exista (idempotente)
+      await LocalNotifications.createChannel({
+        id: 'cuotas',
+        name: 'Cuotas por vencer',
+        description: 'Notificaciones de cuotas de alumnos por vencer o vencidas',
+        importance: 5, // IMPORTANCE_HIGH
+        visibility: 1, // VISIBILITY_PUBLIC
+        vibration: true,
+      });
+
       await LocalNotifications.cancel({ notifications: (await LocalNotifications.getPending()).notifications });
 
       const { diasAnticipacion, horaNotificacion } = this.settingsService.get();
       const partes = horaNotificacion.split(':');
-      const hora = Number(partes[0]) || 12;
-      const minuto = Number(partes[1]) || 0;
+      const hora = Number.isFinite(Number(partes[0])) ? Number(partes[0]) : 12;
+      const minuto = Number.isFinite(Number(partes[1])) ? Number(partes[1]) : 0;
 
       const alumnos = this.alumnoService.getActivos();
       const ahora = new Date();
@@ -41,31 +51,46 @@ export class NotificationService {
         const nombreCompleto = `${alumno.nombre}${alumno.apellido ? ' ' + alumno.apellido : ''}`;
         const idBase = (index + 1) * 100 + mesActual;
 
+        // SIEMPRE agenda la notificación del día del vencimiento
+        const fechaVence = new Date(fechaVencimiento);
+        fechaVence.setHours(hora, minuto, 0, 0);
+        if (fechaVence > ahora) {
+          await this.programar(idBase + 50, `Cuota vence hoy - ${nombreCompleto}`, fechaVence);
+        }
+
         if (diffDias > diasAnticipacion) {
-          // Recordatorio anticipado (N días antes) + recordatorio el día del vencimiento
+          // Falta más de N días: agenda recordatorio anticipado (N días antes del vencimiento)
           const fechaRecordatorio = new Date(fechaVencimiento);
           fechaRecordatorio.setDate(fechaRecordatorio.getDate() - diasAnticipacion);
           fechaRecordatorio.setHours(hora, minuto, 0, 0);
-
-          const fechaVence = new Date(fechaVencimiento);
-          fechaVence.setHours(hora, minuto, 0, 0);
-
-          await this.programar(idBase, `Cuota por vencer - ${nombreCompleto}`, fechaRecordatorio);
-          await this.programar(idBase + 50, `Cuota vence hoy - ${nombreCompleto}`, fechaVence);
-        } else {
+          if (fechaRecordatorio > ahora) {
+            await this.programar(idBase, `Cuota por vencer - ${nombreCompleto}`, fechaRecordatorio);
+          }
+        } else if (diffDias >= 0) {
+          // Dentro de la ventana de anticipación pero todavía no vence: recordatorio diario
           const fechaNotificacion = new Date(hoy);
           fechaNotificacion.setHours(hora, minuto, 0, 0);
           if (fechaNotificacion <= ahora) {
-            fechaNotificacion.setHours(ahora.getHours() + 1, 0, 0, 0);
+            fechaNotificacion.setDate(fechaNotificacion.getDate() + 1);
           }
-
-          const titulo = diffDias > 0
-            ? `Cuota vence en ${diffDias} día${diffDias > 1 ? 's' : ''} - ${nombreCompleto}`
-            : diffDias === 0
-              ? `Cuota vence hoy - ${nombreCompleto}`
-              : `Cuota vencida - ${nombreCompleto}`;
-
-          await this.programar(idBase, titulo, fechaNotificacion);
+          // Solo agendar si la notificación es antes del vencimiento
+          if (fechaNotificacion < fechaVence) {
+            const diffDiasNotif = Math.ceil(
+              (fechaVencimiento.getTime() - fechaNotificacion.getTime()) / (1000 * 60 * 60 * 24)
+            );
+            const titulo = diffDiasNotif > 0
+              ? `Cuota vence en ${diffDiasNotif} día${diffDiasNotif > 1 ? 's' : ''} - ${nombreCompleto}`
+              : `Cuota vence hoy - ${nombreCompleto}`;
+            await this.programar(idBase, titulo, fechaNotificacion);
+          }
+        } else {
+          // Ya venció (diffDias < 0): recordatorio diario de cuota vencida
+          const fechaNotificacion = new Date(hoy);
+          fechaNotificacion.setHours(hora, minuto, 0, 0);
+          if (fechaNotificacion <= ahora) {
+            fechaNotificacion.setDate(fechaNotificacion.getDate() + 1);
+          }
+          await this.programar(idBase, `Cuota vencida - ${nombreCompleto}`, fechaNotificacion);
         }
       }
     } catch (e) {
