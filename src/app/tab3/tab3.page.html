@@ -72,7 +72,7 @@
           @if (selectedAlumno.telefono && !estadoDetalle.pagoAlDia) {
           <ion-button expand="block" class="wa-btn" (click)="recordarWhatsApp()">
             <ion-icon name="logo-whatsapp" slot="start"></ion-icon>
-            Recordar por WhatsApp
+            {{ estadoDetalle.pasado ? 'Reclamar pago por WhatsApp' : 'Recordar por WhatsApp' }}
           </ion-button>
           }
         </div>

@@ -1,6 +1,14 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>Vencimientos</ion-title>
+    @if (vencidosConTelefono.length > 0) {
+    <ion-buttons slot="end">
+      <ion-button (click)="recordarVencidosWhatsApp()"
+        [title]="'Recordar por WhatsApp a ' + vencidosConTelefono.length + ' alumno(s) vencido(s)'">
+        <ion-icon name="logo-whatsapp" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 
@@ -59,4 +67,11 @@
     </ion-item>
     }
   </ion-list>
+
+  <!-- Confirmación recordatorio masivo -->
+  <ion-alert [isOpen]="isBulkAlertOpen" header="Recordar por WhatsApp"
+    [message]="'Se abrirá WhatsApp con un mensaje para cada uno de los ' + vencidosConTelefono.length + ' alumno(s) con cuota vencida. ¿Continuar?'"
+    [buttons]="bulkAlertButtons" (didDismiss)="isBulkAlertOpen = false"></ion-alert>
+
+  <ion-toast [isOpen]="toastOpen" [message]="toastMsg" [duration]="2500" (didDismiss)="toastOpen = false"></ion-toast>
 </ion-content>

@@ -9,7 +9,7 @@ import { AlumnoService } from '../services/alumno.service';
 import { Alumno, Pago, HistorialMonto } from '../models/alumno.model';
 import { NotificationService } from '../services/notification.service';
 import { WidgetService } from '../services/widget.service';
-import { WhatsappService } from '../services/whatsapp.service';
+import { WhatsappService, TipoMensaje } from '../services/whatsapp.service';
 
 interface MesInfo {
   label: string;
@@ -127,7 +127,9 @@ export class Tab3Page {
   }
 
   recordarWhatsApp() {
-    if (this.selectedAlumno) this.whatsappService.abrir(this.selectedAlumno);
+    if (!this.selectedAlumno) return;
+    const tipo: TipoMensaje = this.estadoDetalle.pasado ? 'vencido' : 'pendiente';
+    this.whatsappService.abrir(this.selectedAlumno, tipo);
   }
 
   mesLabel(mes: number): string {
