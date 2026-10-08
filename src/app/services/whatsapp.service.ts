@@ -30,7 +30,7 @@ export class WhatsappService {
     const mes = this.MESES[ahora.getMonth()];
     const monto = alumno.montoMensual.toLocaleString('es-AR');
     const dia = this.diaPagoMes(alumno, ahora.getFullYear(), ahora.getMonth() + 1);
-    return `Hola ${alumno.nombre}! Te recuerdo que la cuota de ${mes} ($${monto}) vence el día ${dia}. ¡Gracias!`;
+    return `Hola ${alumno.nombre} ${alumno.apellido} ! Te recuerdo que la cuota de ${mes} ($${monto}) vence el día ${dia}. ¡Gracias!`;
   }
 
   /**
@@ -44,7 +44,7 @@ export class WhatsappService {
     const mes = this.MESES[mesVencido.getMonth()];
     const monto = alumno.montoMensual.toLocaleString('es-AR');
     const dia = this.diaPagoMes(alumno, mesVencido.getFullYear(), mesVencido.getMonth() + 1);
-    return `Hola ${alumno.nombre}! Te escribo para recordarte que la cuota de ${mes} por $${monto} venció el día ${dia}. ¡Por favor regularizala! ¡Gracias!`;
+    return `Hola ${alumno.nombre} ${alumno.apellido} !Te escribo para recordarte que la cuota de ${mes} por $${monto} venció el día ${dia}. ¡Gracias!`;
   }
 
   /** Ajusta el día de pago al último día del mes si el día no existe (ej. 31 en febrero). */

@@ -132,19 +132,37 @@ export class AlumnoService {
       return { texto: pago?.fechaPago ? 'Pagado' : 'Al día', pasado: false, pagoAlDia: true };
     }
 
-    const ultimoDiaMes = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0).getDate();
-    const diaPago = Math.min(alumno.diaEntrada, ultimoDiaMes);
-    const fechaPago = new Date(ahora.getFullYear(), ahora.getMonth(), diaPago);
+    let totalDias = 0;
+    let m = mes;
+    let a = anio;
+    let primerMesImpago = true;
 
-    if (ahora.toDateString() === fechaPago.toDateString()) {
+    while (!this.estaPagadoMes(alumno, m, a)) {
+      const ultimoDia = new Date(a, m, 0).getDate();
+      const diaPago = Math.min(alumno.diaEntrada, ultimoDia);
+      const fechaPago = new Date(a, m - 1, diaPago);
+
+      if (primerMesImpago) {
+        if (ahora > fechaPago) {
+          totalDias += Math.floor((ahora.getTime() - fechaPago.getTime()) / (1000 * 60 * 60 * 24));
+        }
+        primerMesImpago = false;
+      } else {
+        totalDias += ultimoDia - diaPago + 1;
+      }
+
+      m--;
+      if (m === 0) {
+        m = 12;
+        a--;
+      }
+      if (totalDias > 3650) break;
+    }
+
+    if (totalDias === 0) {
       return { texto: 'Vence hoy', pasado: false, pagoAlDia: false };
     }
-    if (ahora > fechaPago) {
-      const diff = Math.floor((ahora.getTime() - fechaPago.getTime()) / (1000 * 60 * 60 * 24));
-      return { texto: `Venció hace ${diff} día${diff !== 1 ? 's' : ''}`, pasado: true, pagoAlDia: false };
-    }
-    const diff = Math.floor((fechaPago.getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
-    return { texto: `Faltan ${diff} día${diff !== 1 ? 's' : ''}`, pasado: false, pagoAlDia: false };
+    return { texto: `Venció hace ${totalDias} día${totalDias !== 1 ? 's' : ''}`, pasado: true, pagoAlDia: false };
   }
 
   getStats(): { total: number; pagados: number; pendientes: number; montoCobrado: number; montoPendiente: number } {
