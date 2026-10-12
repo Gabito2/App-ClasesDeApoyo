@@ -64,21 +64,21 @@
       <ion-label>Datos</ion-label>
     </ion-list-header>
 
-    <ion-item button (click)="abrirExportar()">
+    <ion-item button (click)="exportar()">
       <ion-icon name="download" slot="start"></ion-icon>
-      <ion-label>Exportar respaldo (JSON)</ion-label>
-      <ion-icon name="chevron-forward" slot="end"></ion-icon>
-    </ion-item>
-
-    <ion-item button (click)="exportarCSV()">
-      <ion-icon name="document" slot="start"></ion-icon>
-      <ion-label>Exportar alumnos (CSV)</ion-label>
-      <ion-icon name="chevron-forward" slot="end"></ion-icon>
+      <ion-label class="ion-text-wrap">
+        <h2>Exportar respaldo</h2>
+        <p>Crea un archivo y te ofrece compartirlo o guardarlo</p>
+      </ion-label>
+      <ion-icon name="share-social" slot="end"></ion-icon>
     </ion-item>
 
     <ion-item button (click)="solicitarImportar()">
       <ion-icon name="cloud-upload" slot="start"></ion-icon>
-      <ion-label>Importar respaldo (JSON o CSV)</ion-label>
+      <ion-label class="ion-text-wrap">
+        <h2>Importar respaldo</h2>
+        <p>Elige un archivo de respaldo (.backup) de este u otro dispositivo</p>
+      </ion-label>
       <ion-icon name="chevron-forward" slot="end"></ion-icon>
     </ion-item>
 
@@ -89,63 +89,8 @@
     </ion-item>
   </ion-list>
 
-  <!-- Modal Exportar -->
-  <ion-modal [isOpen]="exportOpen" (didDismiss)="exportOpen = false">
-    <ng-template>
-      <ion-header class="modal-header">
-        <ion-toolbar>
-          <ion-title>Exportar respaldo</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="exportOpen = false">Cerrar</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content>
-        <div class="form-wrapper">
-          <p class="hint">Se genera un archivo .json con tus datos para compartir o guardar. También podés copiar el contenido.</p>
-          <ion-textarea [value]="jsonExport" readonly class="json-area"></ion-textarea>
-          <div class="btn-row">
-            <ion-button expand="block" fill="outline" (click)="copiar()">
-              <ion-icon name="copy" slot="start"></ion-icon> Copiar
-            </ion-button>
-            <ion-button expand="block" (click)="compartir()">
-              <ion-icon name="share-social" slot="start"></ion-icon> Compartir archivo
-            </ion-button>
-          </div>
-        </div>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
-
-  <!-- Modal Importar -->
-  <ion-modal [isOpen]="importOpen" (didDismiss)="importOpen = false">
-    <ng-template>
-      <ion-header class="modal-header">
-        <ion-toolbar>
-          <ion-title>Importar respaldo</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="importOpen = false">Cerrar</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content>
-        <div class="form-wrapper">
-          <p class="hint">Pegá el JSON del respaldo o elegí un archivo .json o .csv exportado.</p>
-          <input #archivoInput type="file" accept=".json,.csv,application/json,text/csv" hidden
-            (change)="onArchivoSeleccionado($event)" />
-          <ion-button expand="block" fill="outline" (click)="archivoInput.click()">
-            <ion-icon name="document" slot="start"></ion-icon> Elegir archivo (.json o .csv)
-          </ion-button>
-          <ion-textarea [(ngModel)]="jsonImport" class="json-area"
-            placeholder='{"version":1,"alumnos":[...]}'></ion-textarea>
-          <div class="btn-row">
-            <ion-button expand="block" fill="outline" (click)="importar(false)">Agregar alumnos</ion-button>
-            <ion-button expand="block" color="danger" (click)="pedirReemplazo()">Reemplazar todo</ion-button>
-          </div>
-        </div>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
+  <input #archivoInput type="file" accept=".backup,.json,.csv,application/json,text/csv,.octet-stream" hidden
+    (change)="onArchivoSeleccionado($event)" />
 
   <!-- Confirmación reemplazo -->
   <ion-alert [isOpen]="confirmarReemplazo" header="Reemplazar todos los datos"

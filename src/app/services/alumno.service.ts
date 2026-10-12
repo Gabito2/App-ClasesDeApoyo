@@ -14,7 +14,6 @@ export class AlumnoService {
   private readonly STORAGE_KEY = 'alumnos';
   private storage = inject(StorageService);
   private cache: Alumno[] | null = null;
-  private readonly MESES_ABREV = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
   getAll(): Alumno[] {
     if (this.cache) return [...this.cache];
@@ -355,108 +354,48 @@ export class AlumnoService {
     };
   }
 
-  exportar(): string {
-    return JSON.stringify({ version: 1, exportado: new Date().toISOString(), alumnos: this.getAll() }, null, 2);
-  }
+  private readonly BACKUP_MARCA = 'CLASES-BACKUP-V1:';
 
-  exportarCSV(): string {
-    const alumnos = this.getAll();
-    const ahora = new Date();
-    const anio = ahora.getFullYear();
-    const nombresMes = this.MESES_ABREV;
-    const header = [
-      'Nombre',
-      'Apellido',
-      'Día de pago',
-      'Monto mensual',
-      'Estado',
-      'Deuda (meses)',
-      ...nombresMes.map((n) => `${n} ${anio}`),
-    ].join(',');
-    const rows = alumnos.map((a) => {
-      const deuda = this.getMesesImpagos(a);
-      const mensuales = nombresMes.map((_, m) => (this.estaPagadoMes(a, m + 1, anio) ? 'Sí' : 'No'));
-      return [
-        `"${a.nombre}"`,
-        `"${a.apellido}"`,
-        a.diaEntrada,
-        a.montoMensual,
-        a.activo ? 'Activo' : 'Inactivo',
-        deuda,
-        ...mensuales,
-      ].join(',');
-    });
-    // Se agrega el BOM UTF-8 para que Excel y otros programas no confundan la
-    // codificación y muestren los acentos (á, ñ, Sí) correctamente.
-    return '\uFEFF' + [header, ...rows].join('\n');
+  /**
+   * Genera el contenido del respaldo: el JSON completo de los alumnos codificado
+   * en base64 con una marca de formato. Al estar codificado, ningún editor,
+   * planilla o proceso de compartido puede corromper acentos ni reordenar campos.
+   */
+  exportar(): string {
+    const json = JSON.stringify({ version: 1, exportado: new Date().toISOString(), alumnos: this.getAll() });
+    return this.BACKUP_MARCA + btoa(unescape(encodeURIComponent(json)));
   }
 
   /**
-   * Parsea un CSV exportado por la app (o compatible) y devuelve los alumnos
-   * listos para importar. Los alumnos reciben ids negativos provisorios para
-   * distinguirlos de un respaldo JSON: al importar se les asigna un id real.
+   * Convierte un respaldo en el JSON interno. Acepta el formato actual
+   * (marca + base64), un base64 suelto y el JSON de versiones anteriores;
+   * devuelve null si el contenido no es un respaldo válido.
    */
-  csvAAlumnos(csv: string): Alumno[] {
-    // Repara acentos corruptos (UTF-8 leído como Windows-1252: á -> Ã¡) antes de parsear.
-    const filas = this.parsearCSV(this.repararCodificacion(csv));
-    if (filas.length < 2) return [];
-
-    const headers = filas[0].map((h) => this.normalizarEncabezado(h));
-    const idxNombre = headers.indexOf('nombre');
-    if (idxNombre === -1) return [];
-
-    const idxApellido = headers.indexOf('apellido');
-    const idxDia = headers.indexOf('dia de pago');
-    const idxMonto = headers.indexOf('monto mensual');
-    const idxEstado = headers.indexOf('estado');
-    const idxTelefono = headers.indexOf('telefono');
-    const idxMeses: { col: number; mes: number; anio: number }[] = [];
-    headers.forEach((h, col) => {
-      const match = /^(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\s+(\d{4})$/.exec(h);
-      if (match) {
-        const mes = this.MESES_ABREV.findIndex((m) => m.toLowerCase() === match[1]) + 1;
-        idxMeses.push({ col, mes, anio: parseInt(match[2], 10) });
-      }
-    });
-
-    let id = -1;
-    const alumnos: Alumno[] = [];
-    for (let r = 1; r < filas.length; r++) {
-      const fila = filas[r];
-      const nombre = (fila[idxNombre] ?? '').trim();
-      if (!nombre) continue;
-
-      const dia = parseInt((fila[idxDia] ?? '').trim(), 10);
-      // El CSV exportado usa el punto como decimal (p. ej. 1500.5). Si el archivo
-      // viene con comas (formato europeo, p. ej. 1.500,50) se normaliza.
-      let montoTexto = (fila[idxMonto] ?? '').trim();
-      if (montoTexto.includes(',')) {
-        montoTexto = montoTexto.replace(/\./g, '').replace(',', '.');
-      }
-      const monto = parseFloat(montoTexto);
-      const estado = (fila[idxEstado] ?? '').trim().toLowerCase();
-      const telefono = idxTelefono !== -1 ? (fila[idxTelefono] ?? '').trim() : '';
-      const pagos: Pago[] = idxMeses.map(({ col, mes, anio }) => ({
-        mes,
-        anio,
-        pagado: ['sí', 'si', 'true', '1'].includes((fila[col] ?? '').trim().toLowerCase()),
-      }));
-
-      alumnos.push({
-        id: id--,
-        nombre,
-        apellido: (fila[idxApellido] ?? '').trim(),
-        diaEntrada: Number.isFinite(dia) ? dia : 1,
-        montoMensual: Number.isFinite(monto) ? monto : 0,
-        pagos,
-        activo: estado === '' ? true : estado === 'activo',
-        telefono: telefono || undefined,
-      });
+  private backupAJson(contenido: string): string | null {
+    const texto = (contenido ?? '').trim().replace(/^\uFEFF/, '');
+    if (!texto) return null;
+    const base64 = texto.startsWith(this.BACKUP_MARCA) ? texto.slice(this.BACKUP_MARCA.length).trim() : texto;
+    if (base64.startsWith('{') || base64.startsWith('[')) {
+      return base64; // respaldo viejo o pegado a mano: se valida al parsear
     }
-    return alumnos;
+    try {
+      // atob entrega solo latín-1: los bytes se reinterpretan como UTF-8,
+      // así los acentos (á, ñ, Sí) viajan intactos de un dispositivo a otro.
+      const binario = atob(base64);
+      const bytes = Uint8Array.from(binario, (c) => c.charCodeAt(0));
+      return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    } catch {
+      return null;
+    }
   }
 
-  importar(json: string, reemplazar: boolean): { ok: boolean; cantidad: number; error?: string } {
+
+
+  importar(backup: string, reemplazar: boolean): { ok: boolean; cantidad: number; error?: string } {
+    const json = this.backupAJson(backup);
+    if (!json) {
+      return { ok: false, cantidad: 0, error: 'El contenido no es un respaldo válido' };
+    }
     try {
       const parsed: unknown = JSON.parse(json);
       const lista: unknown[] = Array.isArray(parsed) ? parsed : (parsed as { alumnos?: unknown[] } | null)?.alumnos ?? [];
@@ -473,7 +412,7 @@ export class AlumnoService {
       }
 
       if (reemplazar) {
-        // Los alumnos de CSV traen ids negativos provisorios: se les asigna uno real
+        // Ids negativos (respaldos muy viejos): se les asigna uno real
         let contador = 0;
         this.storage.setData(this.STORAGE_KEY, validos.map((a) => (a.id >= 0 ? a : { ...a, id: Date.now() + ++contador })));
       } else {
@@ -481,7 +420,7 @@ export class AlumnoService {
         const ids = new Set(actuales.map((a) => a.id));
         for (const alumno of validos) {
           if (alumno.id < 0) {
-            // Alumno proveniente de CSV: evitar duplicados por nombre completo
+            // Id provisorio: evitar duplicados por nombre completo
             const clave = `${alumno.nombre}|${alumno.apellido}`.toLowerCase();
             const yaExiste = actuales.some((a) => `${a.nombre}|${a.apellido}`.toLowerCase() === clave);
             if (!yaExiste) {
@@ -499,7 +438,7 @@ export class AlumnoService {
       this.invalidar();
       return { ok: true, cantidad: validos.length };
     } catch {
-      return { ok: false, cantidad: 0, error: 'El archivo no es un JSON válido' };
+      return { ok: false, cantidad: 0, error: 'El respaldo no contiene datos válidos' };
     }
   }
 
@@ -509,83 +448,6 @@ export class AlumnoService {
     return id;
   }
 
-  /**
-   * Corrige texto que fue codificado en UTF-8 pero leído/guardado como
-   * Windows-1252 (el clásico "Ã¡" en lugar de "á"). Quita el BOM si lo hay y,
-   * cuando detecta señales de esa corrupción, reinterpreta los bytes.
-   */
-  private repararCodificacion(texto: string): string {
-    const sinBom = texto.replace(/^\uFEFF/, '');
-    if (!/[ÃÂ]/.test(sinBom)) return sinBom;
-    try {
-      const bytes = new Uint8Array(sinBom.length);
-      for (let i = 0; i < sinBom.length; i++) {
-        const code = sinBom.charCodeAt(i);
-        bytes[i] = code <= 0xff ? code : this.cp1252AByte(code) ?? (code & 0xff);
-      }
-      return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-    } catch {
-      return sinBom;
-    }
-  }
-
-  private cp1252AByte(code: number): number | undefined {
-    const mapa: Record<number, number> = {
-      0x20ac: 0x80, 0x201a: 0x82, 0x0192: 0x83, 0x201e: 0x84, 0x2026: 0x85,
-      0x2020: 0x86, 0x2021: 0x87, 0x02c6: 0x88, 0x2030: 0x89, 0x0160: 0x8a,
-      0x2039: 0x8b, 0x0152: 0x8c, 0x017d: 0x8e, 0x2018: 0x91, 0x2019: 0x92,
-      0x201c: 0x93, 0x201d: 0x94, 0x2022: 0x95, 0x2013: 0x96, 0x2014: 0x97,
-      0x02dc: 0x98, 0x2122: 0x99, 0x0161: 0x9a, 0x203a: 0x9b, 0x0153: 0x9c,
-      0x017e: 0x9e, 0x0178: 0x9f,
-    };
-    return mapa[code];
-  }
-
-  private parsearCSV(texto: string): string[][] {
-    const filas: string[][] = [];
-    let fila: string[] = [];
-    let campo = '';
-    let entreComillas = false;
-    for (let i = 0; i < texto.length; i++) {
-      const c = texto[i];
-      if (entreComillas) {
-        if (c === '"') {
-          if (texto[i + 1] === '"') {
-            campo += '"';
-            i++;
-          } else {
-            entreComillas = false;
-          }
-        } else {
-          campo += c;
-        }
-      } else if (c === '"') {
-        entreComillas = true;
-      } else if (c === ',') {
-        fila.push(campo);
-        campo = '';
-      } else if (c === '\n' || c === '\r') {
-        if (c === '\r' && texto[i + 1] === '\n') i++;
-        fila.push(campo);
-        campo = '';
-        if (fila.some((f) => f.trim() !== '')) filas.push(fila);
-        fila = [];
-      } else {
-        campo += c;
-      }
-    }
-    fila.push(campo);
-    if (fila.some((f) => f.trim() !== '')) filas.push(fila);
-    return filas;
-  }
-
-  private normalizarEncabezado(encabezado: string): string {
-    return encabezado
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-  }
 
   getHistorialPagos(alumnoId: number): { mes: number; anio: number; pagado: boolean; fechaPago?: string }[] {
     const alumno = this.getById(alumnoId);

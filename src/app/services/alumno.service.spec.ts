@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { AlumnoService } from './alumno.service';
 
-describe('AlumnoService CSV', () => {
+describe('AlumnoService respaldo', () => {
   let svc: AlumnoService;
 
   beforeEach(() => {
@@ -11,22 +11,19 @@ describe('AlumnoService CSV', () => {
     svc = TestBed.inject(AlumnoService);
   });
 
-  it('round-trip: CSV exportado por la app se puede parsear e importar reemplazando', () => {
+  it('round-trip: el respaldo exportado se importa reemplazando', () => {
     svc.crear({ nombre: 'Juan', apellido: 'Pérez', diaEntrada: 5, montoMensual: 15000.5 });
+    svc.togglePagoMes(svc.getAll()[0].id, new Date().getMonth() + 1, new Date().getFullYear());
 
-    const csv = svc.exportarCSV();
-    const alumnos = svc.csvAAlumnos(csv);
+    const backup = svc.exportar();
+    expect(backup.startsWith('CLASES-BACKUP-V1:')).toBeTrue();
 
-    expect(alumnos.length).toBe(1);
-    expect(alumnos[0].nombre).toBe('Juan');
-    expect(alumnos[0].apellido).toBe('Pérez');
-    expect(alumnos[0].diaEntrada).toBe(5);
-    expect(alumnos[0].montoMensual).toBe(15000.5);
-    expect(alumnos[0].id).toBeLessThan(0); // id provisorio de CSV
+    // Importa en un storage limpio (simula otro dispositivo)
+    localStorage.clear();
+    svc['invalidar']();
 
-    const res = svc.importar(JSON.stringify({ version: 1, alumnos }), true);
+    const res = svc.importar(backup, true);
     expect(res.ok).toBeTrue();
-    expect(res.cantidad).toBe(1);
 
     const importados = svc.getAll();
     expect(importados.length).toBe(1);
@@ -37,56 +34,48 @@ describe('AlumnoService CSV', () => {
     expect(importados[0].id).toBeGreaterThan(0);
   });
 
-  it('CSV con nombres entre comillas y coma interna se parsea bien', () => {
-    const csv = 'Nombre,Apellido,Día de pago,Monto mensual,Estado,Deuda (meses),Ene 2026,Feb 2026\n' +
-      '"López, Ana",García,10,20000,Activo,0,Sí,No\n';
-    const alumnos = svc.csvAAlumnos(csv);
+  it('el respaldo conserva los acentos de punta a punta', () => {
+    svc.crear({ nombre: 'José Ñáñez', apellido: 'Müller', diaEntrada: 3, montoMensual: 1000 });
 
-    expect(alumnos.length).toBe(1);
-    expect(alumnos[0].nombre).toBe('López, Ana');
-    expect(alumnos[0].apellido).toBe('García');
-    expect(alumnos[0].montoMensual).toBe(20000);
-    expect(alumnos[0].activo).toBeTrue();
-    expect(svc.estaPagadoMes(alumnos[0], 1, 2026)).toBeTrue();
-    expect(svc.estaPagadoMes(alumnos[0], 2, 2026)).toBeFalse();
+    const backup = svc.exportar();
+    // El contenido viaja en base64: nunca contiene acentos corruptibles
+    const codificado = backup.slice('CLASES-BACKUP-V1:'.length);
+    expect(/[^\x20-\x7E]/.test(codificado)).toBeFalse();
+
+    localStorage.clear();
+    svc['invalidar']();
+    expect(svc.importar(backup, true).ok).toBeTrue();
+
+    const importados = svc.getAll();
+    expect(importados[0].nombre).toBe('José Ñáñez');
+    expect(importados[0].apellido).toBe('Müller');
   });
 
-  it('importar CSV sin reemplazar evita duplicados por nombre y apellido', () => {
+  it('importar sin reemplazar evita duplicados', () => {
     svc.crear({ nombre: 'Juan', apellido: 'Pérez', diaEntrada: 5, montoMensual: 15000 });
 
-    const csv = svc.exportarCSV();
-    const alumnos = svc.csvAAlumnos(csv);
-
-    const res = svc.importar(JSON.stringify({ version: 1, alumnos }), false);
+    const backup = svc.exportar();
+    const res = svc.importar(backup, false);
     expect(res.ok).toBeTrue();
     expect(svc.getAll().length).toBe(1); // no se duplicó
   });
 
-  it('CSV sin alumnos válidos devuelve lista vacía', () => {
-    expect(svc.csvAAlumnos('Nombre,Apellido\n')).toEqual([]);
-    expect(svc.csvAAlumnos('no es csv')).toEqual([]);
+  it('acepta el formato viejo (JSON con version y alumnos)', () => {
+    const viejo = JSON.stringify({
+      version: 1,
+      exportado: new Date().toISOString(),
+      alumnos: [{ id: 123, nombre: 'Ana', apellido: 'García', diaEntrada: 10, montoMensual: 20000, activo: true, pagos: [{ mes: 1, anio: 2026, pagado: true }], historialMontos: [{ monto: 20000, fecha: '2026-01-01T00:00:00.000Z' }] }],
+    });
+
+    const res = svc.importar(viejo, true);
+    expect(res.ok).toBeTrue();
+    expect(svc.getAll().length).toBe(1);
+    expect(svc.getAll()[0].nombre).toBe('Ana');
   });
 
-  it('exportarCSV incluye BOM y conserva los acentos', () => {
-    svc.crear({ nombre: 'José', apellido: 'Ñáñez', diaEntrada: 3, montoMensual: 1000 });
-    const csv = svc.exportarCSV();
-    expect(csv.charCodeAt(0)).toBe(0xfeff);
-    expect(csv).toContain('Día de pago');
-    expect(csv).toContain('José');
-  });
-
-  it('CSV con acentos corruptos (UTF-8 leído como Windows-1252) se repara al importar', () => {
-    // "Día" y "Sí" escritos como bytes UTF-8 mal interpretados
-    const csvCorrupto =
-      'Nombre,Apellido,DÃ\u00ADa de pago,Monto mensual,Estado,Deuda (meses),Ene 2026,Feb 2026\n' +
-      'SuÃ¡rez,"MatÃ\u00ADas",19,40000,Activo,1,SÃ\u00AD,No\n';
-    const alumnos = svc.csvAAlumnos(csvCorrupto);
-
-    expect(alumnos.length).toBe(1);
-    expect(alumnos[0].nombre).toBe('Suárez');
-    expect(alumnos[0].apellido).toBe('Matías');
-    expect(alumnos[0].diaEntrada).toBe(19);
-    expect(svc.estaPagadoMes(alumnos[0], 1, 2026)).toBeTrue();
-    expect(svc.estaPagadoMes(alumnos[0], 2, 2026)).toBeFalse();
+  it('contenido inválido devuelve error', () => {
+    expect(svc.importar('', true).ok).toBeFalse();
+    expect(svc.importar('no es un respaldo', true).ok).toBeFalse();
+    expect(svc.importar('CLASES-BACKUP-V1:no-base64!!', true).ok).toBeFalse();
   });
 });

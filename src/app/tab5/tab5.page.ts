@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonListHeader, IonItem, IonLabel, IonIcon, IonRange, IonInput, IonButton, IonButtons, IonModal, IonTextarea, IonToast, IonAlert, IonRadioGroup, IonRadio } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonListHeader, IonItem, IonLabel, IonIcon, IonRange, IonInput, IonToast, IonAlert, IonRadioGroup, IonRadio } from '@ionic/angular/standalone';
 import { RangeCustomEvent, InputCustomEvent, RadioGroupCustomEvent } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { notifications, download, cloudUpload, copy, shareSocial, chevronForward, apps, document as documentIcon } from 'ionicons/icons';
+import { notifications, download, cloudUpload, shareSocial, chevronForward, apps } from 'ionicons/icons';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -18,7 +18,7 @@ import { ThemeService, TEMAS, Tema } from '../services/theme.service';
   selector: 'app-tab5',
   templateUrl: 'tab5.page.html',
   styleUrls: ['tab5.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonListHeader, IonItem, IonLabel, IonIcon, IonRange, IonInput, IonButton, IonButtons, IonModal, IonTextarea, IonToast, IonAlert, IonRadioGroup, IonRadio],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonListHeader, IonItem, IonLabel, IonIcon, IonRange, IonInput, IonToast, IonAlert, IonRadioGroup, IonRadio],
 })
 export class Tab5Page {
   private alumnoService = inject(AlumnoService);
@@ -27,31 +27,33 @@ export class Tab5Page {
   private widgetService = inject(WidgetService);
   private themeService = inject(ThemeService);
 
+  private importInput = viewChild.required<ElementRef<HTMLInputElement>>('archivoInput');
+
   diasAnticipacion = 3;
   horaNotificacion = '12:00';
   temaSeleccionado = 'bordeaux';
   temas: Tema[] = TEMAS;
 
-  exportOpen = false;
-  importOpen = false;
-  jsonExport = '';
-  jsonImport = '';
-
   toastOpen = false;
   toastMsg = '';
   confirmarReemplazo = false;
+  importContenido = '';
 
   alertButtons = [
     { text: 'Cancelar', role: 'cancel' },
     {
-      text: 'Reemplazar',
+      text: 'Agregar',
+      handler: () => this.importar(false),
+    },
+    {
+      text: 'Reemplazar todo',
       role: 'destructive',
       handler: () => this.importar(true),
     },
   ];
 
   constructor() {
-    addIcons({ notifications, download, cloudUpload, copy, shareSocial, chevronForward, apps, document: documentIcon });
+    addIcons({ notifications, download, cloudUpload, shareSocial, chevronForward, apps });
   }
 
   ionViewWillEnter() {
@@ -83,30 +85,13 @@ export class Tab5Page {
     this.notificationService.checkAndSchedule();
   }
 
-  abrirExportar() {
-    this.jsonExport = this.alumnoService.exportar();
-    this.exportOpen = true;
-  }
-
-  async copiar() {
-    try {
-      await navigator.clipboard.writeText(this.jsonExport);
-      this.mostrarToast('Respaldo copiado al portapapeles');
-    } catch {
-      // Fallback para WebViews sin API de portapapeles
-      const ta = document.createElement('textarea');
-      ta.value = this.jsonExport;
-      document.body.appendChild(ta);
-      ta.select();
-      const ok = document.execCommand('copy');
-      document.body.removeChild(ta);
-      this.mostrarToast(ok ? 'Respaldo copiado al portapapeles' : 'No se pudo copiar');
-    }
-  }
-
-  async compartir() {
-    const ok = await this.compartirArchivo(this.generarNombreArchivo('respaldo_clases', 'json'), this.jsonExport, 'application/json');
-    if (!ok) this.mostrarToast('No se pudo compartir el archivo');
+  async exportar() {
+    const contenido = this.alumnoService.exportar();
+    const nombre = this.generarNombreArchivo('respaldo_clases', 'backup');
+    const ok = await this.compartirArchivo(nombre, contenido, 'application/octet-stream');
+    this.mostrarToast(ok
+      ? `Respaldo creado (${nombre}). Guardalo en Archivos o mandalo por WhatsApp.`
+      : 'No se pudo exportar el respaldo');
   }
 
   /**
@@ -136,8 +121,7 @@ export class Tab5Page {
 
     // Web: descargar el archivo con el navegador
     try {
-      const conCharset = /charset=/.test(mime) ? mime : `${mime};charset=utf-8`;
-      const blob = new Blob([contenido], { type: conCharset });
+      const blob = new Blob([contenido], { type: mime });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -159,7 +143,7 @@ export class Tab5Page {
   }
 
   solicitarImportar() {
-    this.importOpen = true;
+    this.importInput().nativeElement.click();
   }
 
   async onArchivoSeleccionado(event: Event) {
@@ -168,104 +152,34 @@ export class Tab5Page {
     input.value = ''; // Permite volver a elegir el mismo archivo
     if (!archivo) return;
 
-    let contenido: string;
     try {
-      contenido = await this.leerArchivo(archivo);
+      // Contenido legible: el texto llega tal cual (los respaldos son ASCII/base64,
+      // inmunes a problemas de codificación).
+      this.importContenido = await archivo.text();
     } catch {
       this.mostrarToast('No se pudo leer el archivo');
       return;
     }
-
-    const esJson = archivo.name.toLowerCase().endsWith('.json') || /^\s*[{\[]/.test(contenido);
-    if (esJson) {
-      this.jsonImport = contenido;
-      this.mostrarToast('Archivo JSON cargado. Elegí cómo importarlo.');
-      return;
-    }
-
-    // CSV: se convierte al mismo formato de respaldo interno y se muestra en el editor
-    const alumnos = this.alumnoService.csvAAlumnos(contenido);
-    if (alumnos.length === 0) {
-      this.mostrarToast('No se encontraron alumnos válidos en el archivo CSV');
-      return;
-    }
-    this.jsonImport = JSON.stringify({ version: 1, exportado: new Date().toISOString(), alumnos }, null, 2);
-    this.mostrarToast(`Archivo CSV cargado (${alumnos.length} alumnos). Elegí cómo importarlo.`);
+    this.confirmarImportar();
   }
 
-  private leerArchivo(archivo: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const buffer = reader.result as ArrayBuffer;
-        try {
-          // Se decodifica siempre como UTF-8, sin importar la configuración del equipo.
-          resolve(new TextDecoder('utf-8').decode(buffer));
-        } catch {
-          resolve(String(buffer ?? ''));
-        }
-      };
-      reader.onerror = () => reject(new Error('Error al leer el archivo'));
-      reader.readAsArrayBuffer(archivo);
-    });
-  }
-
-  /**
-   * Devuelve el contenido a importar como JSON. Si lo pegado es un CSV, lo
-   * convierte al formato de respaldo interno.
-   */
-  private prepararImportacion(): string | null {
-    const texto = this.jsonImport.trim();
-    if (!texto) return null;
-    if (/^[{\[]/.test(texto)) return texto;
-    const alumnos = this.alumnoService.csvAAlumnos(texto);
-    if (alumnos.length === 0) return null;
-    return JSON.stringify({ version: 1, exportado: new Date().toISOString(), alumnos });
-  }
-
-  pedirReemplazo() {
-    if (!this.prepararImportacion()) {
-      this.mostrarToast('Pegá un respaldo JSON o un CSV válido primero');
+  confirmarImportar() {
+    if (!this.importContenido.trim()) {
+      this.mostrarToast('El archivo está vacío o no se leyó bien');
       return;
     }
     this.confirmarReemplazo = true;
   }
 
   importar(reemplazar: boolean) {
-    const json = this.prepararImportacion();
-    if (!json) {
-      this.mostrarToast('El contenido no es un respaldo JSON ni un CSV válido');
-      return;
-    }
-    const res = this.alumnoService.importar(json, reemplazar);
+    const res = this.alumnoService.importar(this.importContenido, reemplazar);
     if (res.ok) {
       this.mostrarToast(reemplazar ? `Datos reemplazados (${res.cantidad} alumnos)` : `${res.cantidad} alumnos agregados`);
-      this.jsonImport = '';
-      this.importOpen = false;
+      this.importContenido = '';
       this.notificationService.checkAndSchedule();
       this.widgetService.actualizar();
     } else {
       this.mostrarToast(res.error || 'Error al importar');
-    }
-  }
-
-  async exportarCSV() {
-    const csv = this.alumnoService.exportarCSV();
-    const ok = await this.compartirArchivo(this.generarNombreArchivo('alumnos', 'csv'), csv, 'text/csv');
-    if (!ok) {
-      // Fallback: copiar al portapapeles
-      try {
-        await navigator.clipboard.writeText(csv);
-        this.mostrarToast('CSV copiado al portapapeles');
-      } catch {
-        const ta = document.createElement('textarea');
-        ta.value = csv;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        this.mostrarToast('CSV copiado al portapapeles');
-      }
     }
   }
 
