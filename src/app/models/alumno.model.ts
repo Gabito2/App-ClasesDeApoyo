@@ -20,4 +20,6 @@ export interface Alumno {
   activo: boolean;
   telefono?: string;
   historialMontos?: HistorialMonto[];
+  /** Fecha ISO en que se registró el alumno en la app (piso para calcular días/meses de deuda). */
+  fechaRegistro?: string;
 }

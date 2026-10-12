@@ -33,6 +33,26 @@ export class AlumnoService {
     const alumno = { ...a };
     if (!alumno.apellido) alumno.apellido = '';
     if (alumno.activo === undefined) alumno.activo = true;
+    if (!alumno.fechaRegistro) {
+      // Alumnos creados antes de guardar la fecha de registro: se infiere del
+      // mes más antiguo anotado en su lista de pagos (ese mes ya existía como
+      // alumno). Así los meses impagos anteriores y el actual siguen sumando días.
+      const ahora = new Date();
+      const pagos = alumno.pagos ?? [];
+      let masAntiguo: { anio: number; mes: number } | null = null;
+      for (const p of pagos) {
+        if (!masAntiguo || p.anio < masAntiguo.anio || (p.anio === masAntiguo.anio && p.mes < masAntiguo.mes)) {
+          masAntiguo = { anio: p.anio, mes: p.mes };
+        }
+      }
+      if (masAntiguo && (masAntiguo.anio < ahora.getFullYear() || masAntiguo.mes < ahora.getMonth() + 1)) {
+        // Ya existía en un mes anterior al actual: piso el día 1 de ese mes
+        alumno.fechaRegistro = new Date(masAntiguo.anio, masAntiguo.mes - 1, 1, 12, 0, 0).toISOString();
+      } else {
+        // Solo tiene anotado el mes actual (o nada): asume registro reciente
+        alumno.fechaRegistro = new Date().toISOString();
+      }
+    }
     if (!alumno.pagos) {
       const ahora = new Date();
       alumno.pagos = [{ mes: ahora.getMonth() + 1, anio: ahora.getFullYear(), pagado: a.pagado ?? false, fechaPago: a.fechaPago }];
@@ -60,6 +80,7 @@ export class AlumnoService {
       ...alumno,
       id,
       activo: true,
+      fechaRegistro: ahora.toISOString(),
       pagos: [{ mes: ahora.getMonth() + 1, anio: ahora.getFullYear(), pagado: false }],
       historialMontos: [{ monto: alumno.montoMensual, fecha: ahora.toISOString() }],
     };
@@ -121,6 +142,26 @@ export class AlumnoService {
     return pago?.pagado ?? false;
   }
 
+  /** Fecha límite desde la que se cuenta la deuda de un alumno: su registro en la app. */
+  private fechaPiso(alumno: Alumno): Date {
+    let iso = alumno.fechaRegistro ?? '';
+    // "2026-10-12" se parsea como UTC y puede caer el día anterior según la zona:
+    // se fija el mediodía local para conservar el día de registro.
+    if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) iso += 'T12:00:00';
+    const fecha = new Date(iso);
+    return isNaN(fecha.getTime()) ? new Date(0) : fecha;
+  }
+
+  /**
+   * Devuelve el día del mes (1..28) si la fecha cae dentro del mes/año dados, o 0 si no.
+   */
+  private diaRegistroEnMes(fecha: Date, anio: number, mes: number): number {
+    if (fecha.getFullYear() === anio && fecha.getMonth() + 1 === mes) {
+      return fecha.getDate();
+    }
+    return 0;
+  }
+
   getEstadoPagoMes(alumno: Alumno): { texto: string; pasado: boolean; pagoAlDia: boolean } {
     const ahora = new Date();
     const mes = ahora.getMonth() + 1;
@@ -132,24 +173,46 @@ export class AlumnoService {
       return { texto: pago?.fechaPago ? 'Pagado' : 'Al día', pasado: false, pagoAlDia: true };
     }
 
+    // Piso: no se cuentan días de meses anteriores al alta del alumno
+    const piso = this.fechaPiso(alumno);
+    const mesPiso = piso.getFullYear() * 12 + piso.getMonth(); // meses desde año 0
+
     let totalDias = 0;
     let m = mes;
     let a = anio;
     let primerMesImpago = true;
 
-    while (!this.estaPagadoMes(alumno, m, a)) {
-      const ultimoDia = new Date(a, m, 0).getDate();
-      const diaPago = Math.min(alumno.diaEntrada, ultimoDia);
-      const fechaPago = new Date(a, m - 1, diaPago);
+    // Si el alumno se registró este mes y ya pasó su día de cobro, se cuenta desde ese día
+    const diaRegistroActual = this.diaRegistroEnMes(piso, anio, mes);
+    const diaInicioMesActual = diaRegistroActual > 0 ? diaRegistroActual : Math.min(alumno.diaEntrada, new Date(a, m, 0).getDate());
 
+    while (!this.estaPagadoMes(alumno, m, a)) {
+      const indiceMes = a * 12 + (m - 1);
+      if (indiceMes < mesPiso) break; // no deudar antes del alta
+
+      const ultimoDia = new Date(a, m, 0).getDate();
+      let diaInicio: number;
       if (primerMesImpago) {
-        if (ahora > fechaPago) {
-          totalDias += Math.floor((ahora.getTime() - fechaPago.getTime()) / (1000 * 60 * 60 * 24));
-        }
-        primerMesImpago = false;
+        diaInicio = diaInicioMesActual;
+      } else if (indiceMes === mesPiso) {
+        diaInicio = Math.min(piso.getDate(), ultimoDia);
       } else {
-        totalDias += ultimoDia - diaPago + 1;
+        diaInicio = Math.min(alumno.diaEntrada, ultimoDia);
       }
+
+      const fechaPago = new Date(a, m - 1, diaInicio);
+      const fechaFin = m === mes && a === anio ? ahora : new Date(a, m, 0, 23, 59, 59);
+
+      // Contamos la porción de mes transcurrida desde el inicio efectivo.
+      // Mes anterior: se redondea (incluye el día de inicio completo);
+      // mes actual: días completos transcurridos.
+      if (ahora > fechaPago) {
+        const fin = fechaFin > ahora ? ahora : fechaFin;
+        const esMesActual = m === mes && a === anio;
+        const dias = (fin.getTime() - fechaPago.getTime()) / (1000 * 60 * 60 * 24);
+        totalDias += esMesActual ? Math.floor(dias) : Math.round(dias);
+      }
+      primerMesImpago = false;
 
       m--;
       if (m === 0) {
@@ -160,6 +223,13 @@ export class AlumnoService {
     }
 
     if (totalDias === 0) {
+      // Si el vencimiento de este mes todavía no llegó (p. ej. alumno recién registrado o
+      // con día de pago posterior a hoy), mostramos la fecha de vencimiento en lugar de "Vence hoy".
+      const diaVencimiento = diaRegistroActual > 0 ? diaRegistroActual : Math.min(alumno.diaEntrada, new Date(anio, mes, 0).getDate());
+      const fechaVencimiento = new Date(anio, mes - 1, diaVencimiento);
+      if (ahora < fechaVencimiento) {
+        return { texto: `Vence el ${diaVencimiento}`, pasado: false, pagoAlDia: false };
+      }
       return { texto: 'Vence hoy', pasado: false, pagoAlDia: false };
     }
     return { texto: `Venció hace ${totalDias} día${totalDias !== 1 ? 's' : ''}`, pasado: true, pagoAlDia: false };
@@ -221,10 +291,15 @@ export class AlumnoService {
 
   getMesesImpagos(alumno: Alumno): number {
     const ahora = new Date();
+    // límite: no se cuentan meses anteriores al registro del alumno
+    const piso = this.fechaPiso(alumno);
+    const mesPiso = piso.getFullYear() * 12 + piso.getMonth();
     let contador = 0;
     let mes = ahora.getMonth() + 1;
     let anio = ahora.getFullYear();
     while (!this.estaPagadoMes(alumno, mes, anio)) {
+      const indiceMes = anio * 12 + (mes - 1);
+      if (indiceMes < mesPiso) break;
       contador++;
       mes--;
       if (mes === 0) {
