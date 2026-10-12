@@ -66,4 +66,27 @@ describe('AlumnoService CSV', () => {
     expect(svc.csvAAlumnos('Nombre,Apellido\n')).toEqual([]);
     expect(svc.csvAAlumnos('no es csv')).toEqual([]);
   });
+
+  it('exportarCSV incluye BOM y conserva los acentos', () => {
+    svc.crear({ nombre: 'José', apellido: 'Ñáñez', diaEntrada: 3, montoMensual: 1000 });
+    const csv = svc.exportarCSV();
+    expect(csv.charCodeAt(0)).toBe(0xfeff);
+    expect(csv).toContain('Día de pago');
+    expect(csv).toContain('José');
+  });
+
+  it('CSV con acentos corruptos (UTF-8 leído como Windows-1252) se repara al importar', () => {
+    // "Día" y "Sí" escritos como bytes UTF-8 mal interpretados
+    const csvCorrupto =
+      'Nombre,Apellido,DÃ\u00ADa de pago,Monto mensual,Estado,Deuda (meses),Ene 2026,Feb 2026\n' +
+      'SuÃ¡rez,"MatÃ\u00ADas",19,40000,Activo,1,SÃ\u00AD,No\n';
+    const alumnos = svc.csvAAlumnos(csvCorrupto);
+
+    expect(alumnos.length).toBe(1);
+    expect(alumnos[0].nombre).toBe('Suárez');
+    expect(alumnos[0].apellido).toBe('Matías');
+    expect(alumnos[0].diaEntrada).toBe(19);
+    expect(svc.estaPagadoMes(alumnos[0], 1, 2026)).toBeTrue();
+    expect(svc.estaPagadoMes(alumnos[0], 2, 2026)).toBeFalse();
+  });
 });

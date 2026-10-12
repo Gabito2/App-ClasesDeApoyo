@@ -136,7 +136,8 @@ export class Tab5Page {
 
     // Web: descargar el archivo con el navegador
     try {
-      const blob = new Blob([contenido], { type: mime });
+      const conCharset = /charset=/.test(mime) ? mime : `${mime};charset=utf-8`;
+      const blob = new Blob([contenido], { type: conCharset });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -195,26 +196,48 @@ export class Tab5Page {
   private leerArchivo(archivo: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result ?? ''));
+      reader.onload = () => {
+        const buffer = reader.result as ArrayBuffer;
+        try {
+          // Se decodifica siempre como UTF-8, sin importar la configuración del equipo.
+          resolve(new TextDecoder('utf-8').decode(buffer));
+        } catch {
+          resolve(String(buffer ?? ''));
+        }
+      };
       reader.onerror = () => reject(new Error('Error al leer el archivo'));
-      reader.readAsText(archivo);
+      reader.readAsArrayBuffer(archivo);
     });
   }
 
+  /**
+   * Devuelve el contenido a importar como JSON. Si lo pegado es un CSV, lo
+   * convierte al formato de respaldo interno.
+   */
+  private prepararImportacion(): string | null {
+    const texto = this.jsonImport.trim();
+    if (!texto) return null;
+    if (/^[{\[]/.test(texto)) return texto;
+    const alumnos = this.alumnoService.csvAAlumnos(texto);
+    if (alumnos.length === 0) return null;
+    return JSON.stringify({ version: 1, exportado: new Date().toISOString(), alumnos });
+  }
+
   pedirReemplazo() {
-    if (!this.jsonImport.trim()) {
-      this.mostrarToast('Pegá el JSON del respaldo primero');
+    if (!this.prepararImportacion()) {
+      this.mostrarToast('Pegá un respaldo JSON o un CSV válido primero');
       return;
     }
     this.confirmarReemplazo = true;
   }
 
   importar(reemplazar: boolean) {
-    if (!this.jsonImport.trim()) {
-      this.mostrarToast('Pegá el JSON del respaldo primero');
+    const json = this.prepararImportacion();
+    if (!json) {
+      this.mostrarToast('El contenido no es un respaldo JSON ni un CSV válido');
       return;
     }
-    const res = this.alumnoService.importar(this.jsonImport, reemplazar);
+    const res = this.alumnoService.importar(json, reemplazar);
     if (res.ok) {
       this.mostrarToast(reemplazar ? `Datos reemplazados (${res.cantidad} alumnos)` : `${res.cantidad} alumnos agregados`);
       this.jsonImport = '';
