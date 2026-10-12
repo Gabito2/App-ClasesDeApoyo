@@ -3,15 +3,15 @@
     <ion-title>Alumnos</ion-title>
     @if (filtroEstado === 'activos') {
     <ion-buttons slot="end">
-      <ion-button  (click)="abrirModalNuevo()">
-        <ion-icon name="person-add" slot="icon-only"></ion-icon>
+      <ion-button class="header-action" (click)="abrirModalNuevo()" aria-label="Agregar alumno">
+        <ion-icon style="color: white;" name="person-add" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     }
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" style="--padding-bottom: 80px">
+<ion-content [fullscreen]="true" class="tab1-content">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Alumnos</ion-title>
@@ -19,62 +19,98 @@
   </ion-header>
 
   @if (hayAlumnosTotal) {
-  <ion-segment [(ngModel)]="filtroEstado" (ionChange)="cargar()" class="estado-segment">
-    <ion-segment-button value="activos">Activos</ion-segment-button>
-    <ion-segment-button value="inactivos">Inactivos</ion-segment-button>
-  </ion-segment>
+  <div class="panel-superior">
+    <ion-segment [(ngModel)]="filtroEstado" (ionChange)="cargar()" class="estado-segment">
+      <ion-segment-button value="activos">Activos</ion-segment-button>
+      <ion-segment-button value="inactivos">Inactivos</ion-segment-button>
+    </ion-segment>
+
+    @if (filtroEstado === 'activos' && alumnos.length > 0) {
+    <div class="resumen">
+      <div class="resumen-item">
+        <span class="resumen-valor">{{ alumnos.length }}</span>
+        <span class="resumen-label">Activos</span>
+      </div>
+      <div class="resumen-divisor"></div>
+      <div class="resumen-item ok">
+        <span class="resumen-valor">{{ resumen.alDia }}</span>
+        <span class="resumen-label">Al día</span>
+      </div>
+      <div class="resumen-divisor"></div>
+      <div class="resumen-item mora">
+        <span class="resumen-valor">{{ resumen.enMora }}</span>
+        <span class="resumen-label">En mora</span>
+      </div>
+    </div>
+    }
+  </div>
   }
 
   @if (alumnos.length === 0) {
-  <div class="empty-state">
-    <ion-icon name="person-add"></ion-icon>
+  <div class="vacio">
+    <div class="vacio-icono">
+      <ion-icon name="person-add"></ion-icon>
+    </div>
     @if (filtroEstado === 'activos') {
-    <p>No hay alumnos registrados</p>
-    <p class="hint">Tocá el botón + de arriba para agregar uno</p>
+    <h2>No hay alumnos registrados</h2>
+    <p class="vacio-hint">Tocá el botón + de arriba para agregar uno</p>
     } @else {
-    <p>No hay alumnos dados de baja</p>
+    <h2>No hay alumnos dados de baja</h2>
     }
   </div>
   }
 
   @if (alumnos.length > 0) {
-  <div class="search-wrapper">
-    <ion-searchbar [(ngModel)]="busqueda" placeholder="Buscar alumno..." debounce="200" mode="ios"></ion-searchbar>
-  </div>
+  <div class="controles">
+    <ion-searchbar [(ngModel)]="busqueda" placeholder="Buscar por nombre o apellido" debounce="200" mode="ios"
+      class="buscar"></ion-searchbar>
 
-  <div class="sort-wrapper">
-    <ion-label class="sort-label">Ordenar por:</ion-label>
-    <ion-select [(ngModel)]="orden" interface="popover" class="sort-select">
-      <ion-select-option value="nombre">Nombre (A-Z)</ion-select-option>
-      <ion-select-option value="dia">Día de pago</ion-select-option>
-      <ion-select-option value="monto">Monto (mayor a menor)</ion-select-option>
-    </ion-select>
+    <div class="chips" role="group" aria-label="Ordenar por">
+      <button type="button" class="chip" [class.active]="orden === 'nombre'" (click)="orden = 'nombre'">
+        Nombre
+      </button>
+      <button type="button" class="chip" [class.active]="orden === 'dia'" (click)="orden = 'dia'">
+        Día de pago
+      </button>
+      <button type="button" class="chip" [class.active]="orden === 'monto'" (click)="orden = 'monto'">
+        Mayor cuota
+      </button>
+    </div>
   </div>
   }
 
   @if (alumnosFiltrados.length === 0 && busqueda.trim()) {
-  <div class="empty-state">No se encontraron resultados</div>
+  <div class="vacio">
+    <div class="vacio-icono">
+      <ion-icon name="search-outline"></ion-icon>
+    </div>
+    <h2>Sin resultados</h2>
+    <p class="vacio-hint">No encontramos alumnos que coincidan con "{{ busqueda.trim() }}"</p>
+  </div>
   }
 
-  <ion-list>
+  <ion-list class="lista" lines="none">
     @for (a of alumnosFiltrados; track a.id) {
-    <ion-item class="alumno-card">
-      <div class="card-content">
-        <div class="card-main">
-          <div class="avatar">{{ a.nombre.charAt(0) }}{{ a.apellido.charAt(0) }}</div>
-          <div class="info">
+    <ion-item class="ficha">
+      <div class="ficha-contenido">
+        <div class="ficha-principal">
+          <div class="ficha-avatar" [ngClass]="estadoClase(a)">{{ a.nombre.charAt(0) }}{{ a.apellido.charAt(0) }}</div>
+          <div class="ficha-info">
             <h2>{{ a.nombre }} {{ a.apellido }}</h2>
-            <p>${{ a.montoMensual | number }} / mes · Día {{ a.diaEntrada }}</p>
+            <div class="ficha-meta">
+              <span class="ficha-monto">${{ a.montoMensual | number }}</span>
+              <span class="ficha-punto">·</span>
+              <span>Día {{ a.diaEntrada }}</span>
+            </div>
             @if (filtroEstado === 'activos') {
-            <div class="estado-pill" [class.ok]="getEstado(a).pagoAlDia" [class.mora]="!getEstado(a).pagoAlDia && getEstado(a).pasado"
-              [class.pendiente]="!getEstado(a).pagoAlDia && !getEstado(a).pasado">
+            <div class="ficha-pill" [ngClass]="estadoClase(a)">
               <ion-icon [name]="getEstado(a).pagoAlDia ? 'checkmark-circle' : 'close-circle'"></ion-icon>
               {{ getEstado(a).texto }}
             </div>
             }
           </div>
         </div>
-        <ion-button fill="clear" class="menu-btn" (click)="abrirAcciones(a, $event)">
+        <ion-button fill="clear" class="menu-btn" (click)="abrirAcciones(a, $event)" aria-label="Acciones del alumno">
           <ion-icon name="ellipsis-vertical" slot="icon-only"></ion-icon>
         </ion-button>
       </div>
@@ -87,31 +123,33 @@
     <ng-template>
       <ion-header class="modal-header">
         <ion-toolbar>
-          <ion-title>{{ editando ? 'Editar Alumno' : 'Nuevo Alumno' }}</ion-title>
+          <ion-title>{{ editando ? 'Editar alumno' : 'Nuevo alumno' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="cerrarModal()" aria-label="Cerrar">
+              <ion-icon name="close" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
         </ion-toolbar>
       </ion-header>
-      <ion-content>
+      <ion-content class="modal-content">
         <div class="form-wrapper">
-          <ion-item>
-            <ion-label position="floating">Nombre y apellido</ion-label>
-            <ion-input [(ngModel)]="formNombreCompleto" type="text"></ion-input>
-          </ion-item>
-          <ion-item class="calendario-item">
-            <ion-label style="font-size: 24px;" position="stacked">Día de pago</ion-label>
-            <ion-datetime class="calendario" [value]="formFecha" presentation="date" (ionChange)="onFechaChange($event)"
-              locale="es-AR"></ion-datetime>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Monto mensual ($)</ion-label>
-            <ion-input [(ngModel)]="formMontoMensual" type="number" min="0"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Teléfono (WhatsApp, opcional)</ion-label>
-            <ion-input [(ngModel)]="formTelefono" type="tel"></ion-input>
-          </ion-item>
+          <ion-input class="form-input" label="Nombre y apellido" labelPlacement="stacked" fill="outline"
+            [(ngModel)]="formNombreCompleto" type="text"></ion-input>
+
+          <ion-input class="form-input" label="Monto mensual ($)" labelPlacement="stacked" fill="outline"
+            [(ngModel)]="formMontoMensual" type="number" min="0" inputmode="numeric"></ion-input>
+
+          <ion-input class="form-input" label="Teléfono (WhatsApp, opcional)" labelPlacement="stacked" fill="outline"
+            [(ngModel)]="formTelefono" type="tel"></ion-input>
+
+          <div class="form-grupo">
+            <div class="form-label">Día de pago</div>
+            <ion-datetime class="calendario" [value]="formFecha" presentation="date"
+              (ionChange)="onFechaChange($event)" locale="es-AR" [showDefaultButtons]="false"></ion-datetime>
+          </div>
 
           <ion-button expand="full" (click)="guardar()" class="save-btn">
-            {{ editando ? 'Guardar Cambios' : 'Agregar Alumno' }}
+            {{ editando ? 'Guardar cambios' : 'Agregar alumno' }}
           </ion-button>
         </div>
       </ion-content>

@@ -4,90 +4,86 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" style="--padding-bottom: 80px">
+<ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Ajustes</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <ion-list class="settings-list">
-    <ion-list-header>
-      <ion-label>Apariencia</ion-label>
-    </ion-list-header>
+  <div class="ajustes-page">
+    <!-- Apariencia -->
+    <h3 class="grupo-titulo">Apariencia</h3>
+    <div class="grupo-card">
+      <div class="grupo-row">
+        <ion-icon name="color-palette"></ion-icon>
+        <div class="grupo-texto">
+          <h2>Color de la app</h2>
+          <p>{{ temaActual.nombre }}</p>
+        </div>
+      </div>
+      <div class="swatches">
+        @for (t of temas; track t.id) {
+        <button type="button" class="swatch" [class.activo]="temaSeleccionado === t.id"
+          [style.background]="t.primario" [attr.aria-label]="t.nombre" [attr.aria-pressed]="temaSeleccionado === t.id"
+          (click)="seleccionarTema(t)">
+          @if (temaSeleccionado === t.id) {
+          <ion-icon name="checkmark"></ion-icon>
+          }
+        </button>
+        }
+      </div>
+    </div>
 
-    <ion-radio-group [(ngModel)]="temaSeleccionado" (ionChange)="cambiarTema($event)">
-      @for (t of temas; track t.id) {
-      <ion-item>
-        <div slot="start" class="color-dot" [style.background]="t.primario"></div>
-        <ion-label>{{ t.nombre }}</ion-label>
-        <ion-radio slot="end" [value]="t.id"></ion-radio>
-      </ion-item>
-      }
-    </ion-radio-group>
+    <!-- Recordatorios -->
+    <h3 class="grupo-titulo">Recordatorios</h3>
+    <div class="grupo-card">
+      <div class="grupo-row">
+        <ion-icon name="notifications"></ion-icon>
+        <div class="grupo-texto">
+          <h2>Recordatorio de cuota</h2>
+          <p>Se envía el día del vencimiento a las 12:00</p>
+        </div>
+      </div>
+    </div>
 
-    <ion-list-header>
-      <ion-label>Notificaciones</ion-label>
-    </ion-list-header>
+    <!-- Widget -->
+    <h3 class="grupo-titulo">Widget</h3>
+    <div class="grupo-card">
+      <button type="button" class="grupo-row accion" (click)="anclarWidget()">
+        <ion-icon name="apps"></ion-icon>
+        <div class="grupo-texto">
+          <h2>Agregar widget a la pantalla de inicio</h2>
+          <p>Muestra quién tiene la cuota vencida o por vencer</p>
+        </div>
+        <ion-icon name="chevron-forward" class="chevron"></ion-icon>
+      </button>
+    </div>
 
-    <ion-item>
-      <ion-label class="ion-text-wrap">
-        <h2>Anticipación del recordatorio</h2>
-        <p>{{ diasAnticipacion }} día{{ diasAnticipacion === 1 ? '' : 's' }} antes del vencimiento</p>
-      </ion-label>
-      <ion-range slot="end" [min]="1" [max]="15" [value]="diasAnticipacion" [snaps]="true" [pin]="true"
-        (ionChange)="onDiasChange($event)"></ion-range>
-    </ion-item>
+    <!-- Datos -->
+    <h3 class="grupo-titulo">Datos</h3>
+    <div class="grupo-card">
+      <button type="button" class="grupo-row accion" (click)="exportar()">
+        <ion-icon name="download"></ion-icon>
+        <div class="grupo-texto">
+          <h2>Exportar respaldo</h2>
+          <p>Crea un archivo y te ofrece compartirlo o guardarlo</p>
+        </div>
+        <ion-icon name="share-social" class="chevron"></ion-icon>
+      </button>
+      <div class="separador"></div>
+      <button type="button" class="grupo-row accion" (click)="solicitarImportar()">
+        <ion-icon name="cloud-upload"></ion-icon>
+        <div class="grupo-texto">
+          <h2>Importar respaldo</h2>
+          <p>Elegí un archivo de respaldo (.backup) de este u otro dispositivo</p>
+        </div>
+        <ion-icon name="chevron-forward" class="chevron"></ion-icon>
+      </button>
+    </div>
 
-    <ion-item>
-      <ion-label class="ion-text-wrap">
-        <h2>Hora del recordatorio</h2>
-        <p>{{ horaNotificacion }}</p>
-      </ion-label>
-      <ion-input slot="end" type="time" [value]="horaNotificacion" (ionChange)="onHoraChange($event)"></ion-input>
-    </ion-item>
-
-    <ion-list-header>
-      <ion-label>Widget</ion-label>
-    </ion-list-header>
-
-    <ion-item button (click)="anclarWidget()">
-      <ion-icon name="apps" slot="start"></ion-icon>
-      <ion-label>
-        <h2>Agregar widget a la pantalla de inicio</h2>
-        <p>Muestra quién tiene la cuota vencida o por vencer</p>
-      </ion-label>
-      <ion-icon name="chevron-forward" slot="end"></ion-icon>
-    </ion-item>
-
-    <ion-list-header>
-      <ion-label>Datos</ion-label>
-    </ion-list-header>
-
-    <ion-item button (click)="exportar()">
-      <ion-icon name="download" slot="start"></ion-icon>
-      <ion-label class="ion-text-wrap">
-        <h2>Exportar respaldo</h2>
-        <p>Crea un archivo y te ofrece compartirlo o guardarlo</p>
-      </ion-label>
-      <ion-icon name="share-social" slot="end"></ion-icon>
-    </ion-item>
-
-    <ion-item button (click)="solicitarImportar()">
-      <ion-icon name="cloud-upload" slot="start"></ion-icon>
-      <ion-label class="ion-text-wrap">
-        <h2>Importar respaldo</h2>
-        <p>Elige un archivo de respaldo (.backup) de este u otro dispositivo</p>
-      </ion-label>
-      <ion-icon name="chevron-forward" slot="end"></ion-icon>
-    </ion-item>
-
-    <ion-item>
-      <ion-label class="ion-text-wrap">
-        <p>Los datos se guardan solo en este dispositivo. Exportá un respaldo periódicamente para no perderlos.</p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+    <p class="nota">Los datos se guardan solo en este dispositivo. Exportá un respaldo periódicamente para no perderlos.</p>
+  </div>
 
   <input #archivoInput type="file" accept=".backup,.json,.csv,application/json,text/csv,.octet-stream" hidden
     (change)="onArchivoSeleccionado($event)" />

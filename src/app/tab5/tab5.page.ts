@@ -1,10 +1,8 @@
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonListHeader, IonItem, IonLabel, IonIcon, IonRange, IonInput, IonToast, IonAlert, IonRadioGroup, IonRadio } from '@ionic/angular/standalone';
-import { RangeCustomEvent, InputCustomEvent, RadioGroupCustomEvent } from '@ionic/angular';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonToast, IonAlert } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { notifications, download, cloudUpload, shareSocial, chevronForward, apps } from 'ionicons/icons';
+import { notifications, download, cloudUpload, shareSocial, chevronForward, apps, colorPalette, checkmark } from 'ionicons/icons';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -18,7 +16,7 @@ import { ThemeService, TEMAS, Tema } from '../services/theme.service';
   selector: 'app-tab5',
   templateUrl: 'tab5.page.html',
   styleUrls: ['tab5.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonListHeader, IonItem, IonLabel, IonIcon, IonRange, IonInput, IonToast, IonAlert, IonRadioGroup, IonRadio],
+  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonToast, IonAlert],
 })
 export class Tab5Page {
   private alumnoService = inject(AlumnoService);
@@ -29,8 +27,6 @@ export class Tab5Page {
 
   private importInput = viewChild.required<ElementRef<HTMLInputElement>>('archivoInput');
 
-  diasAnticipacion = 3;
-  horaNotificacion = '12:00';
   temaSeleccionado = 'bordeaux';
   temas: Tema[] = TEMAS;
 
@@ -53,36 +49,29 @@ export class Tab5Page {
   ];
 
   constructor() {
-    addIcons({ notifications, download, cloudUpload, shareSocial, chevronForward, apps });
+    addIcons({ notifications, download, cloudUpload, shareSocial, chevronForward, apps, colorPalette, checkmark });
+  }
+
+  /** Tema actualmente seleccionado, para mostrar su nombre en pantalla. */
+  get temaActual(): Tema {
+    return this.themeService.getById(this.temaSeleccionado);
   }
 
   ionViewWillEnter() {
-    const s = this.settingsService.get();
-    this.diasAnticipacion = s.diasAnticipacion;
-    this.horaNotificacion = s.horaNotificacion;
-    this.temaSeleccionado = s.tema;
+    this.temaSeleccionado = this.settingsService.get().tema;
   }
 
-  cambiarTema(event: RadioGroupCustomEvent) {
-    const temaId = String(event.detail.value);
-    this.settingsService.set({ tema: temaId });
-    this.themeService.aplicar(temaId);
-    this.mostrarToast(this.themeService.getById(temaId).nombre + ' aplicado');
+  seleccionarTema(tema: Tema) {
+    if (this.temaSeleccionado === tema.id) return;
+    this.temaSeleccionado = tema.id;
+    this.settingsService.set({ tema: tema.id });
+    this.themeService.aplicar(tema.id);
+    this.mostrarToast(`${tema.nombre} aplicado`);
   }
 
   async anclarWidget() {
     const ok = await this.widgetService.pedirAnclar();
     this.mostrarToast(ok ? 'Elegí el tamaño del widget en la pantalla de inicio' : 'El widget no se pudo agregar en este dispositivo');
-  }
-
-  onDiasChange(event: RangeCustomEvent) {
-    this.settingsService.set({ diasAnticipacion: event.detail.value as number });
-    this.notificationService.checkAndSchedule();
-  }
-
-  onHoraChange(event: InputCustomEvent) {
-    this.settingsService.set({ horaNotificacion: String(event.detail.value ?? '') });
-    this.notificationService.checkAndSchedule();
   }
 
   async exportar() {

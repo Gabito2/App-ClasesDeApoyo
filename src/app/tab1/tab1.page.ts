@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonButtons, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonToast, IonAlert, IonSegment, IonSegmentButton, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonButtons, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonToast, IonAlert, IonSegment, IonSegmentButton } from '@ionic/angular/standalone';
 import { ActionSheetButton, DatetimeCustomEvent } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { personAdd, create, trash, close, ellipsisVertical, personRemove } from 'ionicons/icons';
+import { personAdd, create, trash, close, ellipsisVertical, personRemove, checkmarkCircle, closeCircle, searchOutline } from 'ionicons/icons';
 import { AlumnoService } from '../services/alumno.service';
 import { Alumno } from '../models/alumno.model';
 import { NotificationService } from '../services/notification.service';
@@ -17,7 +17,7 @@ type Orden = 'nombre' | 'dia' | 'monto';
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonIcon, IonModal, IonButton, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonButtons, IonToast, IonAlert, IonSegment, IonSegmentButton, IonSelect, IonSelectOption],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonButtons, IonToast, IonAlert, IonSegment, IonSegmentButton],
 })
 export class Tab1Page {
   private alumnoService = inject(AlumnoService);
@@ -61,7 +61,7 @@ export class Tab1Page {
   ];
 
   constructor() {
-    addIcons({ personAdd, create, trash, close, ellipsisVertical, personRemove });
+    addIcons({ personAdd, create, trash, close, ellipsisVertical, personRemove, checkmarkCircle, closeCircle, searchOutline });
   }
 
   get alumnosFiltrados(): Alumno[] {
@@ -90,6 +90,25 @@ export class Tab1Page {
       this.estadoCache.set(alumno.id, estado);
     }
     return estado;
+  }
+
+  /** Clase CSS del avatar/pill según el estado de pago del alumno. */
+  estadoClase(alumno: Alumno): 'ok' | 'mora' | 'pendiente' {
+    const estado = this.getEstado(alumno);
+    if (estado.pagoAlDia) return 'ok';
+    return estado.pasado ? 'mora' : 'pendiente';
+  }
+
+  /** Totales de la lista visible, para el panel de resumen. */
+  get resumen(): { alDia: number; enMora: number } {
+    let alDia = 0;
+    let enMora = 0;
+    for (const alumno of this.alumnos) {
+      const estado = this.getEstado(alumno);
+      if (estado.pagoAlDia) alDia++;
+      else if (estado.pasado) enMora++;
+    }
+    return { alDia, enMora };
   }
 
   ionViewWillEnter() {

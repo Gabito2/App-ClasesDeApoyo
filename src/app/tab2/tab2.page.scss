@@ -2,120 +2,114 @@
   display: block;
 }
 
-.page-header {
-  padding: 20px 20px 0;
+.tab2-content {
+  --padding-bottom: 96px;
 }
 
-.page-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  letter-spacing: -0.3px;
+/* ── Panel superior: acción masiva ── */
+
+.panel-superior {
+  padding: 8px 16px 0;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-ion-list {
-  background: transparent;
-  padding: 8px 16px;
-}
-
-.vencimiento-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 14px;
-  --padding-bottom: 14px;
-  --background: #ffffff;
-  --border-radius: 12px;
-  --min-height: 60px;
-  margin-bottom: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.02);
-  border: none;
+ion-button.wa-masivo {
+  --background: #25d366;
+  --background-hover: #1fb958;
+  --background-activated: #1fb958;
+  --color: #ffffff;
+  --border-radius: 14px;
+  --box-shadow: 0 4px 14px rgba(37, 211, 102, 0.28);
+  font-weight: 600;
+  font-size: 0.85rem;
+  height: 46px;
+  margin: 0 0 4px;
+  text-transform: none;
 
   ion-icon {
-    font-size: 22px;
-
-    &.pagado {
-      color: #507858;
-    }
-
-    &.pendiente {
-      color: #c0392b;
-    }
-  }
-
-  h2 {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #1a1a1a;
-  }
-
-  p {
-    font-size: 0.8rem;
-    color: #8a8a8a;
-    margin-top: 2px;
+    font-size: 19px;
   }
 }
 
-.end-actions {
+/* ── Secciones de la lista ── */
+
+.seccion-titulo {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 7px;
+  margin: 12px 0 6px;
+  padding: 0 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: #8a8a90;
 
-  .arrow-icon {
-    font-size: 16px;
-    color: #d0d0d0;
-    margin-left: 2px;
+  ion-icon {
+    font-size: 15px;
+  }
+
+  .seccion-texto {
+    flex: 1;
+  }
+
+  .seccion-count {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    padding: 2px 8px;
+    border-radius: 999px;
+    color: inherit;
+    background: rgba(120, 120, 130, 0.12);
+  }
+
+  &.mora {
+    color: #c0392b;
+  }
+
+  &.warn {
+    color: #a8800d;
+  }
+
+  &.ok {
+    color: #507858;
+  }
+}
+
+ion-list.lista {
+  background: transparent;
+  padding: 0 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.fila-acciones {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+
+  .chevron {
+    font-size: 17px;
+    color: #c8c8ce;
   }
 }
 
 .wa-btn {
   --padding-start: 6px;
   --padding-end: 6px;
-  --min-width: 34px;
-  --min-height: 34px;
+  --min-width: 36px;
+  --min-height: 36px;
   margin: 0;
   --color: #25d366;
 
   ion-icon {
     font-size: 22px;
-  }
-}
-
-ion-badge {
-  font-size: 0.7rem;
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-weight: 600;
-  --background: #c0392b;
-  --color: #ffffff;
-  letter-spacing: 0.2px;
-
-  &.ion-color-warning {
-    --background: #d4a017;
-    --color: #1a1a1a;
-  }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 64px 32px;
-  color: #b0b0b0;
-
-  ion-icon {
-    font-size: 48px;
-    color: #d0d0d0;
-    margin-bottom: 16px;
-  }
-
-  p {
-    font-size: 1rem;
-    margin: 4px 0;
-  }
-
-  .hint {
-    font-size: 0.8rem;
-    color: #d0d0d0;
-    margin-top: 8px;
-    line-height: 1.4;
   }
 }
 
@@ -131,24 +125,8 @@ ion-badge {
   }
 }
 
-.resumen-card {
-  margin: 12px 16px;
-  border-radius: 12px;
-  background: #fafafa;
-  border: 1px solid #f0f0f0;
-  box-shadow: none;
-
-  .resumen {
-    display: flex;
-    justify-content: space-around;
-    font-size: 0.85rem;
-    color: #666;
-
-    strong {
-      color: var(--ion-color-primary);
-      font-weight: 700;
-    }
-  }
+.modal-content {
+  --background: var(--app-bg);
 }
 
 /* ── Perfil del alumno ── */
@@ -158,228 +136,226 @@ ion-badge {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 20px 16px 12px;
+  padding: 22px 16px 18px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.045);
+  max-width: 560px;
+  margin: 16px auto 0;
 
+  // El color de fondo/estado lo aporta la clase compartida .ficha-avatar.
   .perfil-avatar {
     width: 64px;
     height: 64px;
-    border-radius: 18px;
-    background: var(--ion-color-primary);
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: 10px;
+    border-radius: 20px;
+    font-size: 1.15rem;
+    margin-bottom: 12px;
   }
 
   h2 {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #1a1a1a;
-    margin: 0 0 6px;
+    margin: 0 0 8px;
+    letter-spacing: -0.2px;
   }
 
   .perfil-meta {
     display: flex;
-    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 16px;
     font-size: 0.8rem;
     color: #8a8a8a;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 
     span {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
 
     ion-icon {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: var(--ion-color-primary);
     }
   }
 
-  .estado-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-
-    &.ok {
-      background: rgba(80, 120, 88, 0.12);
-      color: #507858;
-    }
-
-    &.pendiente {
-      background: rgba(212, 160, 23, 0.15);
-      color: #9a730f;
-    }
-
-    &.mora {
-      background: rgba(192, 57, 43, 0.1);
-      color: #c0392b;
-    }
+  .ficha-pill {
+    margin-top: 0;
   }
 
-  .wa-btn {
-    margin-top: 14px;
+  ion-button.wa-btn-bloque {
+    margin: 16px 0 0;
     width: 100%;
     max-width: 320px;
     --background: #25d366;
     --background-hover: #1fb958;
-    --border-radius: 12px;
+    --background-activated: #1fb958;
+    --color: #ffffff;
+    --border-radius: 14px;
     font-weight: 600;
-    height: 46px;
+    height: 48px;
     text-transform: none;
+
+    ion-icon {
+      font-size: 19px;
+    }
   }
 }
 
-/* ── Deuda en detalle ── */
+/* ── Detalle: resumen, deuda e historiales ── */
 
-.deuda-detalle-card {
-  margin: 0 16px 12px;
-  border-radius: 12px;
+.detalle-wrapper {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+}
+
+.deuda-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
   background: #fdf0f0;
   border: 1px solid #f6d5d1;
-  box-shadow: none;
+  margin-bottom: 14px;
 
-  ion-card-content {
-    text-align: center;
+  > ion-icon {
+    font-size: 26px;
+    color: #c0392b;
+    flex-shrink: 0;
+  }
+
+  .deuda-texto {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
 
   .deuda-titulo {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     color: #c0392b;
-
-    &.ok {
-      color: #507858;
-    }
   }
 
   .deuda-dato {
-    font-size: 1rem;
-    color: #c0392b;
-    margin-top: 4px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #7d2a1f;
+    margin-top: 2px;
   }
 
   &.sin-deuda {
     background: #f0f6f1;
     border-color: #d8e6db;
-  }
-}
 
-/* ── Historial de cuotas ── */
-
-.montos-card {
-  margin: 0 16px 12px;
-  border-radius: 12px;
-  background: #fafafa;
-  border: 1px solid #f0f0f0;
-  box-shadow: none;
-
-  ion-card-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #8a8a8a;
-  }
-
-  .monto-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
-
-    &:last-child {
-      border-bottom: none;
+    > ion-icon {
+      color: #507858;
     }
 
-    .monto-valor {
-      font-weight: 700;
-      color: #2d2d2d;
-      font-size: 0.9rem;
+    .deuda-titulo {
+      color: #507858;
     }
 
-    .monto-fecha {
-      font-size: 0.75rem;
-      color: #8a8a8a;
-      text-transform: capitalize;
+    .deuda-dato {
+      color: #46694d;
     }
   }
 }
 
-.historial-card {
-  margin: 0 16px 12px;
-  border-radius: 12px;
-  background: #fafafa;
-  border: 1px solid #f0f0f0;
-  box-shadow: none;
+.bloque {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.04);
 
-  ion-card-title {
-    font-size: 0.75rem;
+  .bloque-titulo {
+    margin: 0 0 6px;
+    font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #8a8a8a;
+    color: #8a8a90;
+  }
+}
+
+.fila-dato {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid #f4f4f6;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
   }
 
-  .historial-item {
+  .fila-izq {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
+    gap: 8px;
+    min-width: 0;
 
-    &:last-child {
-      border-bottom: none;
-    }
-
-    .historial-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      ion-icon {
-        font-size: 18px;
-        &.pagado { color: #507858; }
-        &.pendiente { color: #d0d0d0; }
-      }
-
-      .historial-mes {
-        font-weight: 600;
-        color: #2d2d2d;
-        font-size: 0.85rem;
-      }
-    }
-
-    .historial-estado {
-      font-size: 0.75rem;
-      color: #8a8a8a;
-      font-weight: 500;
+    ion-icon {
+      font-size: 18px;
+      flex-shrink: 0;
 
       &.pagado {
         color: #507858;
       }
+
+      &.pendiente {
+        color: #d0d0d4;
+      }
+    }
+
+    .fila-mes {
+      font-weight: 600;
+      color: #2d2d2d;
+      font-size: 0.85rem;
+    }
+  }
+
+  .fila-valor {
+    font-weight: 700;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+  }
+
+  .fila-fecha {
+    font-size: 0.75rem;
+    color: #8a8a8a;
+    text-transform: capitalize;
+  }
+
+  .fila-estado {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #8a8a8a;
+    text-align: right;
+
+    &.pagado {
+      color: #507858;
+      font-weight: 600;
     }
   }
 }
+
+/* ── Selector de año y meses ── */
 
 .anio-nav {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 0 16px 4px;
+  margin: 4px 0 8px;
 
   ion-button {
     --padding-start: 8px;
@@ -400,8 +376,8 @@ ion-badge {
   }
 }
 
-ion-grid {
-  padding: 8px 12px;
+ion-grid.meses-grid {
+  padding: 0;
 }
 
 .mes-card {
@@ -410,12 +386,11 @@ ion-grid {
   align-items: center;
   gap: 4px;
   padding: 14px 8px;
-  border-radius: 12px;
+  border-radius: 14px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.15s ease;
-  margin-bottom: 8px;
-  min-height: 80px;
+  margin-bottom: 10px;
+  min-height: 84px;
 
   ion-icon {
     font-size: 24px;
@@ -430,7 +405,7 @@ ion-grid {
 
   .tap-hint {
     font-size: 0.6rem;
-    color: #b0b0b0;
+    color: #b0b0b4;
     font-weight: 400;
   }
 
@@ -449,23 +424,21 @@ ion-grid {
   }
 
   &.pendiente {
-    background: #fafafa;
-    border: 1.5px solid #e8e8e8;
+    background: #ffffff;
+    border: 1.5px solid #e8e8ec;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
 
     ion-icon {
-      color: #d0d0d0;
+      color: #d0d0d4;
     }
   }
 
-  &.actual {
+  &.actual.pendiente {
     border-width: 2px;
+    border-color: var(--ion-color-primary);
 
-    &.pendiente {
-      border-color: var(--ion-color-primary);
-    }
-
-    &.pagado {
-      border-color: #507858;
+    ion-icon {
+      color: var(--ion-color-primary);
     }
   }
 }

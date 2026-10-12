@@ -1,14 +1,10 @@
 import { Injectable } from '@angular/core';
 
 export interface AppSettings {
-  diasAnticipacion: number;
-  horaNotificacion: string; // formato 'HH:MM'
   tema: string;
 }
 
 const DEFAULTS: AppSettings = {
-  diasAnticipacion: 3,
-  horaNotificacion: '12:00',
   tema: 'bordeaux',
 };
 

@@ -226,12 +226,15 @@ export class AlumnoService {
     }
 
     if (totalDias === 0) {
-      // Si el vencimiento de este mes todavía no llegó (p. ej. alumno recién registrado o
-      // con día de pago posterior a hoy), mostramos la fecha de vencimiento en lugar de "Vence hoy".
-      const diaVencimiento = diaInicioMesActual;
-      const fechaVencimiento = new Date(anio, mes - 1, diaVencimiento);
-      if (ahora < fechaVencimiento) {
-        return { texto: `Vence el ${diaVencimiento}`, pasado: false, pagoAlDia: false };
+      // La cuota de este mes todavía no venció: mostramos cuántos días faltan
+      // (p. ej. si el día de cobro es posterior a hoy). Se compara día contra
+      // día (medianoche) para que el conteo no dependa de la hora actual.
+      const fechaVencimiento = new Date(anio, mes - 1, diaInicioMesActual);
+      const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+      const diasFaltantes = Math.round((fechaVencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+      if (diasFaltantes > 0) {
+        const texto = diasFaltantes === 1 ? 'Falta 1 día' : `Faltan ${diasFaltantes} días`;
+        return { texto, pasado: false, pagoAlDia: false };
       }
       return { texto: 'Vence hoy', pasado: false, pagoAlDia: false };
     }

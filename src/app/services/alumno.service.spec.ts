@@ -95,10 +95,10 @@ describe('AlumnoService estado de pago del mes', () => {
     jasmine.clock().uninstall();
   });
 
-  it('registrado hoy con día de cobro 19 muestra "Vence el 19", no "Vence hoy"', () => {
+  it('registrado hoy con día de cobro 19 muestra "Faltan 7 días", no "Vence hoy"', () => {
     const alumno = svc.crear({ nombre: 'Ana', apellido: 'Pérez', diaEntrada: 19, montoMensual: 10000 });
     const estado = svc.getEstadoPagoMes(alumno);
-    expect(estado.texto).toBe('Vence el 19');
+    expect(estado.texto).toBe('Faltan 7 días');
     expect(estado.pasado).toBeFalse();
   });
 
@@ -112,7 +112,12 @@ describe('AlumnoService estado de pago del mes', () => {
       },
     ]));
     svc['invalidar']();
-    expect(svc.getEstadoPagoMes(svc.getAll()[0]).texto).toBe('Vence el 19');
+    expect(svc.getEstadoPagoMes(svc.getAll()[0]).texto).toBe('Faltan 7 días');
+  });
+
+  it('un día antes del cobro muestra "Falta 1 día" (singular)', () => {
+    const alumno = svc.crear({ nombre: 'Ana', apellido: '', diaEntrada: 13, montoMensual: 10000 });
+    expect(svc.getEstadoPagoMes(alumno).texto).toBe('Falta 1 día');
   });
 
   it('si hoy es el día de cobro muestra "Vence hoy"', () => {
@@ -146,7 +151,7 @@ describe('AlumnoService estado de pago del mes', () => {
     expect(svc.getEstadoPagoMes(svc.getAll()[0]).texto).toBe('Venció hace 12 días');
   });
 
-  it('alumno registrado en un mes anterior con todos los meses anteriores pagados muestra el día de cobro', () => {
+  it('alumno registrado en un mes anterior con todos los meses anteriores pagados muestra los días que faltan', () => {
     localStorage.setItem('alumnos', JSON.stringify([
       {
         id: 1, nombre: 'Luis', apellido: '', diaEntrada: 19, montoMensual: 10000, activo: true,
@@ -157,7 +162,7 @@ describe('AlumnoService estado de pago del mes', () => {
     ]));
     svc['invalidar']();
     const estado = svc.getEstadoPagoMes(svc.getAll()[0]);
-    expect(estado.texto).toBe('Vence el 19');
+    expect(estado.texto).toBe('Faltan 7 días');
     expect(estado.pasado).toBeFalse();
   });
 });
