@@ -79,3 +79,85 @@ describe('AlumnoService respaldo', () => {
     expect(svc.importar('CLASES-BACKUP-V1:no-base64!!', true).ok).toBeFalse();
   });
 });
+
+describe('AlumnoService estado de pago del mes', () => {
+  let svc: AlumnoService;
+
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({});
+    svc = TestBed.inject(AlumnoService);
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 9, 12, 10, 0, 0)); // 12 de octubre de 2026, 10:00
+  });
+
+  afterEach(() => {
+    jasmine.clock().uninstall();
+  });
+
+  it('registrado hoy con día de cobro 19 muestra "Vence el 19", no "Vence hoy"', () => {
+    const alumno = svc.crear({ nombre: 'Ana', apellido: 'Pérez', diaEntrada: 19, montoMensual: 10000 });
+    const estado = svc.getEstadoPagoMes(alumno);
+    expect(estado.texto).toBe('Vence el 19');
+    expect(estado.pasado).toBeFalse();
+  });
+
+  it('registrado este mes (día 1) con día de cobro 19 no se marca vencido antes del 19', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Luis', apellido: '', diaEntrada: 19, montoMensual: 10000, activo: true,
+        fechaRegistro: '2026-10-01T12:00:00',
+        pagos: [{ mes: 10, anio: 2026, pagado: false }],
+        historialMontos: [],
+      },
+    ]));
+    svc['invalidar']();
+    expect(svc.getEstadoPagoMes(svc.getAll()[0]).texto).toBe('Vence el 19');
+  });
+
+  it('si hoy es el día de cobro muestra "Vence hoy"', () => {
+    const alumno = svc.crear({ nombre: 'Ana', apellido: '', diaEntrada: 12, montoMensual: 10000 });
+    expect(svc.getEstadoPagoMes(alumno).texto).toBe('Vence hoy');
+  });
+
+  it('pasado el día de cobro cuenta los días vencidos desde ese día', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Luis', apellido: '', diaEntrada: 5, montoMensual: 10000, activo: true,
+        fechaRegistro: '2026-10-01T12:00:00',
+        pagos: [{ mes: 10, anio: 2026, pagado: false }],
+        historialMontos: [],
+      },
+    ]));
+    svc['invalidar']();
+    expect(svc.getEstadoPagoMes(svc.getAll()[0]).texto).toBe('Venció hace 7 días');
+  });
+
+  it('mes de registro impago (septiembre) cuenta desde el día de cobro, no desde el registro', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Luis', apellido: '', diaEntrada: 19, montoMensual: 10000, activo: true,
+        fechaRegistro: '2026-09-05T12:00:00',
+        pagos: [{ mes: 9, anio: 2026, pagado: false }, { mes: 10, anio: 2026, pagado: false }],
+        historialMontos: [],
+      },
+    ]));
+    svc['invalidar']();
+    expect(svc.getEstadoPagoMes(svc.getAll()[0]).texto).toBe('Venció hace 12 días');
+  });
+
+  it('alumno registrado en un mes anterior con todos los meses anteriores pagados muestra el día de cobro', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Luis', apellido: '', diaEntrada: 19, montoMensual: 10000, activo: true,
+        fechaRegistro: '2026-09-05T12:00:00',
+        pagos: [{ mes: 9, anio: 2026, pagado: true }, { mes: 10, anio: 2026, pagado: false }],
+        historialMontos: [],
+      },
+    ]));
+    svc['invalidar']();
+    const estado = svc.getEstadoPagoMes(svc.getAll()[0]);
+    expect(estado.texto).toBe('Vence el 19');
+    expect(estado.pasado).toBeFalse();
+  });
+});

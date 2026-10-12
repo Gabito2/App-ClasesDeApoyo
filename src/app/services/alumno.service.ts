@@ -181,9 +181,12 @@ export class AlumnoService {
     let a = anio;
     let primerMesImpago = true;
 
-    // Si el alumno se registró este mes y ya pasó su día de cobro, se cuenta desde ese día
+    // El vencimiento del mes es el día de cobro (diaEntrada). Si el alumno se registró
+    // este mes DESPUÉS de ese día, se cuenta desde el registro (no se deuda por días
+    // previos al alta); si se registró antes, rige el día de cobro.
     const diaRegistroActual = this.diaRegistroEnMes(piso, anio, mes);
-    const diaInicioMesActual = diaRegistroActual > 0 ? diaRegistroActual : Math.min(alumno.diaEntrada, new Date(a, m, 0).getDate());
+    const diaPagoMesActual = Math.min(alumno.diaEntrada, new Date(anio, mes, 0).getDate());
+    const diaInicioMesActual = Math.max(diaRegistroActual, diaPagoMesActual);
 
     while (!this.estaPagadoMes(alumno, m, a)) {
       const indiceMes = a * 12 + (m - 1);
@@ -194,7 +197,8 @@ export class AlumnoService {
       if (primerMesImpago) {
         diaInicio = diaInicioMesActual;
       } else if (indiceMes === mesPiso) {
-        diaInicio = Math.min(piso.getDate(), ultimoDia);
+        // Mes de registro: rige el día de cobro, salvo que el registro sea posterior
+        diaInicio = Math.max(Math.min(piso.getDate(), ultimoDia), Math.min(alumno.diaEntrada, ultimoDia));
       } else {
         diaInicio = Math.min(alumno.diaEntrada, ultimoDia);
       }
@@ -224,7 +228,7 @@ export class AlumnoService {
     if (totalDias === 0) {
       // Si el vencimiento de este mes todavía no llegó (p. ej. alumno recién registrado o
       // con día de pago posterior a hoy), mostramos la fecha de vencimiento en lugar de "Vence hoy".
-      const diaVencimiento = diaRegistroActual > 0 ? diaRegistroActual : Math.min(alumno.diaEntrada, new Date(anio, mes, 0).getDate());
+      const diaVencimiento = diaInicioMesActual;
       const fechaVencimiento = new Date(anio, mes - 1, diaVencimiento);
       if (ahora < fechaVencimiento) {
         return { texto: `Vence el ${diaVencimiento}`, pasado: false, pagoAlDia: false };
