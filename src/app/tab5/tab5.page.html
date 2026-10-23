@@ -42,9 +42,27 @@
         <ion-icon name="notifications"></ion-icon>
         <div class="grupo-texto">
           <h2>Recordatorio de cuota</h2>
-          <p>Se envía el día del vencimiento a las 12:00</p>
+          <p>Se envía el día del vencimiento a las {{ horaTexto }}</p>
         </div>
+        <ion-toggle [checked]="recordatoriosActivos" (ionChange)="cambiarRecordatorios($event)"
+          aria-label="Activar recordatorios"></ion-toggle>
       </div>
+      @if (recordatoriosActivos) {
+      <div class="separador"></div>
+      <div class="grupo-row">
+        <ion-icon name="time-outline"></ion-icon>
+        <div class="grupo-texto">
+          <h2>Hora del aviso</h2>
+          <p>A qué hora te avisa el día del vencimiento</p>
+        </div>
+        <ion-select [value]="horaRecordatorio" (ionChange)="cambiarHora($event)" interface="popover"
+          aria-label="Hora del recordatorio" class="hora-select">
+          @for (h of HORAS; track h) {
+          <ion-select-option [value]="h">{{ h }}:00</ion-select-option>
+          }
+        </ion-select>
+      </div>
+      }
     </div>
 
     <!-- Widget -->

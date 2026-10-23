@@ -1,0 +1,428 @@
+:host {
+  display: block;
+}
+
+.tab3-content {
+  --padding-bottom: 96px;
+}
+
+/* ── Panel superior: total cobrado y búsqueda ── */
+
+.panel-superior {
+  padding: 8px 16px 0;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tarjeta-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 18px 16px;
+  border-radius: 18px;
+  background: var(--ion-color-primary);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.12);
+  margin-bottom: 8px;
+
+  .total-label {
+    font-size: 0.66rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.78;
+  }
+
+  .total-valor {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+  }
+
+  .total-cantidad {
+    font-size: 0.75rem;
+    opacity: 0.82;
+  }
+}
+
+.pista {
+  margin: 0 6px 10px;
+  font-size: 0.75rem;
+  color: #9a9aa0;
+  text-align: center;
+  line-height: 1.4;
+}
+
+ion-button.ir-alumnos {
+  --background: var(--ion-color-primary);
+  --border-radius: 14px;
+  --box-shadow: none;
+  margin-top: 18px;
+  font-weight: 600;
+  text-transform: none;
+  height: 46px;
+}
+
+/* ── Lista de alumnos ── */
+
+.lista {
+  background: transparent;
+  padding: 0 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.fila-acciones .chevron {
+  font-size: 17px;
+  color: #c8c8ce;
+}
+
+/* ── Modal de alta ── */
+
+.modal-header {
+  --background: var(--ion-color-primary);
+  --color: #ffffff;
+
+  ion-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+}
+
+.modal-content {
+  --background: var(--app-bg);
+}
+
+.detalle-wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+}
+
+.perfil {
+  margin-top: 0;
+
+  .perfil-meta {
+    margin-bottom: 0;
+  }
+}
+
+.form-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 14px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.045);
+
+  .fila-selects {
+    display: flex;
+    gap: 10px;
+
+    .campo {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+
+    label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #9a9aa0;
+    }
+
+    ion-select,
+    ion-input {
+      --background: #f7f7f9;
+      --border-radius: 12px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      --min-height: 44px;
+      --color: #1a1a1a;
+      font-size: 0.9rem;
+      border: 1px solid #ececf0;
+      border-radius: 12px;
+    }
+  }
+
+  .form-hint {
+    margin: 10px 0 0;
+    font-size: 0.72rem;
+    color: #9a9aa0;
+    text-align: center;
+  }
+}
+
+ion-button.btn-crear,
+ion-button.btn-compartir {
+  --background: var(--ion-color-primary);
+  --border-radius: 14px;
+  --box-shadow: none;
+  font-weight: 600;
+  height: 48px;
+  text-transform: none;
+
+  ion-icon {
+    font-size: 19px;
+  }
+}
+
+ion-button.btn-crear {
+  margin: 4px 0 0;
+}
+
+ion-button.btn-compartir {
+  margin: 16px 0 0;
+}
+
+ion-button.btn-wa {
+  --background: #25d366;
+  --color: #ffffff;
+  --border-radius: 14px;
+  margin: 10px 0 0;
+  font-weight: 600;
+  height: 48px;
+  text-transform: none;
+
+  ion-icon {
+    font-size: 19px;
+  }
+}
+
+.bloque {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-top: 14px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.04);
+
+  .bloque-titulo {
+    margin: 0 0 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8a8a90;
+  }
+}
+
+.fila-comprobante {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 0;
+  border: none;
+  border-bottom: 1px solid #f4f4f6;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .fila-izq {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+
+    ion-icon {
+      font-size: 18px;
+      color: #507858;
+      flex-shrink: 0;
+    }
+
+    .fila-texto {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .fila-mes {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #2d2d2d;
+    }
+
+    .fila-fecha {
+      font-size: 0.7rem;
+      color: #9a9aa0;
+    }
+  }
+
+  .fila-valor {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    flex-shrink: 0;
+  }
+}
+
+/* ── Comprobante (vista previa) ── */
+
+.comprobante {
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 26px rgba(16, 24, 40, 0.08);
+}
+
+.comprobante-cabecera {
+  background: var(--ion-color-primary);
+  color: #ffffff;
+  text-align: center;
+  padding: 22px 18px 24px;
+
+  .comprobante-marca {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    opacity: 0.75;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+  }
+
+  .comprobante-numero {
+    font-size: 0.82rem;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+}
+
+.comprobante-cuerpo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 20px 18px;
+
+  .monto-label {
+    font-size: 0.63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #9a9aa0;
+  }
+
+  .monto {
+    font-size: 2.3rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: #1a1a1a;
+    line-height: 1.15;
+    margin: 2px 0 10px;
+  }
+
+  .sello {
+    background: rgba(80, 120, 88, 0.14);
+    color: #40704a;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 5px 20px;
+    border-radius: 999px;
+  }
+
+  .comprobante-filas {
+    width: 100%;
+    margin-top: 20px;
+    border-top: 1px solid #ececf0;
+  }
+
+  .fila {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 11px 0;
+    border-bottom: 1px solid #f4f4f6;
+
+    span {
+      flex-shrink: 0;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #9a9aa0;
+    }
+
+    strong {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      text-align: right;
+      word-break: break-word;
+    }
+  }
+
+  .comprobante-pie {
+    margin: 18px 0 0;
+    font-size: 0.72rem;
+    color: #9a9aa0;
+    text-align: center;
+  }
+}
+
+ion-button.btn-compartir {
+  --background: var(--ion-color-primary);
+  --border-radius: 14px;
+  --box-shadow: none;
+  margin: 16px 0 0;
+  font-weight: 600;
+  height: 48px;
+  text-transform: none;
+
+  ion-icon {
+    font-size: 19px;
+  }
+}
+
+ion-button.btn-wa {
+  --background: #25d366;
+  --background-hover: #1fb958;
+  --background-activated: #1fb958;
+  --color: #ffffff;
+  --border-radius: 14px;
+  --box-shadow: 0 4px 14px rgba(37, 211, 102, 0.28);
+  margin: 10px 0 0;
+  font-weight: 600;
+  height: 48px;
+  text-transform: none;
+
+  ion-icon {
+    font-size: 19px;
+  }
+}
+
+.sin-telefono {
+  margin: 14px 4px 0;
+  font-size: 0.78rem;
+  color: #9a9aa0;
+  text-align: center;
+  line-height: 1.45;
+}

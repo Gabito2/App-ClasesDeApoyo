@@ -1,8 +1,9 @@
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonToast, IonAlert } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonToggle, IonSelect, IonSelectOption, IonToast, IonAlert } from '@ionic/angular/standalone';
+import { SelectCustomEvent, ToggleCustomEvent } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { notifications, download, cloudUpload, shareSocial, chevronForward, apps, colorPalette, checkmark } from 'ionicons/icons';
+import { notifications, download, cloudUpload, shareSocial, chevronForward, apps, colorPalette, checkmark, timeOutline } from 'ionicons/icons';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -16,7 +17,7 @@ import { ThemeService, TEMAS, Tema } from '../services/theme.service';
   selector: 'app-tab5',
   templateUrl: 'tab5.page.html',
   styleUrls: ['tab5.page.scss'],
-  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonToast, IonAlert],
+  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonToggle, IonSelect, IonSelectOption, IonToast, IonAlert],
 })
 export class Tab5Page {
   private alumnoService = inject(AlumnoService);
@@ -29,6 +30,9 @@ export class Tab5Page {
 
   temaSeleccionado = 'bordeaux';
   temas: Tema[] = TEMAS;
+  recordatoriosActivos = true;
+  horaRecordatorio = 12;
+  readonly HORAS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 
   toastOpen = false;
   toastMsg = '';
@@ -49,7 +53,7 @@ export class Tab5Page {
   ];
 
   constructor() {
-    addIcons({ notifications, download, cloudUpload, shareSocial, chevronForward, apps, colorPalette, checkmark });
+    addIcons({ notifications, download, cloudUpload, shareSocial, chevronForward, apps, colorPalette, checkmark, timeOutline });
   }
 
   /** Tema actualmente seleccionado, para mostrar su nombre en pantalla. */
@@ -58,7 +62,30 @@ export class Tab5Page {
   }
 
   ionViewWillEnter() {
-    this.temaSeleccionado = this.settingsService.get().tema;
+    const ajustes = this.settingsService.get();
+    this.temaSeleccionado = ajustes.tema;
+    this.recordatoriosActivos = ajustes.recordatorios;
+    this.horaRecordatorio = ajustes.horaRecordatorio;
+  }
+
+  /** Hora del recordatorio en formato HH:00, para mostrarla en pantalla. */
+  get horaTexto(): string {
+    return `${String(this.horaRecordatorio).padStart(2, '0')}:00`;
+  }
+
+  cambiarRecordatorios(event: ToggleCustomEvent) {
+    this.recordatoriosActivos = event.detail.checked;
+    this.settingsService.set({ recordatorios: this.recordatoriosActivos });
+    this.notificationService.checkAndSchedule();
+    this.mostrarToast(this.recordatoriosActivos ? 'Recordatorios activados' : 'Recordatorios desactivados');
+  }
+
+  cambiarHora(event: SelectCustomEvent<number>) {
+    const valor = Number(event.detail.value);
+    this.horaRecordatorio = Number.isFinite(valor) ? valor : 12;
+    this.settingsService.set({ horaRecordatorio: this.horaRecordatorio });
+    this.notificationService.checkAndSchedule();
+    this.mostrarToast(`Aviso programado para las ${this.horaTexto}`);
   }
 
   seleccionarTema(tema: Tema) {

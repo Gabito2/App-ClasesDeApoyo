@@ -126,6 +126,14 @@
   margin: 0 16px;
 }
 
+ion-select.hora-select {
+  --padding-start: 8px;
+  max-width: 96px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+}
+
 .nota {
   font-size: 0.75rem;
   color: #a4a4a8;

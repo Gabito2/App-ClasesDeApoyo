@@ -1,13 +1,23 @@
 import { Injectable, inject } from '@angular/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { AlumnoService } from './alumno.service';
+import { SettingsService } from './settings.service';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private alumnoService = inject(AlumnoService);
+  private settings = inject(SettingsService);
 
   async checkAndSchedule(): Promise<void> {
     try {
+      // Si el profe apagó los recordatorios, se cancelan los avisos pendientes
+      // para que no siga apareciendo uno ya programado.
+      if (!this.settings.get().recordatorios) {
+        const pendientes = await LocalNotifications.getPending();
+        await LocalNotifications.cancel({ notifications: pendientes.notifications });
+        return;
+      }
+
       const permission = await LocalNotifications.checkPermissions();
       if (permission.display !== 'granted') {
         const result = await LocalNotifications.requestPermissions();
@@ -26,8 +36,9 @@ export class NotificationService {
 
       await LocalNotifications.cancel({ notifications: (await LocalNotifications.getPending()).notifications });
 
-      // El recordatorio se envía el mismo día del vencimiento, a las 12:00.
-      const HORA = 12;
+      // El recordatorio se envía el mismo día del vencimiento, a la hora elegida
+      // en Ajustes (12:00 por defecto).
+      const HORA = this.settings.get().horaRecordatorio;
       const MINUTO = 0;
 
       const alumnos = this.alumnoService.getActivos();

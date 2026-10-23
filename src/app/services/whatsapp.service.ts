@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Alumno } from '../models/alumno.model';
 import { AlumnoService } from './alumno.service';
 
-/** Tipo de mensaje a enviar: 'pendiente' si la cuota todavía no venció, 'vencido' si ya venció. */
-export type TipoMensaje = 'pendiente' | 'vencido';
+/** Tipo de mensaje: 'pendiente' si la cuota no venció, 'vencido' si venció y 'deuda' para el resumen completo de cuenta. */
+export type TipoMensaje = 'pendiente' | 'vencido' | 'deuda';
 
 @Injectable({ providedIn: 'root' })
 export class WhatsappService {
@@ -11,6 +11,7 @@ export class WhatsappService {
   private readonly MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
   crearEnlace(alumno: Alumno, tipo: TipoMensaje = 'pendiente'): string | null {
+    if (tipo === 'deuda') return this.crearEnlaceEstadoCuenta(alumno);
     const telefono = alumno.telefono?.replace(/\D/g, '');
     if (!telefono) return null;
     const mensaje = tipo === 'vencido' ? this.armarMensajeVencido(alumno) : this.armarMensaje(alumno);
@@ -45,6 +46,60 @@ export class WhatsappService {
     const monto = alumno.montoMensual.toLocaleString('es-AR');
     const dia = this.diaPagoMes(alumno, mesVencido.getFullYear(), mesVencido.getMonth() + 1);
     return `Hola ${alumno.nombre} ${alumno.apellido} !Te escribo para recordarte que la cuota de ${mes} por $${monto} venció el día ${dia}. ¡Gracias!`;
+  }
+
+  /** Enlace con el resumen de cuenta completo, o null si no hay teléfono. */
+  crearEnlaceEstadoCuenta(alumno: Alumno): string | null {
+    const telefono = alumno.telefono?.replace(/\D/g, '');
+    if (!telefono) return null;
+    return `https://wa.me/${telefono}?text=${encodeURIComponent(this.textoEstadoCuenta(alumno))}`;
+  }
+
+  abrirEstadoCuenta(alumno: Alumno): boolean {
+    const url = this.crearEnlaceEstadoCuenta(alumno);
+    if (!url) return false;
+    window.open(url, '_system');
+    return true;
+  }
+
+  /**
+   * Resumen de cuenta listo para WhatsApp: cuota, total pagado y el detalle de
+   * las cuotas pendientes. Sirve como reclamo cuando hay varios meses de deuda.
+   */
+  textoEstadoCuenta(alumno: Alumno): string {
+    const nombre = `${alumno.nombre} ${alumno.apellido}`.trim();
+    const ahora = new Date();
+    const dia = this.diaPagoMes(alumno, ahora.getFullYear(), ahora.getMonth() + 1);
+    const monto = alumno.montoMensual.toLocaleString('es-AR');
+    const lineas = [
+      `Hola ${nombre}! Te paso el estado de tu cuenta:`,
+      '',
+      `*Cuota:* $${monto} por mes (vence el día ${dia})`,
+    ];
+
+    const cuenta = this.alumnoService.getEstadoCuenta(alumno.id);
+    if (cuenta) {
+      const pagado = cuenta.totalCobrado.toLocaleString('es-AR');
+      lineas.push(`*Pagado hasta hoy:* $${pagado} (${cuenta.cantidadPagos} ${cuenta.cantidadPagos === 1 ? 'cuota' : 'cuotas'})`);
+
+      if (cuenta.impagos.length === 0) {
+        lineas.push('', 'No tenés cuotas pendientes. ¡Gracias!');
+      } else {
+        const deuda = cuenta.deuda.monto.toLocaleString('es-AR');
+        lineas.push(
+          `*Deuda:* $${deuda} (${cuenta.deuda.meses} ${cuenta.deuda.meses === 1 ? 'cuota' : 'cuotas'})`,
+          '',
+          '*Cuotas pendientes:*'
+        );
+        for (const impago of cuenta.impagos) {
+          const montoImpago = impago.monto.toLocaleString('es-AR');
+          lineas.push(`• ${this.MESES[impago.mes - 1]} ${impago.anio} — $${montoImpago}`);
+        }
+      }
+    }
+
+    lineas.push('', 'Clases de Apoyo');
+    return lineas.join('\n');
   }
 
   /** Ajusta el día de pago al último día del mes si el día no existe (ej. 31 en febrero). */

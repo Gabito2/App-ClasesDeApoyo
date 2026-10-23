@@ -1,0 +1,132 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab1" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Estado de cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="cuenta-content">
+  @if (!cuenta) {
+  <div class="vacio">
+    <div class="vacio-icono">
+      <ion-icon name="person-outline"></ion-icon>
+    </div>
+    <h2>Alumno no encontrado</h2>
+    <p class="vacio-hint">Puede que se haya eliminado. Volvé a la lista de alumnos.</p>
+  </div>
+  } @else {
+  <div class="contenido">
+    <div class="perfil">
+      <div class="ficha-avatar perfil-avatar" [ngClass]="claseEstado()">{{ iniciales }}</div>
+      <h2>{{ cuenta.alumno.nombre }} {{ cuenta.alumno.apellido }}</h2>
+      <div class="perfil-meta">
+        <span><ion-icon name="cash-outline"></ion-icon> ${{ cuenta.alumno.montoMensual | number }} / mes</span>
+        <span><ion-icon name="calendar-outline"></ion-icon> Día {{ cuenta.alumno.diaEntrada }}</span>
+        @if (cuenta.alumno.telefono) {
+        <span><ion-icon name="person-outline"></ion-icon> {{ cuenta.alumno.telefono }}</span>
+        }
+      </div>
+      <div class="ficha-pill" [ngClass]="claseEstado()">
+        <ion-icon [name]="estado.pagoAlDia ? 'checkmark-circle' : 'close-circle'"></ion-icon>
+        {{ estado.texto }}
+      </div>
+    </div>
+
+    <div class="deuda-card" [class.sin-deuda]="cuenta.deuda.meses === 0">
+      @if (cuenta.deuda.meses > 0) {
+      <ion-icon name="alert-circle"></ion-icon>
+      <div class="deuda-texto">
+        <span class="deuda-titulo">Deuda acumulada</span>
+        <span class="deuda-dato">{{ cuenta.deuda.meses }} cuota{{ cuenta.deuda.meses === 1 ? '' : 's' }} ·
+          ${{ cuenta.deuda.monto | number }}</span>
+      </div>
+      } @else {
+      <ion-icon name="checkmark-circle"></ion-icon>
+      <div class="deuda-texto">
+        <span class="deuda-titulo">Sin deudas</span>
+        <span class="deuda-dato">Al día con todas las cuotas</span>
+      </div>
+      }
+    </div>
+
+    <div class="resumen">
+      <div class="resumen-item">
+        <span class="resumen-valor">{{ cuenta.anio.cantidad }}</span>
+        <span class="resumen-label">Cuotas {{ cuenta.anio.numero }}</span>
+      </div>
+      <div class="resumen-divisor"></div>
+      <div class="resumen-item ok">
+        <span class="resumen-valor">${{ cuenta.anio.cobrado | number }}</span>
+        <span class="resumen-label">Cobrado {{ cuenta.anio.numero }}</span>
+      </div>
+      <div class="resumen-divisor"></div>
+      <div class="resumen-item">
+        <span class="resumen-valor">${{ cuenta.totalCobrado | number }}</span>
+        <span class="resumen-label">Total histórico</span>
+      </div>
+    </div>
+
+    @if (cuenta.impagos.length > 0) {
+    <div class="bloque">
+      <h3 class="bloque-titulo">Cuotas pendientes</h3>
+      @for (i of cuenta.impagos; track i.anio + '-' + i.mes) {
+      <div class="fila-dato">
+        <span class="fila-mes">{{ mesLabel(i.mes) }} {{ i.anio }}</span>
+        <span class="fila-valor">${{ i.monto | number }}</span>
+      </div>
+      }
+    </div>
+    }
+
+    <div class="bloque">
+      <h3 class="bloque-titulo">Historial de pagos</h3>
+      @if (cuenta.pagos.length === 0) {
+      <p class="bloque-vacio">Todavía no hay pagos registrados.</p>
+      }
+      @for (p of cuenta.pagos; track p.anio + '-' + p.mes) {
+      <div class="fila-dato">
+        <div class="fila-izq">
+          <ion-icon name="checkmark-circle" class="pagado"></ion-icon>
+          <div class="fila-texto">
+            <span class="fila-mes">{{ mesLabel(p.mes) }} {{ p.anio }}</span>
+            @if (p.fechaPago) {
+            <span class="fila-sub">Pagado el {{ p.fechaPago | date:"dd/MM/yyyy" }}</span>
+            }
+          </div>
+        </div>
+        <div class="fila-der">
+          <span class="fila-valor">${{ p.monto | number }}</span>
+          @if (p.numeroComprobante) {
+          <span class="fila-sub">Comprobante Nº {{ numero(p.numeroComprobante) }}</span>
+          }
+        </div>
+      </div>
+      }
+    </div>
+
+    @if (cuenta.historialMontos.length > 0) {
+    <div class="bloque">
+      <h3 class="bloque-titulo">Historial de cuota</h3>
+      @for (h of cuenta.historialMontos; track $index) {
+      <div class="fila-dato">
+        <span class="fila-mes">${{ h.monto | number }}</span>
+        <span class="fila-sub">desde {{ h.fecha | date:"MMMM yyyy" }}</span>
+      </div>
+      }
+    </div>
+    }
+
+    <ion-button expand="block" class="wa-btn-bloque" (click)="enviarWhatsApp()">
+      <ion-icon name="logo-whatsapp" slot="start"></ion-icon>
+      Enviar estado de cuenta por WhatsApp
+    </ion-button>
+    @if (!cuenta.alumno.telefono) {
+    <p class="nota">Cargá un teléfono al alumno para poder enviarle el estado de cuenta.</p>
+    }
+  </div>
+  }
+
+  <ion-toast [isOpen]="toastOpen" [message]="toastMsg" [duration]="2500" (didDismiss)="toastOpen = false"></ion-toast>
+</ion-content>

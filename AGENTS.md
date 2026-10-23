@@ -23,7 +23,8 @@ Orden de verificación: `npm run lint` → tests → `npm run build` si hay duda
 ## Estructura
 
 - `src/app/services/alumno.service.ts` — servicio de dominio central: alumnos, pagos, deuda, vencimientos, backup. Todo el estado vive en `localStorage` (clave `alumnos`); los datos legacy se migran al leerse (`migrar()`).
-- Rutas: `app.routes.ts` → `tabs/tabs.routes.ts` con tabs 1, 2, 4 y 5 (no existe tab3), lazy load de componentes standalone.
+- `src/app/services/comprobante.service.ts` — arma el comprobante de un pago: texto para WhatsApp y PNG 900x1200 dibujado con canvas. Lo comparte con `Share`/`Filesystem` en Android y lo descarga en el navegador.
+- Rutas: `app.routes.ts` → `tabs/tabs.routes.ts` con tabs 1 (alumnos), 2 (vencimientos), 3 (comprobantes), 4 (dashboard) y 5 (ajustes); lazy load de componentes standalone.
 - `widget.service.ts` — empuja datos al widget Android vía `capacitor-widget-bridge`; solo Android, no-op en browser y trague errores sin romper la UI.
 - `www/` es salida de build: **no editar**. `android/` está commiteado; `capacitor.config.ts` apunta `webDir: 'www'`.
 
@@ -45,3 +46,4 @@ Orden de verificación: `npm run lint` → tests → `npm run build` si hay duda
 - Componentes standalone con `imports` inline; SCSS por componente.
 - Cambios en persistencia: mantener migración compatible con datos existentes (patrón en `migrar()`).
 - Backup de alumnos: formato `CLASES-BACKUP-V1:` + base64 UTF-8 (`exportar()`/`importar()`). No romper la lectura de respaldos viejos.
+- Pagos: `Pago.montoPagado` y `Pago.numeroComprobante` son opcionales (compatibilidad con datos viejos). Un pago sin monto se cuenta con `montoMensual`; `getAll()` numera una sola vez los pagos cobrados que no tienen comprobante. Las cuentas (`getStats`, `getHistorialIngresos`, `getTendencia`, `getEstadisticasAnio`) usan siempre `getMontoPago()`, no `montoMensual`.

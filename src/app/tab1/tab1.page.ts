@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonButtons, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonToast, IonAlert, IonSegment, IonSegmentButton } from '@ionic/angular/standalone';
 import { ActionSheetButton, DatetimeCustomEvent } from '@ionic/angular';
@@ -23,6 +24,7 @@ export class Tab1Page {
   private alumnoService = inject(AlumnoService);
   private notificationService = inject(NotificationService);
   private widgetService = inject(WidgetService);
+  private router = inject(Router);
   alumnos: Alumno[] = [];
   busqueda = '';
   filtroEstado: FiltroEstado = 'activos';
@@ -196,6 +198,11 @@ export class Tab1Page {
     this.notificationService.checkAndSchedule();
     this.widgetService.actualizar();
     setTimeout(() => this.cerrarModal(), 500);
+  }
+
+  /** Abre el estado de cuenta completo del alumno. */
+  verEstadoCuenta(alumno: Alumno) {
+    this.router.navigate(['/estado-cuenta', alumno.id]);
   }
 
   abrirAcciones(alumno: Alumno, event: Event) {

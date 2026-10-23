@@ -2,10 +2,16 @@ import { Injectable } from '@angular/core';
 
 export interface AppSettings {
   tema: string;
+  /** Si está apagado no se programan recordatorios de cuota. */
+  recordatorios: boolean;
+  /** Hora (0-23) del aviso el día del vencimiento. */
+  horaRecordatorio: number;
 }
 
 const DEFAULTS: AppSettings = {
   tema: 'bordeaux',
+  recordatorios: true,
+  horaRecordatorio: 12,
 };
 
 @Injectable({ providedIn: 'root' })

@@ -40,6 +40,14 @@
       </div>
     </div>
 
+    @if (deudaVencida.monto > 0) {
+    <div class="deuda-panel">
+      <ion-icon name="alert-circle"></ion-icon>
+      <span>Deuda vencida: <strong>${{ deudaVencida.monto | number }}</strong> en {{ deudaVencida.meses }}
+        cuota{{ deudaVencida.meses === 1 ? '' : 's' }}</span>
+    </div>
+    }
+
     <ion-searchbar [(ngModel)]="busqueda" placeholder="Buscar por nombre o apellido" debounce="200" mode="ios"
       class="buscar"></ion-searchbar>
 
@@ -74,6 +82,10 @@
               <span class="ficha-monto">${{ a.montoMensual | number }}</span>
               <span class="ficha-punto">·</span>
               <span>Vence día {{ a.diaEntrada }}</span>
+              @if (a.deuda.meses > 1) {
+              <span class="ficha-punto">·</span>
+              <span class="ficha-deuda">Adeuda ${{ a.deuda.monto | number }}</span>
+              }
             </div>
             <div class="ficha-pill" [ngClass]="claseEstado(a)">
               <ion-icon [name]="a.pagoAlDia ? 'checkmark-circle' : 'close-circle'"></ion-icon>
@@ -144,6 +156,10 @@
     [message]="'Se abrirá WhatsApp con un mensaje para cada uno de los ' + vencidosConTelefono.length + ' alumno(s) con cuota vencida. ¿Continuar?'"
     [buttons]="bulkAlertButtons" (didDismiss)="isBulkAlertOpen = false"></ion-alert>
 
+  <!-- Registro de pago con monto editable -->
+  <ion-alert [isOpen]="isPagoAlertOpen" header="Registrar pago" [message]="pagoAlertMessage"
+    [inputs]="pagoAlertInputs" [buttons]="pagoAlertButtons" (didDismiss)="isPagoAlertOpen = false"></ion-alert>
+
   <ion-toast [isOpen]="toastOpen" [message]="toastMsg" [duration]="2500" (didDismiss)="toastOpen = false"></ion-toast>
 
   <!-- Detalle de pagos del alumno -->
@@ -180,6 +196,9 @@
             {{ estadoDetalle.pasado ? 'Reclamar pago por WhatsApp' : 'Recordar por WhatsApp' }}
           </ion-button>
           }
+          <ion-button expand="block" fill="outline" class="cuenta-btn" (click)="verEstadoCuenta()">
+            Ver estado de cuenta
+          </ion-button>
         </div>
         }
 
@@ -236,7 +255,11 @@
                 <span class="fila-mes">{{ mesLabel(p.mes) }} {{ p.anio }}</span>
               </div>
               <span class="fila-estado" [class.pagado]="p.pagado">
-                {{ p.pagado ? (p.fechaPago ? 'Pagado ' + (p.fechaPago | date:'dd/MM') : 'Pagado') : 'Pendiente' }}
+                @if (p.pagado) {
+                ${{ (p.montoPagado ?? selectedAlumno?.montoMensual) | number }}{{ p.fechaPago ? ' · ' + (p.fechaPago | date:'dd/MM') : '' }}
+                } @else {
+                Pendiente
+                }
               </span>
             </div>
             }

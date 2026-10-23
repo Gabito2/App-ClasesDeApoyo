@@ -80,6 +80,115 @@ describe('AlumnoService respaldo', () => {
   });
 });
 
+describe('AlumnoService pagos y comprobantes', () => {
+  let svc: AlumnoService;
+  const HOY = new Date(2026, 9, 12, 10, 0, 0); // 12/10/2026 10:00
+
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({});
+    svc = TestBed.inject(AlumnoService);
+    jasmine.clock().install();
+    jasmine.clock().mockDate(HOY);
+  });
+
+  afterEach(() => {
+    jasmine.clock().uninstall();
+  });
+
+  it('registrarPago guarda monto real, fecha y número de comprobante', () => {
+    const alumno = svc.crear({ nombre: 'Gabriel', apellido: 'Pérez', diaEntrada: 5, montoMensual: 15000 });
+
+    const actualizado = svc.registrarPago(alumno.id, 3, 2026, 18000);
+    const pago = actualizado?.pagos.find((p) => p.mes === 3 && p.anio === 2026);
+
+    expect(pago?.pagado).toBeTrue();
+    expect(pago?.montoPagado).toBe(18000);
+    expect(pago?.numeroComprobante).toBe(1);
+    expect(pago?.fechaPago).toBe(HOY.toISOString());
+    expect(svc.getMontoPago(actualizado!, 3, 2026)).toBe(18000);
+  });
+
+  it('registrar sin monto usa la cuota del alumno', () => {
+    const alumno = svc.crear({ nombre: 'Ana', apellido: '', diaEntrada: 5, montoMensual: 15000 });
+    svc.togglePagoMes(alumno.id, 10, 2026);
+
+    const [comprobante] = svc.getComprobantes({ mes: 10, anio: 2026 });
+    expect(comprobante.monto).toBe(15000);
+  });
+
+  it('las cuentas del dashboard usan el monto realmente cobrado', () => {
+    const alumno = svc.crear({ nombre: 'Ana', apellido: '', diaEntrada: 5, montoMensual: 15000 });
+    svc.registrarPago(alumno.id, 10, 2026, 12000);
+
+    expect(svc.getStats().montoCobrado).toBe(12000);
+    expect(svc.getHistorialIngresos(1)[0].total).toBe(12000);
+    expect(svc.getEstadisticasAnio(2026).total).toBe(12000);
+  });
+
+  it('desmarcarPago borra monto, fecha y número del comprobante', () => {
+    const alumno = svc.crear({ nombre: 'Ana', apellido: '', diaEntrada: 5, montoMensual: 15000 });
+    svc.registrarPago(alumno.id, 10, 2026, 12000);
+
+    const actualizado = svc.desmarcarPago(alumno.id, 10, 2026);
+    const pago = actualizado?.pagos.find((p) => p.mes === 10 && p.anio === 2026);
+
+    expect(pago?.pagado).toBeFalse();
+    expect(pago?.montoPagado).toBeUndefined();
+    expect(pago?.fechaPago).toBeUndefined();
+    expect(pago?.numeroComprobante).toBeUndefined();
+    expect(svc.getStats().montoCobrado).toBe(0);
+  });
+
+  it('numera los pagos viejos en orden cronológico al leerlos', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Ana', apellido: '', diaEntrada: 1, montoMensual: 10000, activo: true,
+        fechaRegistro: '2026-01-01T12:00:00', historialMontos: [],
+        pagos: [
+          { mes: 8, anio: 2026, pagado: true, fechaPago: '2026-08-05T10:00:00.000Z' },
+          { mes: 9, anio: 2026, pagado: true, fechaPago: '2026-09-05T10:00:00.000Z' },
+        ],
+      },
+      {
+        id: 2, nombre: 'Beto', apellido: '', diaEntrada: 1, montoMensual: 12000, activo: true,
+        fechaRegistro: '2026-01-01T12:00:00', historialMontos: [],
+        pagos: [{ mes: 10, anio: 2026, pagado: true, fechaPago: '2026-10-05T10:00:00.000Z' }],
+      },
+    ]));
+    svc['invalidar']();
+
+    const comprobantes = svc.getComprobantes();
+    expect(comprobantes.map((c) => c.numero)).toEqual([3, 2, 1]);
+    expect(comprobantes[0].fechaPago).toBe('2026-10-05T10:00:00.000Z');
+  });
+
+  it('un pago viejo sin monto se cuenta con la cuota del alumno', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Ana', apellido: '', diaEntrada: 1, montoMensual: 10000, activo: true,
+        fechaRegistro: '2026-01-01T12:00:00', historialMontos: [],
+        pagos: [{ mes: 10, anio: 2026, pagado: true, fechaPago: '2026-10-05T10:00:00.000Z' }],
+      },
+    ]));
+    svc['invalidar']();
+
+    expect(svc.getStats().montoCobrado).toBe(10000);
+    expect(svc.getComprobantes({ mes: 10, anio: 2026 })[0].monto).toBe(10000);
+  });
+
+  it('getComprobantes filtra por mes y año y no incluye meses impagos', () => {
+    const alumno = svc.crear({ nombre: 'Ana', apellido: '', diaEntrada: 5, montoMensual: 15000 });
+    svc.registrarPago(alumno.id, 3, 2026, 15000);
+    svc.registrarPago(alumno.id, 4, 2026, 14000);
+
+    expect(svc.getComprobantes({ mes: 3, anio: 2026 }).length).toBe(1);
+    expect(svc.getComprobantes({ anio: 2026 }).length).toBe(2);
+    expect(svc.getComprobantes({ mes: 5, anio: 2026 }).length).toBe(0);
+    expect(svc.getComprobantes({ mes: 3, anio: 2025 }).length).toBe(0);
+  });
+});
+
 describe('AlumnoService estado de pago del mes', () => {
   let svc: AlumnoService;
 
@@ -164,5 +273,83 @@ describe('AlumnoService estado de pago del mes', () => {
     const estado = svc.getEstadoPagoMes(svc.getAll()[0]);
     expect(estado.texto).toBe('Faltan 7 días');
     expect(estado.pasado).toBeFalse();
+  });
+});
+
+describe('AlumnoService estado de cuenta', () => {
+  let svc: AlumnoService;
+  const HOY = new Date(2026, 9, 12, 10, 0, 0); // 12/10/2026 10:00
+
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.configureTestingModule({});
+    svc = TestBed.inject(AlumnoService);
+    jasmine.clock().install();
+    jasmine.clock().mockDate(HOY);
+  });
+
+  afterEach(() => {
+    jasmine.clock().uninstall();
+  });
+
+  it('lista las cuotas impagas del más viejo al más nuevo', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Ana', apellido: 'Pérez', diaEntrada: 5, montoMensual: 10000, activo: true,
+        fechaRegistro: '2026-08-01T12:00:00', historialMontos: [],
+        pagos: [{ mes: 8, anio: 2026, pagado: true, fechaPago: '2026-08-05T10:00:00.000Z' }],
+      },
+    ]));
+    svc['invalidar']();
+
+    const impagos = svc.getMesesImpagosLista(svc.getById(1)!);
+    expect(impagos.map((m) => `${m.mes}/${m.anio}`)).toEqual(['9/2026', '10/2026']);
+    expect(impagos.every((m) => m.monto === 10000)).toBeTrue();
+  });
+
+  it('no lista meses anteriores al alta del alumno', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Luis', apellido: '', diaEntrada: 19, montoMensual: 9000, activo: true,
+        fechaRegistro: '2026-10-05T12:00:00', historialMontos: [], pagos: [],
+      },
+    ]));
+    svc['invalidar']();
+
+    expect(svc.getMesesImpagosLista(svc.getById(1)!).map((m) => m.mes)).toEqual([10]);
+  });
+
+  it('consolida pagos, comprobantes y totales del año', () => {
+    const alumno = svc.crear({ nombre: 'Gabriel', apellido: 'Pérez', diaEntrada: 5, montoMensual: 15000 });
+    svc.registrarPago(alumno.id, 3, 2026, 18000);
+    svc.registrarPago(alumno.id, 4, 2026, 15000);
+
+    const cuenta = svc.getEstadoCuenta(alumno.id)!;
+    expect(cuenta.pagos.map((p) => p.mes)).toEqual([4, 3]);
+    expect(cuenta.pagos.find((p) => p.mes === 3)?.numeroComprobante).toBe(1);
+    expect(cuenta.pagos.find((p) => p.mes === 4)?.monto).toBe(15000);
+    expect(cuenta.totalCobrado).toBe(33000);
+    expect(cuenta.cantidadPagos).toBe(2);
+    expect(cuenta.anio).toEqual({ numero: 2026, cobrado: 33000, cantidad: 2 });
+    expect(cuenta.impagos.map((m) => m.mes)).toEqual([10]);
+  });
+
+  it('un pago viejo sin monto se cuenta con la cuota actual', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Ana', apellido: '', diaEntrada: 5, montoMensual: 12000, activo: true,
+        fechaRegistro: '2026-01-01T12:00:00', historialMontos: [],
+        pagos: [{ mes: 9, anio: 2026, pagado: true }],
+      },
+    ]));
+    svc['invalidar']();
+
+    const cuenta = svc.getEstadoCuenta(1)!;
+    expect(cuenta.totalCobrado).toBe(12000);
+    expect(cuenta.pagos[0].monto).toBe(12000);
+  });
+
+  it('devuelve null si el alumno no existe', () => {
+    expect(svc.getEstadoCuenta(12345)).toBeNull();
   });
 });

@@ -91,7 +91,7 @@
 
   <ion-list class="lista" lines="none">
     @for (a of alumnosFiltrados; track a.id) {
-    <ion-item class="ficha">
+    <ion-item class="ficha" (click)="verEstadoCuenta(a)">
       <div class="ficha-contenido">
         <div class="ficha-principal">
           <div class="ficha-avatar" [ngClass]="estadoClase(a)">{{ a.nombre.charAt(0) }}{{ a.apellido.charAt(0) }}</div>

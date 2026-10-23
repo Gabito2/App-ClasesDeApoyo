@@ -1,0 +1,227 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Comprobantes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="tab3-content">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Comprobantes</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="panel-superior">
+    <div class="tarjeta-total">
+      <span class="total-label">Cobrado en {{ anio }}</span>
+      <span class="total-valor">${{ totalAnio | number }}</span>
+      <span class="total-cantidad">
+        {{ cantidadAnio }} comprobante{{ cantidadAnio === 1 ? '' : 's' }}
+      </span>
+    </div>
+
+    <ion-searchbar [(ngModel)]="busqueda" placeholder="Buscar alumno" debounce="200" mode="ios" class="buscar"></ion-searchbar>
+
+    <p class="pista">Tocá un alumno para registrar una cuota y crear su comprobante.</p>
+  </div>
+
+  @if (alumnos.length === 0) {
+  <div class="vacio">
+    <div class="vacio-icono">
+      <ion-icon name="receipt-outline"></ion-icon>
+    </div>
+    <h2>No hay alumnos activos</h2>
+    <p class="vacio-hint">Registrá alumnos en la pestaña Alumnos para poder crear sus comprobantes.</p>
+    <ion-button expand="block" class="ir-alumnos" routerLink="/tabs/tab1">Ir a Alumnos</ion-button>
+  </div>
+  }
+
+  @if (alumnos.length > 0 && filtrados.length === 0) {
+  <div class="vacio">
+    <div class="vacio-icono">
+      <ion-icon name="search"></ion-icon>
+    </div>
+    <h2>Sin resultados</h2>
+    <p class="vacio-hint">No encontramos alumnos que coincidan con "{{ busqueda.trim() }}"</p>
+  </div>
+  }
+
+  @if (filtrados.length > 0) {
+  <ion-list class="lista" lines="none">
+    @for (a of filtrados; track a.id) {
+    <ion-item button class="ficha" (click)="abrirFormulario(a)">
+      <div class="ficha-contenido">
+        <div class="ficha-principal">
+          <div class="ficha-avatar" [class.ok]="conteo(a) > 0">{{ iniciales(a) }}</div>
+          <div class="ficha-info">
+            <h2>{{ a.nombre }} {{ a.apellido }}</h2>
+            <div class="ficha-meta">
+              <span class="ficha-monto">${{ a.montoMensual | number }}</span>
+              <span class="ficha-punto">·</span>
+              <span>Vence día {{ a.diaEntrada }}</span>
+            </div>
+            <div class="ficha-pill" [class.ok]="conteo(a) > 0" [class.pendiente]="conteo(a) === 0">
+              <ion-icon [name]="conteo(a) > 0 ? 'checkmark-circle' : 'receipt-outline'"></ion-icon>
+              {{ conteo(a) > 0 ? conteo(a) + ' comprobante' + (conteo(a) === 1 ? '' : 's') : 'Sin comprobantes' }}
+            </div>
+          </div>
+        </div>
+        <div class="fila-acciones">
+          <ion-icon name="chevron-forward" class="chevron"></ion-icon>
+        </div>
+      </div>
+    </ion-item>
+    }
+  </ion-list>
+  }
+
+  <ion-toast [isOpen]="toastOpen" [message]="toastMsg" [duration]="2500" (didDismiss)="toastOpen = false"></ion-toast>
+
+  <!-- Alta del comprobante: mes, monto y datos del alumno -->
+  <ion-modal [isOpen]="isFormOpen" (didDismiss)="cerrarFormulario()">
+    <ng-template>
+      <ion-header class="modal-header">
+        <ion-toolbar>
+          <ion-title>Nuevo comprobante</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="cerrarFormulario()" aria-label="Cerrar">
+              <ion-icon style="color: white;" name="close" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="modal-content">
+        @if (alumnoSeleccionado) {
+        <div class="detalle-wrapper">
+          <div class="perfil">
+            <div class="ficha-avatar ok perfil-avatar">
+              {{ iniciales(alumnoSeleccionado) }}
+            </div>
+            <h2>{{ alumnoSeleccionado.nombre }} {{ alumnoSeleccionado.apellido }}</h2>
+            <div class="perfil-meta">
+              <span><ion-icon name="cash-outline"></ion-icon> ${{ alumnoSeleccionado.montoMensual | number }} / mes</span>
+              <span><ion-icon name="calendar-outline"></ion-icon> Día {{ alumnoSeleccionado.diaEntrada }}</span>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <div class="fila-selects">
+              <div class="campo">
+                <label>Mes</label>
+                <ion-select [(ngModel)]="formMes" interface="popover" aria-label="Mes de la cuota">
+                  @for (m of MESES; track m; let i = $index) {
+                  <ion-select-option [value]="i + 1">{{ m }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+              <div class="campo">
+                <label>Año</label>
+                <ion-select [(ngModel)]="formAnio" interface="popover" aria-label="Año de la cuota">
+                  @for (a of anios; track a) {
+                  <ion-select-option [value]="a">{{ a }}</ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+            <div class="campo">
+              <label>Monto cobrado</label>
+              <ion-input type="number" inputmode="decimal" [(ngModel)]="formMonto" placeholder="0"
+                aria-label="Monto cobrado"></ion-input>
+            </div>
+
+            <ion-button expand="block" class="btn-crear" (click)="crearComprobante()">
+              <ion-icon name="receipt-outline" slot="start"></ion-icon>
+              Crear comprobante
+            </ion-button>
+            <p class="form-hint">La cuota del mes queda registrada como pagada.</p>
+          </div>
+
+          @if (comprobantesAlumno.length > 0) {
+          <div class="bloque">
+            <h3 class="bloque-titulo">Comprobantes del alumno</h3>
+            @for (c of comprobantesAlumno; track c.anio + '-' + c.mes) {
+            <button class="fila-comprobante" (click)="abrirPreview(c)">
+              <div class="fila-izq">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <div class="fila-texto">
+                  <span class="fila-mes">{{ mesLabel(c.mes) }} {{ c.anio }}</span>
+                  <span class="fila-fecha">Nº {{ numero(c) }} · {{ fecha(c) }}</span>
+                </div>
+              </div>
+              <span class="fila-valor">${{ c.monto | number }}</span>
+            </button>
+            }
+          </div>
+          }
+        </div>
+        }
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Vista previa y envío del comprobante -->
+  <ion-modal [isOpen]="isPreviewOpen" (didDismiss)="cerrarPreview()">
+    <ng-template>
+      <ion-header class="modal-header">
+        <ion-toolbar>
+          <ion-title>Comprobante de pago</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="cerrarPreview()" aria-label="Cerrar">
+              <ion-icon style="color: white;" name="close" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="modal-content">
+        @if (comprobanteSeleccionado) {
+        <div class="detalle-wrapper">
+          <div class="comprobante">
+            <div class="comprobante-cabecera">
+              <span class="comprobante-marca">Clases de Apoyo</span>
+              <h2>COMPROBANTE DE PAGO</h2>
+              <span class="comprobante-numero">Nº {{ numero(comprobanteSeleccionado) }}</span>
+            </div>
+            <div class="comprobante-cuerpo">
+              <span class="monto-label">Monto abonado</span>
+              <span class="monto">${{ comprobanteSeleccionado.monto | number }}</span>
+              <span class="sello">PAGADO</span>
+
+              <div class="comprobante-filas">
+                <div class="fila">
+                  <span>Alumno</span>
+                  <strong>{{ comprobanteSeleccionado.alumnoNombre }}</strong>
+                </div>
+                <div class="fila">
+                  <span>Cuota</span>
+                  <strong>{{ mesLabel(comprobanteSeleccionado.mes) }} {{ comprobanteSeleccionado.anio }}</strong>
+                </div>
+                <div class="fila">
+                  <span>Fecha de pago</span>
+                  <strong>{{ fecha(comprobanteSeleccionado) }}</strong>
+                </div>
+              </div>
+
+              <p class="comprobante-pie">Gracias por tu pago · Clases de Apoyo</p>
+            </div>
+          </div>
+
+          <ion-button expand="block" class="btn-compartir" (click)="compartir()" [disabled]="enviando">
+            <ion-icon name="share-social" slot="start"></ion-icon>
+            {{ enviando ? 'Generando imagen…' : 'Compartir imagen' }}
+          </ion-button>
+
+          @if (puedeWhatsApp) {
+          <ion-button expand="block" class="btn-wa" (click)="enviarWhatsApp()">
+            <ion-icon name="logo-whatsapp" slot="start"></ion-icon>
+            Enviar por WhatsApp
+          </ion-button>
+          } @else {
+          <p class="sin-telefono">Cargá un teléfono al alumno para mandarle el comprobante por WhatsApp.</p>
+          }
+        </div>
+        }
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>
