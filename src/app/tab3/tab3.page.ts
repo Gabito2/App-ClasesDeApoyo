@@ -7,12 +7,14 @@ import { receiptOutline, logoWhatsapp, shareSocial, chevronForward, close, check
 import { AlumnoService } from '../services/alumno.service';
 import { ComprobanteService } from '../services/comprobante.service';
 import { Alumno, Comprobante } from '../models/alumno.model';
+import { coincideAlumno } from '../utils/texto';
+import { EntradaListaDirective } from '../directivas/entrada-lista.directive';
 
 @Component({
   selector: 'app-tab3',
   templateUrl: 'tab3.page.html',
   styleUrls: ['tab3.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonButton, IonButtons, IonModal, IonToast, IonSearchbar, IonSelect, IonSelectOption, IonInput],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonButton, IonButtons, IonModal, IonToast, IonSearchbar, IonSelect, IonSelectOption, IonInput, EntradaListaDirective],
 })
 export class Tab3Page {
   private alumnoService = inject(AlumnoService);
@@ -69,9 +71,8 @@ export class Tab3Page {
 
   /** Alumnos activos filtrados por nombre o apellido. */
   get filtrados(): Alumno[] {
-    const term = this.busqueda.toLowerCase().trim();
-    if (!term) return this.alumnos;
-    return this.alumnos.filter((a) => `${a.nombre} ${a.apellido}`.toLowerCase().includes(term));
+    if (!this.busqueda.trim()) return this.alumnos;
+    return this.alumnos.filter((a) => coincideAlumno(a, this.busqueda));
   }
 
   get anios(): number[] {

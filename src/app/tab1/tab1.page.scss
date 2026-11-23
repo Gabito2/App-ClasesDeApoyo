@@ -6,12 +6,6 @@
   --padding-bottom: 96px;
 }
 
-// El botón de la barra superior va sobre el color primario: su icono debe ser blanco.
-// (No se fuerza el color de TODOS los iconos, para no pisar los de estado.)
-ion-toolbar ion-button.header-action {
-  --color: #ffffff;
-}
-
 /* ── Panel superior: filtro ── */
 
 .panel-superior {
@@ -24,15 +18,15 @@ ion-toolbar ion-button.header-action {
 
 .estado-segment {
   margin: 6px 0 12px;
-  --background: rgba(120, 120, 130, 0.1);
-  --color: #6b6b70;
-  --color-checked: #ffffff;
+  --background: var(--app-neutral-wash);
+  --color: var(--app-text-muted);
+  --color-checked: var(--app-on-accent);
   --background-checked: var(--ion-color-primary);
-  --border-radius: 12px;
+  --border-radius: var(--app-radius-sm);
   padding: 3px;
 
   ion-segment-button {
-    --border-radius: 10px;
+    --border-radius: var(--app-radius-xs);
     --indicator-color: transparent;
     --ripple-color: transparent;
     font-weight: 600;
@@ -66,9 +60,9 @@ ion-toolbar ion-button.header-action {
   flex-shrink: 0;
   padding: 7px 14px;
   border-radius: 999px;
-  border: 1px solid #e6e6ea;
-  background: #ffffff;
-  color: #6b6b70;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   font-size: 0.76rem;
   font-weight: 600;
   font-family: inherit;
@@ -79,7 +73,7 @@ ion-toolbar ion-button.header-action {
   &.active {
     background: var(--ion-color-primary);
     border-color: var(--ion-color-primary);
-    color: #ffffff;
+    color: var(--app-on-accent);
   }
 
   &:active {
@@ -103,24 +97,8 @@ ion-list.lista {
 
   ion-icon {
     font-size: 19px;
-    color: #b8b8be;
+    color: var(--app-icon-muted);
   }
-}
-
-/* ── Modal ── */
-
-.modal-header {
-  --background: var(--ion-color-primary);
-  --color: #ffffff;
-
-  ion-title {
-    font-weight: 600;
-    font-size: 1.05rem;
-  }
-}
-
-.modal-content {
-  --background: var(--app-bg);
 }
 
 .form-wrapper {
@@ -131,8 +109,8 @@ ion-list.lista {
 
 ion-input.form-input {
   margin-bottom: 16px;
-  --background: #ffffff;
-  --border-radius: 14px;
+  --background: var(--app-surface);
+  --border-radius: var(--app-radius-md);
   --padding-start: 14px;
   --padding-end: 14px;
   --highlight-color-focused: var(--ion-color-primary);
@@ -144,7 +122,7 @@ ion-input.form-input {
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: #8a8a90;
+  color: var(--app-text-muted);
   margin: 0 0 7px 4px;
 }
 
@@ -152,16 +130,16 @@ ion-input.form-input {
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.04);
-  --background: #ffffff;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-card);
+  --background: var(--app-surface);
 }
 
 ion-button.save-btn {
   margin-top: 26px;
   --background: var(--ion-color-primary);
   --background-hover: var(--ion-color-primary-tint);
-  --border-radius: 14px;
+  --border-radius: var(--app-radius-md);
   font-weight: 600;
   height: 50px;
   text-transform: none;

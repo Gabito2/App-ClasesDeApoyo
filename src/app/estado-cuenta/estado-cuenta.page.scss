@@ -20,13 +20,13 @@
   gap: 12px;
   padding: 14px 16px;
   border-radius: 16px;
-  background: #fdf0f0;
-  border: 1px solid #f6d5d1;
+  background: var(--app-danger-soft);
+  border: 1px solid var(--app-danger-border);
   margin: 14px 0;
 
   > ion-icon {
     font-size: 26px;
-    color: #c0392b;
+    color: var(--app-danger);
     flex-shrink: 0;
   }
 
@@ -41,30 +41,30 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #c0392b;
+    color: var(--app-danger);
   }
 
   .deuda-dato {
     font-size: 0.92rem;
     font-weight: 600;
-    color: #7d2a1f;
+    color: var(--app-danger-text);
     margin-top: 2px;
   }
 
   &.sin-deuda {
-    background: #f0f6f1;
-    border-color: #d8e6db;
+    background: var(--app-success-soft);
+    border-color: var(--app-success-border);
 
     > ion-icon {
-      color: #507858;
+      color: var(--app-success);
     }
 
     .deuda-titulo {
-      color: #507858;
+      color: var(--app-success);
     }
 
     .deuda-dato {
-      color: #46694d;
+      color: var(--app-success-text);
     }
   }
 }
@@ -72,11 +72,11 @@
 /* ── Bloques de historial ── */
 
 .bloque {
-  background: #ffffff;
+  background: var(--app-surface);
   border-radius: 16px;
   padding: 14px 16px;
   margin-bottom: 14px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.04);
+  box-shadow: var(--app-shadow-card);
 
   .bloque-titulo {
     margin: 0 0 6px;
@@ -84,13 +84,13 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #8a8a90;
+    color: var(--app-text-muted);
   }
 
   .bloque-vacio {
     margin: 4px 0 0;
     font-size: 0.85rem;
-    color: #9a9aa0;
+    color: var(--app-text-muted);
   }
 }
 
@@ -100,7 +100,7 @@
   justify-content: space-between;
   gap: 10px;
   padding: 9px 0;
-  border-bottom: 1px solid #f4f4f6;
+  border-bottom: 1px solid var(--app-divider);
 
   &:last-child {
     border-bottom: none;
@@ -118,7 +118,7 @@
       flex-shrink: 0;
 
       &.pagado {
-        color: #507858;
+        color: var(--app-success);
       }
     }
   }
@@ -137,19 +137,19 @@
 
   .fila-mes {
     font-weight: 600;
-    color: #2d2d2d;
+    color: var(--app-text);
     font-size: 0.85rem;
   }
 
   .fila-valor {
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--app-text-strong);
     font-size: 0.9rem;
   }
 
   .fila-sub {
     font-size: 0.72rem;
-    color: #9a9aa0;
+    color: var(--app-text-muted);
     text-transform: capitalize;
   }
 }
@@ -159,11 +159,11 @@
 ion-button.wa-btn-bloque {
   margin: 4px 0 0;
   width: 100%;
-  --background: #25d366;
-  --background-hover: #1fb958;
-  --background-activated: #1fb958;
-  --color: #ffffff;
-  --border-radius: 14px;
+  --background: var(--app-wa);
+  --background-hover: var(--app-wa-shade);
+  --background-activated: var(--app-wa-shade);
+  --color: var(--app-on-accent);
+  --border-radius: var(--app-radius-md);
   font-weight: 600;
   height: 48px;
   text-transform: none;
@@ -175,7 +175,7 @@ ion-button.wa-btn-bloque {
 
 .nota {
   font-size: 0.75rem;
-  color: #a4a4a8;
+  color: var(--app-text-subtle);
   line-height: 1.5;
   margin: 10px 6px 0;
   text-align: center;

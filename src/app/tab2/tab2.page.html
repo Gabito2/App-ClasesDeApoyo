@@ -113,7 +113,7 @@
       <span class="seccion-texto">Cuota vencida</span>
       <span class="seccion-count">{{ vencidos.length }}</span>
     </h3>
-    <ion-list class="lista" lines="none">
+    <ion-list class="lista" lines="none" appEntradaLista>
       @for (a of vencidos; track a.id) {
       <ng-container [ngTemplateOutlet]="filaVencimiento" [ngTemplateOutletContext]="{ $implicit: a }"></ng-container>
       }
@@ -128,7 +128,7 @@
       <span class="seccion-texto">Por vencer</span>
       <span class="seccion-count">{{ porVencer.length }}</span>
     </h3>
-    <ion-list class="lista" lines="none">
+    <ion-list class="lista" lines="none" appEntradaLista>
       @for (a of porVencer; track a.id) {
       <ng-container [ngTemplateOutlet]="filaVencimiento" [ngTemplateOutletContext]="{ $implicit: a }"></ng-container>
       }
@@ -143,7 +143,7 @@
       <span class="seccion-texto">Al día</span>
       <span class="seccion-count">{{ alDia.length }}</span>
     </h3>
-    <ion-list class="lista" lines="none">
+    <ion-list class="lista" lines="none" appEntradaLista>
       @for (a of alDia; track a.id) {
       <ng-container [ngTemplateOutlet]="filaVencimiento" [ngTemplateOutletContext]="{ $implicit: a }"></ng-container>
       }

@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonButtons, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonToast, IonAlert, IonSegment, IonSegmentButton } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonButtons, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonToast, IonAlert, IonSegment, IonSegmentButton, IonFab, IonFabButton } from '@ionic/angular/standalone';
 import { ActionSheetButton, DatetimeCustomEvent } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { personAdd, create, trash, close, ellipsisVertical, personRemove, checkmarkCircle, closeCircle, searchOutline } from 'ionicons/icons';
@@ -10,6 +10,8 @@ import { AlumnoService } from '../services/alumno.service';
 import { Alumno } from '../models/alumno.model';
 import { NotificationService } from '../services/notification.service';
 import { WidgetService } from '../services/widget.service';
+import { coincideAlumno, normalizar } from '../utils/texto';
+import { EntradaListaDirective } from '../directivas/entrada-lista.directive';
 
 type FiltroEstado = 'activos' | 'inactivos';
 type Orden = 'nombre' | 'dia' | 'monto';
@@ -18,7 +20,7 @@ type Orden = 'nombre' | 'dia' | 'monto';
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonButtons, IonToast, IonAlert, IonSegment, IonSegmentButton],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonButtons, IonToast, IonAlert, IonSegment, IonSegmentButton, IonFab, IonFabButton, EntradaListaDirective],
 })
 export class Tab1Page {
   private alumnoService = inject(AlumnoService);
@@ -68,12 +70,10 @@ export class Tab1Page {
 
   get alumnosFiltrados(): Alumno[] {
     const lista = this.busqueda.trim()
-      ? this.alumnos.filter(
-          (a) => `${a.nombre} ${a.apellido}`.toLowerCase().includes(this.busqueda.toLowerCase().trim())
-        )
+      ? this.alumnos.filter((a) => coincideAlumno(a, this.busqueda))
       : [...this.alumnos];
 
-    const nombreStr = (a: Alumno) => `${a.nombre} ${a.apellido}`.toLowerCase();
+    const nombreStr = (a: Alumno) => normalizar(`${a.nombre} ${a.apellido}`);
 
     switch (this.orden) {
       case 'dia':

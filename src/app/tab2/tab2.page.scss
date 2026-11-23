@@ -22,15 +22,15 @@
   gap: 8px;
   padding: 9px 14px;
   border-radius: 12px;
-  background: #fdf0f0;
-  border: 1px solid #f6d5d1;
+  background: var(--app-danger-soft);
+  border: 1px solid var(--app-danger-border);
   margin-bottom: 10px;
   font-size: 0.8rem;
-  color: #7d2a1f;
+  color: var(--app-danger-text);
 
   ion-icon {
     font-size: 18px;
-    color: #c0392b;
+    color: var(--app-danger);
     flex-shrink: 0;
   }
 
@@ -41,17 +41,17 @@
 
 .ficha-deuda {
   font-weight: 600;
-  color: #c0392b;
+  color: var(--app-danger);
   white-space: nowrap;
 }
 
 ion-button.wa-masivo {
-  --background: #25d366;
-  --background-hover: #1fb958;
-  --background-activated: #1fb958;
-  --color: #ffffff;
-  --border-radius: 14px;
-  --box-shadow: 0 4px 14px rgba(37, 211, 102, 0.28);
+  --background: var(--app-wa);
+  --background-hover: var(--app-wa-shade);
+  --background-activated: var(--app-wa-shade);
+  --color: var(--app-on-accent);
+  --border-radius: var(--app-radius-md);
+  --box-shadow: var(--app-shadow-wa);
   font-weight: 600;
   font-size: 0.85rem;
   height: 46px;
@@ -75,7 +75,7 @@ ion-button.wa-masivo {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.9px;
-  color: #8a8a90;
+  color: var(--app-text-muted);
 
   ion-icon {
     font-size: 15px;
@@ -86,25 +86,25 @@ ion-button.wa-masivo {
   }
 
   .seccion-count {
-    font-size: 0.66rem;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0;
     padding: 2px 8px;
     border-radius: 999px;
     color: inherit;
-    background: rgba(120, 120, 130, 0.12);
+    background: var(--app-neutral-wash-strong);
   }
 
   &.mora {
-    color: #c0392b;
+    color: var(--app-danger);
   }
 
   &.warn {
-    color: #a8800d;
+    color: var(--app-warning-text);
   }
 
   &.ok {
-    color: #507858;
+    color: var(--app-success);
   }
 }
 
@@ -125,7 +125,7 @@ ion-list.lista {
 
   .chevron {
     font-size: 17px;
-    color: #c8c8ce;
+    color: var(--app-icon-muted);
   }
 }
 
@@ -135,27 +135,11 @@ ion-list.lista {
   --min-width: 36px;
   --min-height: 36px;
   margin: 0;
-  --color: #25d366;
+  --color: var(--app-wa);
 
   ion-icon {
     font-size: 22px;
   }
-}
-
-/* ── Modal de pagos ── */
-
-.modal-header {
-  --background: var(--ion-color-primary);
-  --color: #ffffff;
-
-  ion-title {
-    font-weight: 600;
-    font-size: 1.05rem;
-  }
-}
-
-.modal-content {
-  --background: var(--app-bg);
 }
 
 /* ── Perfil del alumno ── */
@@ -165,11 +149,11 @@ ion-button.wa-btn-bloque {
   margin: 16px 0 0;
   width: 100%;
   max-width: 320px;
-  --background: #25d366;
-  --background-hover: #1fb958;
-  --background-activated: #1fb958;
-  --color: #ffffff;
-  --border-radius: 14px;
+  --background: var(--app-wa);
+  --background-hover: var(--app-wa-shade);
+  --background-activated: var(--app-wa-shade);
+  --color: var(--app-on-accent);
+  --border-radius: var(--app-radius-md);
   font-weight: 600;
   height: 48px;
   text-transform: none;
@@ -183,7 +167,7 @@ ion-button.cuenta-btn {
   margin: 10px 0 0;
   width: 100%;
   max-width: 320px;
-  --border-radius: 14px;
+  --border-radius: var(--app-radius-md);
   --border-width: 1.5px;
   font-weight: 600;
   height: 46px;
@@ -204,13 +188,13 @@ ion-button.cuenta-btn {
   gap: 12px;
   padding: 14px 16px;
   border-radius: 16px;
-  background: #fdf0f0;
-  border: 1px solid #f6d5d1;
+  background: var(--app-danger-soft);
+  border: 1px solid var(--app-danger-border);
   margin-bottom: 14px;
 
   > ion-icon {
     font-size: 26px;
-    color: #c0392b;
+    color: var(--app-danger);
     flex-shrink: 0;
   }
 
@@ -225,40 +209,40 @@ ion-button.cuenta-btn {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #c0392b;
+    color: var(--app-danger);
   }
 
   .deuda-dato {
     font-size: 0.92rem;
     font-weight: 600;
-    color: #7d2a1f;
+    color: var(--app-danger-text);
     margin-top: 2px;
   }
 
   &.sin-deuda {
-    background: #f0f6f1;
-    border-color: #d8e6db;
+    background: var(--app-success-soft);
+    border-color: var(--app-success-border);
 
     > ion-icon {
-      color: #507858;
+      color: var(--app-success);
     }
 
     .deuda-titulo {
-      color: #507858;
+      color: var(--app-success);
     }
 
     .deuda-dato {
-      color: #46694d;
+      color: var(--app-success-text);
     }
   }
 }
 
 .bloque {
-  background: #ffffff;
+  background: var(--app-surface);
   border-radius: 16px;
   padding: 14px 16px;
   margin-bottom: 14px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.04);
+  box-shadow: var(--app-shadow-card);
 
   .bloque-titulo {
     margin: 0 0 6px;
@@ -266,7 +250,7 @@ ion-button.cuenta-btn {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #8a8a90;
+    color: var(--app-text-muted);
   }
 }
 
@@ -276,7 +260,7 @@ ion-button.cuenta-btn {
   justify-content: space-between;
   gap: 10px;
   padding: 9px 0;
-  border-bottom: 1px solid #f4f4f6;
+  border-bottom: 1px solid var(--app-divider);
 
   &:last-child {
     border-bottom: none;
@@ -294,41 +278,41 @@ ion-button.cuenta-btn {
       flex-shrink: 0;
 
       &.pagado {
-        color: #507858;
+        color: var(--app-success);
       }
 
       &.pendiente {
-        color: #d0d0d4;
+        color: var(--app-border-strong);
       }
     }
 
     .fila-mes {
       font-weight: 600;
-      color: #2d2d2d;
+      color: var(--app-text);
       font-size: 0.85rem;
     }
   }
 
   .fila-valor {
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--app-text-strong);
     font-size: 0.9rem;
   }
 
   .fila-fecha {
     font-size: 0.75rem;
-    color: #8a8a8a;
+    color: var(--app-text-muted);
     text-transform: capitalize;
   }
 
   .fila-estado {
     font-size: 0.75rem;
     font-weight: 500;
-    color: #8a8a8a;
+    color: var(--app-text-muted);
     text-align: right;
 
     &.pagado {
-      color: #507858;
+      color: var(--app-success);
       font-weight: 600;
     }
   }
@@ -356,7 +340,7 @@ ion-button.cuenta-btn {
   .anio-label {
     font-size: 1rem;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--app-text-strong);
     min-width: 64px;
     text-align: center;
   }
@@ -385,37 +369,37 @@ ion-grid.meses-grid {
   .mes-label {
     font-size: 0.72rem;
     font-weight: 600;
-    color: #2d2d2d;
+    color: var(--app-text);
     line-height: 1.2;
   }
 
   .tap-hint {
-    font-size: 0.6rem;
-    color: #b0b0b4;
+    font-size: 0.66rem;
+    color: var(--app-icon-muted);
     font-weight: 400;
   }
 
   &.pagado {
-    background: #f0f6f1;
-    border: 1.5px solid #507858;
+    background: var(--app-success-soft);
+    border: 1.5px solid var(--app-success);
 
     ion-icon {
-      color: #507858;
+      color: var(--app-success);
     }
 
     .tap-hint {
-      color: #507858;
+      color: var(--app-success);
       font-weight: 500;
     }
   }
 
   &.pendiente {
-    background: #ffffff;
-    border: 1.5px solid #e8e8ec;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+    background: var(--app-surface);
+    border: 1.5px solid var(--app-border);
+    box-shadow: var(--app-shadow-flat);
 
     ion-icon {
-      color: #d0d0d4;
+      color: var(--app-border-strong);
     }
   }
 

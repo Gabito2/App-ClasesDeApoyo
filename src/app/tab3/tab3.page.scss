@@ -24,8 +24,8 @@
   padding: 18px 16px;
   border-radius: 18px;
   background: var(--ion-color-primary);
-  color: #ffffff;
-  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.12);
+  color: var(--app-on-accent);
+  box-shadow: var(--app-shadow-primary);
   margin-bottom: 8px;
 
   .total-label {
@@ -51,15 +51,15 @@
 
 .pista {
   margin: 0 6px 10px;
-  font-size: 0.75rem;
-  color: #9a9aa0;
+  font-size: 0.78rem;
+  color: var(--app-text-muted);
   text-align: center;
   line-height: 1.4;
 }
 
 ion-button.ir-alumnos {
   --background: var(--ion-color-primary);
-  --border-radius: 14px;
+  --border-radius: var(--app-radius-md);
   --box-shadow: none;
   margin-top: 18px;
   font-weight: 600;
@@ -80,23 +80,7 @@ ion-button.ir-alumnos {
 
 .fila-acciones .chevron {
   font-size: 17px;
-  color: #c8c8ce;
-}
-
-/* ── Modal de alta ── */
-
-.modal-header {
-  --background: var(--ion-color-primary);
-  --color: #ffffff;
-
-  ion-title {
-    font-weight: 600;
-    font-size: 1.05rem;
-  }
-}
-
-.modal-content {
-  --background: var(--app-bg);
+  color: var(--app-icon-muted);
 }
 
 .detalle-wrapper {
@@ -114,11 +98,11 @@ ion-button.ir-alumnos {
 }
 
 .form-card {
-  background: #ffffff;
+  background: var(--app-surface);
   border-radius: 18px;
   padding: 16px;
   margin-top: 14px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.045);
+  box-shadow: var(--app-shadow-card);
 
   .fila-selects {
     display: flex;
@@ -141,19 +125,19 @@ ion-button.ir-alumnos {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.7px;
-      color: #9a9aa0;
+      color: var(--app-text-muted);
     }
 
     ion-select,
     ion-input {
-      --background: #f7f7f9;
-      --border-radius: 12px;
+      --background: var(--app-surface-sunken);
+      --border-radius: var(--app-radius-sm);
       --padding-start: 12px;
       --padding-end: 12px;
       --min-height: 44px;
-      --color: #1a1a1a;
+      --color: var(--app-text-strong);
       font-size: 0.9rem;
-      border: 1px solid #ececf0;
+      border: 1px solid var(--app-border);
       border-radius: 12px;
     }
   }
@@ -161,7 +145,7 @@ ion-button.ir-alumnos {
   .form-hint {
     margin: 10px 0 0;
     font-size: 0.72rem;
-    color: #9a9aa0;
+    color: var(--app-text-muted);
     text-align: center;
   }
 }
@@ -169,7 +153,7 @@ ion-button.ir-alumnos {
 ion-button.btn-crear,
 ion-button.btn-compartir {
   --background: var(--ion-color-primary);
-  --border-radius: 14px;
+  --border-radius: var(--app-radius-md);
   --box-shadow: none;
   font-weight: 600;
   height: 48px;
@@ -189,9 +173,9 @@ ion-button.btn-compartir {
 }
 
 ion-button.btn-wa {
-  --background: #25d366;
-  --color: #ffffff;
-  --border-radius: 14px;
+  --background: var(--app-wa);
+  --color: var(--app-on-accent);
+  --border-radius: var(--app-radius-md);
   margin: 10px 0 0;
   font-weight: 600;
   height: 48px;
@@ -203,11 +187,11 @@ ion-button.btn-wa {
 }
 
 .bloque {
-  background: #ffffff;
+  background: var(--app-surface);
   border-radius: 16px;
   padding: 14px 16px;
   margin-top: 14px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.04);
+  box-shadow: var(--app-shadow-card);
 
   .bloque-titulo {
     margin: 0 0 6px;
@@ -215,7 +199,7 @@ ion-button.btn-wa {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #8a8a90;
+    color: var(--app-text-muted);
   }
 }
 
@@ -227,7 +211,7 @@ ion-button.btn-wa {
   width: 100%;
   padding: 9px 0;
   border: none;
-  border-bottom: 1px solid #f4f4f6;
+  border-bottom: 1px solid var(--app-divider);
   background: transparent;
   font-family: inherit;
   text-align: left;
@@ -246,7 +230,7 @@ ion-button.btn-wa {
 
     ion-icon {
       font-size: 18px;
-      color: #507858;
+      color: var(--app-success);
       flex-shrink: 0;
     }
 
@@ -259,19 +243,19 @@ ion-button.btn-wa {
     .fila-mes {
       font-size: 0.85rem;
       font-weight: 600;
-      color: #2d2d2d;
+      color: var(--app-text);
     }
 
     .fila-fecha {
       font-size: 0.7rem;
-      color: #9a9aa0;
+      color: var(--app-text-muted);
     }
   }
 
   .fila-valor {
     font-size: 0.9rem;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--app-text-strong);
     flex-shrink: 0;
   }
 }
@@ -279,15 +263,15 @@ ion-button.btn-wa {
 /* ── Comprobante (vista previa) ── */
 
 .comprobante {
-  background: #ffffff;
+  background: var(--app-surface);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 26px rgba(16, 24, 40, 0.08);
+  box-shadow: var(--app-shadow-lifted);
 }
 
 .comprobante-cabecera {
   background: var(--ion-color-primary);
-  color: #ffffff;
+  color: var(--app-on-accent);
   text-align: center;
   padding: 22px 18px 24px;
 
@@ -322,25 +306,25 @@ ion-button.btn-wa {
   padding: 22px 20px 18px;
 
   .monto-label {
-    font-size: 0.63rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #9a9aa0;
+    color: var(--app-text-muted);
   }
 
   .monto {
     font-size: 2.3rem;
     font-weight: 700;
     letter-spacing: -1px;
-    color: #1a1a1a;
+    color: var(--app-text-strong);
     line-height: 1.15;
     margin: 2px 0 10px;
   }
 
   .sello {
-    background: rgba(80, 120, 88, 0.14);
-    color: #40704a;
+    background: var(--app-success-wash-strong);
+    color: var(--app-success-text);
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 1px;
@@ -351,7 +335,7 @@ ion-button.btn-wa {
   .comprobante-filas {
     width: 100%;
     margin-top: 20px;
-    border-top: 1px solid #ececf0;
+    border-top: 1px solid var(--app-border);
   }
 
   .fila {
@@ -360,7 +344,7 @@ ion-button.btn-wa {
     justify-content: space-between;
     gap: 16px;
     padding: 11px 0;
-    border-bottom: 1px solid #f4f4f6;
+    border-bottom: 1px solid var(--app-divider);
 
     span {
       flex-shrink: 0;
@@ -368,13 +352,13 @@ ion-button.btn-wa {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.7px;
-      color: #9a9aa0;
+      color: var(--app-text-muted);
     }
 
     strong {
       font-size: 0.88rem;
       font-weight: 600;
-      color: #1a1a1a;
+      color: var(--app-text-strong);
       text-align: right;
       word-break: break-word;
     }
@@ -383,14 +367,14 @@ ion-button.btn-wa {
   .comprobante-pie {
     margin: 18px 0 0;
     font-size: 0.72rem;
-    color: #9a9aa0;
+    color: var(--app-text-muted);
     text-align: center;
   }
 }
 
 ion-button.btn-compartir {
   --background: var(--ion-color-primary);
-  --border-radius: 14px;
+  --border-radius: var(--app-radius-md);
   --box-shadow: none;
   margin: 16px 0 0;
   font-weight: 600;
@@ -403,12 +387,12 @@ ion-button.btn-compartir {
 }
 
 ion-button.btn-wa {
-  --background: #25d366;
-  --background-hover: #1fb958;
-  --background-activated: #1fb958;
-  --color: #ffffff;
-  --border-radius: 14px;
-  --box-shadow: 0 4px 14px rgba(37, 211, 102, 0.28);
+  --background: var(--app-wa);
+  --background-hover: var(--app-wa-shade);
+  --background-activated: var(--app-wa-shade);
+  --color: var(--app-on-accent);
+  --border-radius: var(--app-radius-md);
+  --box-shadow: var(--app-shadow-wa);
   margin: 10px 0 0;
   font-weight: 600;
   height: 48px;
@@ -422,7 +406,7 @@ ion-button.btn-wa {
 .sin-telefono {
   margin: 14px 4px 0;
   font-size: 0.78rem;
-  color: #9a9aa0;
+  color: var(--app-text-muted);
   text-align: center;
   line-height: 1.45;
 }

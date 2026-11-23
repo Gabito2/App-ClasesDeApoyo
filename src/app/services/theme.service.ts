@@ -33,6 +33,18 @@ export class ThemeService {
     root.style.setProperty('--ion-color-primary-rgb', tema.primarioRgb);
     root.style.setProperty('--ion-color-primary-shade', tema.primarioShade);
     root.style.setProperty('--ion-color-primary-tint', tema.primarioTint);
+    this.sincronizarCromoDelNavegador(tema.primario);
+  }
+
+  /**
+   * Pinta la barra del navegador/PWA con el color de marca activo.
+   * Sin esto, elegir otro tema deja el status bar con el bordó por defecto.
+   */
+  private sincronizarCromoDelNavegador(color: string): void {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', color);
+    }
   }
 
   aplicarGuardado(): void {

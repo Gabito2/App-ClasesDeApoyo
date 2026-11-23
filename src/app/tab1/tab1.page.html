@@ -1,13 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>Alumnos</ion-title>
-    @if (filtroEstado === 'activos') {
-    <ion-buttons slot="end">
-      <ion-button class="header-action" (click)="abrirModalNuevo()" aria-label="Agregar alumno">
-        <ion-icon style="color: white;" name="person-add" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    }
   </ion-toolbar>
 </ion-header>
 
@@ -53,7 +46,7 @@
     </div>
     @if (filtroEstado === 'activos') {
     <h2>No hay alumnos registrados</h2>
-    <p class="vacio-hint">Tocá el botón + de arriba para agregar uno</p>
+    <p class="vacio-hint">Tocá el botón + para agregar el primero</p>
     } @else {
     <h2>No hay alumnos dados de baja</h2>
     }
@@ -89,7 +82,7 @@
   </div>
   }
 
-  <ion-list class="lista" lines="none">
+  <ion-list class="lista" lines="none" appEntradaLista>
     @for (a of alumnosFiltrados; track a.id) {
     <ion-item class="ficha" (click)="verEstadoCuenta(a)">
       <div class="ficha-contenido">
@@ -117,6 +110,14 @@
     </ion-item>
     }
   </ion-list>
+
+  @if (filtroEstado === 'activos') {
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="abrirModalNuevo()" aria-label="Agregar alumno">
+      <ion-icon name="person-add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  }
 
   <!-- Modal Agregar / Editar -->
   <ion-modal [isOpen]="isModalOpen" (didDismiss)="cerrarModal()">

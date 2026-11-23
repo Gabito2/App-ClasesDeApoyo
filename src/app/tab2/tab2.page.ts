@@ -10,6 +10,8 @@ import { AlumnoService } from '../services/alumno.service';
 import { Alumno, Pago, HistorialMonto } from '../models/alumno.model';
 import { WhatsappService, TipoMensaje } from '../services/whatsapp.service';
 import { NotificationService } from '../services/notification.service';
+import { coincideAlumno } from '../utils/texto';
+import { EntradaListaDirective } from '../directivas/entrada-lista.directive';
 import { WidgetService } from '../services/widget.service';
 
 type AlumnoVencimiento = Alumno & {
@@ -30,7 +32,7 @@ interface MesInfo {
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonSearchbar, IonButton, IonButtons, IonAlert, IonToast, IonModal, IonGrid, IonRow, IonCol],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonSearchbar, IonButton, IonButtons, IonAlert, IonToast, IonModal, IonGrid, IonRow, IonCol, EntradaListaDirective],
 })
 export class Tab2Page {
   private alumnoService = inject(AlumnoService);
@@ -78,10 +80,7 @@ export class Tab2Page {
 
   get alumnosFiltrados() {
     if (!this.busqueda.trim()) return this.alumnos;
-    const term = this.busqueda.toLowerCase().trim();
-    return this.alumnos.filter(
-      (a) => `${a.nombre} ${a.apellido}`.toLowerCase().includes(term)
-    );
+    return this.alumnos.filter((a) => coincideAlumno(a, this.busqueda));
   }
 
   /** Alumnos con cuota vencida que tienen teléfono de WhatsApp. */

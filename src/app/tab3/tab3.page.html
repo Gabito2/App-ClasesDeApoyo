@@ -47,7 +47,7 @@
   }
 
   @if (filtrados.length > 0) {
-  <ion-list class="lista" lines="none">
+  <ion-list class="lista" lines="none" appEntradaLista>
     @for (a of filtrados; track a.id) {
     <ion-item button class="ficha" (click)="abrirFormulario(a)">
       <div class="ficha-contenido">
