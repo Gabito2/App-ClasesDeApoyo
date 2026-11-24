@@ -12,112 +12,125 @@
 /* ═══════════════════════════════════════════
    Tokens de diseño — única fuente de verdad.
    Ningún componente debería declarar hex propios.
+
+   Base: blanco + borgoña (#6a1220), con neutros
+   cálidos para fondos, bordes y textos secundarios.
    ═══════════════════════════════════════════ */
 
 :root {
-  /* ── Marca (ThemeService las sobrescribe en runtime) ── */
-  --ion-color-primary: #550000;
-  --ion-color-primary-rgb: 85, 0, 0;
+  color-scheme: light;
+
+  /* ── Marca (ThemeService la sobrescribe en runtime) ── */
+  --ion-color-primary: #6a1220;
+  --ion-color-primary-rgb: 106, 18, 32;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #4c0000;
-  --ion-color-primary-tint: #690000;
+  --ion-color-primary-shade: #54101a;
+  --ion-color-primary-tint: #8c2f3c;
 
-  /* ── Superficies y bordes ── */
-  --app-bg: #f4f4f6;
-  --app-surface: #ffffff;
-  --app-surface-alt: #fafafa;
-  --app-surface-sunken: #f7f7f9;
-  --app-pressed: #f6f6f8;
-  --app-track: #f0f0f0;
-  --app-divider: #f0f0f2;
-  --app-border: #e8e8ec;
-  --app-border-strong: #d0d0d4;
+  /* ── Acentos ──
+     accent = relleno de acciones (texto blanco encima).
+     accent-bright = íconos y textos de acento sobre blanco (8:1). */
+  --app-accent: var(--ion-color-primary);
+  --app-accent-bright: #8c2f3c;
   --app-on-accent: #ffffff;
+
+  /* ── Superficies ── */
+  --app-header: #ffffff;
+  --app-bg: #f6f4f4;
+  --app-surface: #ffffff;
+  --app-surface-alt: #faf8f8;
+  --app-surface-sunken: #f5f2f3;
+  --app-pressed: #f4eef0;
+  --app-track: #f0ebec;
+  --app-divider: #f0ebec;
+  --app-border: #e9e3e4;
+  --app-border-strong: #d9ced0;
 
   /* ── Texto ──
      contrastes medidos sobre --app-surface:
-     strong 16:1 · text 12:1 · muted 6.3:1 · subtle 4.9:1
-     Todos pasan WCAG AA en texto chico. */
+     strong 16:1 · text 12:1 · muted 5.4:1 · subtle 5:1 */
   --app-text-strong: #1a1a1a;
   --app-text: #2d2d2d;
-  --app-text-muted: #5f5f66;
-  --app-text-subtle: #70707a;
-  --app-icon-muted: #8a8a92;
+  --app-text-muted: #6b6b6b;
+  --app-text-subtle: #707070;
+  --app-icon-muted: #6b6b6b;
 
-  /* ── Semánticos ── */
-  --ion-color-success: #507858;
-  --ion-color-success-rgb: 80, 120, 88;
+  /* ── Semánticos ──
+     El borgoña marca atención (mora, deuda); el gris queda
+     para avisos secundarios y estados "al día". */
+  --ion-color-success: #6b6b6b;
+  --ion-color-success-rgb: 107, 107, 107;
   --ion-color-success-contrast: #ffffff;
   --ion-color-success-contrast-rgb: 255, 255, 255;
-  --ion-color-success-shade: #466a4d;
-  --ion-color-success-tint: #628669;
+  --ion-color-success-shade: #333333;
+  --ion-color-success-tint: #6b6b6b;
 
-  --ion-color-danger: #c0392b;
-  --ion-color-danger-rgb: 192, 57, 43;
+  --ion-color-danger: #6a1220;
+  --ion-color-danger-rgb: 106, 18, 32;
   --ion-color-danger-contrast: #ffffff;
   --ion-color-danger-contrast-rgb: 255, 255, 255;
-  --ion-color-danger-shade: #a93226;
-  --ion-color-danger-tint: #c64d40;
+  --ion-color-danger-shade: #54101a;
+  --ion-color-danger-tint: #8c2f3c;
 
-  --ion-color-warning: #d4a017;
-  --ion-color-warning-rgb: 212, 160, 23;
-  --ion-color-warning-contrast: #1a1a1a;
-  --ion-color-warning-contrast-rgb: 26, 26, 26;
-  --ion-color-warning-shade: #bb8d14;
-  --ion-color-warning-tint: #d8a92e;
+  --ion-color-warning: #6b6b6b;
+  --ion-color-warning-rgb: 107, 107, 107;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #333333;
+  --ion-color-warning-tint: #6b6b6b;
 
-  --app-success: #507858;
-  --app-success-text: #3f6b48;
-  --app-success-soft: #f0f6f1;
-  --app-success-border: #d8e6db;
-  --app-success-wash: rgba(80, 120, 88, 0.12);
-  --app-success-wash-strong: rgba(80, 120, 88, 0.14);
+  --app-success: #6b6b6b;
+  --app-success-text: #333333;
+  --app-success-soft: #f7f6f6;
+  --app-success-border: #e9e3e4;
+  --app-success-wash: rgba(107, 107, 107, 0.08);
+  --app-success-wash-strong: rgba(107, 107, 107, 0.12);
 
-  --app-warning: #d4a017;
-  --app-warning-text: #8a6d00;
-  --app-warning-soft: #fdf8e9;
-  --app-warning-wash: rgba(212, 160, 23, 0.15);
-  --app-warning-wash-strong: rgba(212, 160, 23, 0.16);
+  --app-warning: #6b6b6b;
+  --app-warning-text: #333333;
+  --app-warning-soft: #f7f6f6;
+  --app-warning-wash: rgba(107, 107, 107, 0.1);
+  --app-warning-wash-strong: rgba(107, 107, 107, 0.14);
 
-  --app-danger: #c0392b;
-  --app-danger-text: #8f2b20;
-  --app-danger-soft: #fdf0f0;
-  --app-danger-border: #f6d5d1;
-  --app-danger-wash: rgba(192, 57, 43, 0.1);
-  --app-danger-wash-strong: rgba(192, 57, 43, 0.12);
+  --app-danger: #6a1220;
+  --app-danger-text: #54101a;
+  --app-danger-soft: rgba(106, 18, 32, 0.06);
+  --app-danger-border: rgba(106, 18, 32, 0.22);
+  --app-danger-wash: rgba(106, 18, 32, 0.07);
+  --app-danger-wash-strong: rgba(106, 18, 32, 0.1);
 
-  --app-neutral-wash: rgba(120, 120, 130, 0.1);
-  --app-neutral-wash-strong: rgba(120, 120, 130, 0.12);
-  --app-primary-soft: rgba(var(--ion-color-primary-rgb), 0.07);
+  --app-neutral-wash: rgba(107, 107, 107, 0.08);
+  --app-neutral-wash-strong: rgba(107, 107, 107, 0.12);
+  --app-primary-soft: rgba(106, 18, 32, 0.07);
 
-  /* ── WhatsApp ── */
-  --app-wa: #25d366;
-  --app-wa-shade: #1fb958;
+  /* ── WhatsApp (borgoña: el ícono identifica la acción) ── */
+  --app-wa: #6a1220;
+  --app-wa-shade: #54101a;
 
   /* ── Radios ── */
-  --app-radius-xs: 10px;
-  --app-radius-sm: 12px;
-  --app-radius-md: 14px;
-  --app-radius-lg: 16px;
-  --app-radius-xl: 18px;
-  --app-radius-2xl: 20px;
+  --app-radius-xs: 6px;
+  --app-radius-sm: 8px;
+  --app-radius-md: 10px;
+  --app-radius-lg: 12px;
+  --app-radius-xl: 14px;
+  --app-radius-2xl: 16px;
   --app-radius-pill: 999px;
 
   /* ── Sombras ── */
-  --app-shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 6px 18px rgba(16, 24, 40, 0.05);
-  --app-shadow-flat: 0 1px 2px rgba(16, 24, 40, 0.03);
-  --app-shadow-raised: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
-  --app-shadow-primary: 0 6px 18px rgba(16, 24, 40, 0.12);
-  --app-shadow-lifted: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 26px rgba(16, 24, 40, 0.08);
-  --app-shadow-bar: 0 -1px 0 rgba(16, 24, 40, 0.03), 0 -6px 20px rgba(16, 24, 40, 0.05);
-  --app-shadow-wa: 0 4px 14px rgba(37, 211, 102, 0.28);
+  --app-shadow-card: 0 1px 2px rgba(26, 26, 26, 0.04);
+  --app-shadow-flat: 0 1px 1px rgba(26, 26, 26, 0.03);
+  --app-shadow-raised: 0 1px 3px rgba(26, 26, 26, 0.06);
+  --app-shadow-primary: 0 8px 24px rgba(106, 18, 32, 0.16);
+  --app-shadow-lifted: 0 2px 6px rgba(26, 26, 26, 0.04), 0 18px 40px rgba(26, 26, 26, 0.1);
+  --app-shadow-bar: 0 10px 30px rgba(26, 26, 26, 0.12);
+  --app-shadow-wa: 0 6px 16px rgba(106, 18, 32, 0.18);
 
   /* ── Gradientes ── */
-  --app-gradient-soft: linear-gradient(135deg, #fafafa 0%, #f5f3f4 100%);
-  --app-gradient-progress: linear-gradient(90deg, #507858 0%, #6b9a78 100%);
-  --app-gradient-bar: linear-gradient(180deg, #8aaa94 0%, #6b9a78 100%);
-  --app-gradient-bar-strong: linear-gradient(180deg, #6b9a78 0%, #507858 100%);
+  --app-gradient-soft: linear-gradient(180deg, #ffffff 0%, #faf7f8 100%);
+  --app-gradient-progress: linear-gradient(90deg, #6a1220 0%, #8c2f3c 100%);
+  --app-gradient-bar: linear-gradient(180deg, #b06a76 0%, #8c2f3c 100%);
+  --app-gradient-bar-strong: linear-gradient(180deg, #8c2f3c 0%, #6a1220 100%);
 
   /* ── Ionic (derivadas de los tokens) ── */
   --ion-background-color: var(--app-surface);
@@ -125,26 +138,29 @@
   --ion-text-color: var(--app-text);
   --ion-text-color-rgb: 45, 45, 45;
   --ion-border-color: var(--app-border);
-  --ion-color-step-50: #fafafa;
-  --ion-color-step-100: #f5f5f5;
-  --ion-color-step-150: #e8e8e8;
-  --ion-color-step-200: #d0d0d0;
-  --ion-color-step-250: #b0b0b0;
-  --ion-color-step-300: #8a8a8a;
-  --ion-color-step-350: #707070;
-  --ion-color-step-400: #555555;
-  --ion-color-step-450: #444444;
-  --ion-color-step-500: #333333;
-  --ion-color-step-550: #2d2d2d;
-  --ion-color-step-600: #222222;
-  --ion-color-step-650: #1a1a1a;
-  --ion-color-step-700: #111111;
-  --ion-color-step-750: #0a0a0a;
-  --ion-color-step-800: #050505;
-  --ion-color-step-850: #000000;
+  --ion-overlay-background-color: var(--app-surface);
 
-  --ion-toolbar-background: var(--app-surface);
-  --ion-toolbar-color: var(--app-text);
+  /* Rampa tonal cálida (clara → oscura) */
+  --ion-color-step-50: #faf8f8;
+  --ion-color-step-100: #f7f4f4;
+  --ion-color-step-150: #ece7e8;
+  --ion-color-step-200: #d9cfd1;
+  --ion-color-step-250: #c0b4b6;
+  --ion-color-step-300: #a39a9c;
+  --ion-color-step-350: #8a8082;
+  --ion-color-step-400: #6b6365;
+  --ion-color-step-450: #524b4d;
+  --ion-color-step-500: #3d3839;
+  --ion-color-step-550: #2f2b2c;
+  --ion-color-step-600: #262223;
+  --ion-color-step-650: #1f1c1d;
+  --ion-color-step-700: #191617;
+  --ion-color-step-750: #121011;
+  --ion-color-step-800: #0c0a0b;
+  --ion-color-step-850: #050505;
+
+  --ion-toolbar-background: var(--app-header);
+  --ion-toolbar-color: var(--app-text-strong);
   --ion-toolbar-border-color: var(--app-border);
 
   --ion-tab-bar-background: var(--app-surface);
@@ -152,7 +168,7 @@
   --ion-tab-bar-color-selected: var(--ion-color-primary);
 
   --ion-card-background: var(--app-surface);
-  --ion-card-border-radius: var(--app-radius-md);
+  --ion-card-border-radius: var(--app-radius-lg);
 
   --ion-item-background: var(--app-surface);
 
@@ -164,7 +180,49 @@ ion-content {
 }
 
 body {
-  --background: var(--app-bg);
+  background: var(--app-bg);
+  color: var(--app-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Tipografía base ── */
+
+ion-title {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+ion-button {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+  --border-radius: var(--app-radius-md);
+}
+
+ion-card {
+  border: 1px solid var(--app-border);
+}
+
+/* ── Overlays ── */
+
+ion-alert {
+  --background: var(--app-surface);
+}
+
+ion-action-sheet {
+  --background: var(--app-surface);
+  --button-color: var(--app-text);
+}
+
+ion-popover {
+  --background: var(--app-surface);
+}
+
+ion-toast {
+  --background: #1a1a1a;
+  --color: #ffffff;
+  --button-color: #ffffff;
 }
 
 /* ── Micro-interacciones ── */
@@ -189,7 +247,7 @@ ion-card {
 }
 
 ion-card:active {
-  transform: scale(0.98);
+  transform: scale(0.99);
 }
 
 /* Entrada suave de listas */
@@ -232,10 +290,11 @@ ion-card:active {
   display: flex;
   align-items: stretch;
   background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: var(--app-radius-lg);
-  padding: 14px 4px;
+  padding: 16px 4px;
   margin-bottom: 14px;
-  box-shadow: var(--app-shadow-card);
+  box-shadow: var(--app-shadow-flat);
 }
 
 .resumen-item {
@@ -243,36 +302,36 @@ ion-card:active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
 
   .resumen-valor {
-    font-size: 1.3rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    line-height: 1.1;
+    line-height: 1.05;
     color: var(--app-text-strong);
-    letter-spacing: -0.4px;
+    letter-spacing: -0.5px;
     font-variant-numeric: tabular-nums;
   }
 
   .resumen-label {
-    font-size: 0.7rem;
-    font-weight: 600;
+    font-size: 0.64rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.9px;
     color: var(--app-text-muted);
   }
 
   &.ok .resumen-valor {
-    color: var(--app-success-text);
+    color: var(--app-text-muted);
   }
 
   &.warn .resumen-valor {
-    color: var(--app-warning-text);
+    color: var(--app-text);
   }
 
   &.mora .resumen-valor {
-    color: var(--app-danger);
+    color: var(--app-accent-bright);
   }
 }
 
@@ -286,12 +345,12 @@ ion-card:active {
 ion-searchbar.buscar {
   --background: var(--app-surface);
   --border-radius: var(--app-radius-md);
-  --box-shadow: var(--app-shadow-card);
+  --box-shadow: 0 0 0 1px var(--app-border);
   --placeholder-color: var(--app-text-subtle);
   --icon-color: var(--app-text-subtle);
   --color: var(--app-text-strong);
   padding: 0;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 /* Estado vacío */
@@ -301,33 +360,35 @@ ion-searchbar.buscar {
   color: var(--app-text-muted);
 
   .vacio-icono {
-    width: 76px;
-    height: 76px;
+    width: 64px;
+    height: 64px;
     margin: 0 auto 18px;
-    border-radius: 50%;
+    border-radius: var(--app-radius-lg);
     background: var(--app-surface);
-    box-shadow: var(--app-shadow-card);
+    border: 1px solid var(--app-border);
+    box-shadow: var(--app-shadow-flat);
     display: flex;
     align-items: center;
     justify-content: center;
 
     ion-icon {
-      font-size: 34px;
-      color: var(--ion-color-primary);
+      font-size: 28px;
+      color: var(--app-accent-bright);
     }
   }
 
   h2 {
-    font-size: 1.05rem;
+    font-size: 1.02rem;
     font-weight: 700;
+    letter-spacing: -0.2px;
     color: var(--app-text-strong);
     margin: 0 0 6px;
   }
 
   .vacio-hint {
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     color: var(--app-text-muted);
-    line-height: 1.45;
+    line-height: 1.5;
     margin: 0;
   }
 }
@@ -335,12 +396,13 @@ ion-searchbar.buscar {
 /* ── Modal compartido (tab1 / tab2 / tab3) ── */
 
 .modal-header {
-  --background: var(--ion-color-primary);
+  --background: var(--app-accent);
   --color: var(--app-on-accent);
 
   ion-title {
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: 0.98rem;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -358,9 +420,13 @@ ion-item.ficha {
   --padding-end: 8px;
   --min-height: 68px;
   --inner-padding-end: 0;
-  margin-bottom: 10px;
-  box-shadow: var(--app-shadow-card);
+  margin-bottom: 8px;
+  /* Sin borde de host: el fondo interno ya es redondeado. El anillo
+     de sombra sigue el mismo radio y evita la línea recta duplicada. */
   border: none;
+  border-radius: var(--app-radius-lg);
+  box-shadow: 0 0 0 1px var(--app-border);
+  transition: box-shadow 0.15s ease, background 0.15s ease;
   overflow: hidden;
 }
 
@@ -381,33 +447,37 @@ ion-item.ficha {
 }
 
 .ficha-avatar {
-  width: 46px;
-  height: 46px;
-  border-radius: var(--app-radius-md);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--app-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   flex-shrink: 0;
   text-transform: uppercase;
-  background: var(--app-neutral-wash-strong);
+  background: var(--app-surface-alt);
+  border: 1px solid var(--app-border);
   color: var(--app-text-muted);
 
   &.ok {
-    background: var(--app-success-wash-strong);
-    color: var(--app-success-text);
-  }
-
-  &.mora {
-    background: var(--app-danger-wash-strong);
-    color: var(--app-danger-text);
+    background: var(--app-surface);
+    border-color: var(--app-border-strong);
+    color: var(--app-text-muted);
   }
 
   &.pendiente {
-    background: var(--app-warning-wash-strong);
-    color: var(--app-warning-text);
+    background: var(--app-border-strong);
+    border-color: var(--app-border-strong);
+    color: var(--app-text-strong);
+  }
+
+  &.mora {
+    background: var(--app-accent);
+    border-color: var(--app-accent);
+    color: var(--app-on-accent);
   }
 }
 
@@ -416,14 +486,14 @@ ion-item.ficha {
   flex: 1;
 
   h2 {
-    font-size: 0.95rem;
+    font-size: 0.94rem;
     font-weight: 600;
     color: var(--app-text-strong);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    letter-spacing: -0.1px;
+    letter-spacing: -0.15px;
   }
 }
 
@@ -432,7 +502,7 @@ ion-item.ficha {
   align-items: center;
   gap: 5px;
   margin-top: 3px;
-  font-size: 0.78rem;
+  font-size: 0.77rem;
   color: var(--app-text-muted);
 
   .ficha-monto {
@@ -450,60 +520,66 @@ ion-item.ficha {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: 7px;
-  padding: 3px 9px;
-  border-radius: var(--app-radius-pill);
-  font-size: 0.7rem;
+  margin-top: 8px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--app-radius-xs);
+  font-size: 0.67rem;
   font-weight: 600;
   letter-spacing: 0.2px;
 
   ion-icon {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
   }
 
   &.ok {
-    background: var(--app-success-wash);
-    color: var(--app-success-text);
+    background: var(--app-surface-alt);
+    border-color: var(--app-border);
+    color: var(--app-text-muted);
   }
 
   &.pendiente {
-    background: var(--app-warning-wash);
-    color: var(--app-warning-text);
+    background: var(--app-surface);
+    border-color: var(--app-border-strong);
+    color: var(--app-text);
   }
 
   &.mora {
-    background: var(--app-danger-wash);
-    color: var(--app-danger);
+    background: var(--app-accent);
+    border-color: var(--app-accent);
+    color: var(--app-on-accent);
+    font-weight: 700;
   }
 }
 
-/* Perfil del alumno en los modales de detalle (tab2 Vencimientos / tab3 Comprobantes) */
+/* Perfil del alumno en los modales de detalle (tab2 / tab3 / estado de cuenta) */
 .perfil {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 22px 16px 18px;
+  padding: 24px 16px 20px;
   background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: var(--app-radius-xl);
-  box-shadow: var(--app-shadow-card);
+  box-shadow: var(--app-shadow-flat);
   max-width: 560px;
   margin: 16px auto 0;
 
   .perfil-avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: var(--app-radius-2xl);
-    font-size: 1.15rem;
-    margin-bottom: 12px;
+    width: 60px;
+    height: 60px;
+    border-radius: var(--app-radius-md);
+    font-size: 1.05rem;
+    margin-bottom: 14px;
   }
 
   h2 {
-    font-size: 1.15rem;
+    font-size: 1.12rem;
     font-weight: 700;
     color: var(--app-text-strong);
     margin: 0 0 8px;
-    letter-spacing: -0.2px;
+    letter-spacing: -0.35px;
   }
 
   .perfil-meta {
@@ -511,7 +587,7 @@ ion-item.ficha {
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px 16px;
-    font-size: 0.8rem;
+    font-size: 0.79rem;
     color: var(--app-text-muted);
     margin-bottom: 12px;
 
@@ -523,7 +599,7 @@ ion-item.ficha {
 
     ion-icon {
       font-size: 0.95rem;
-      color: var(--ion-color-primary);
+      color: var(--app-accent-bright);
     }
   }
 

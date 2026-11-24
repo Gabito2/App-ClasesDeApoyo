@@ -3,7 +3,8 @@
 }
 
 .tab3-content {
-  --padding-bottom: 96px;
+  /* Deja lugar a la barra de tabs flotante (64px + margen + safe area) */
+  --padding-bottom: 112px;
 }
 
 /* ── Panel superior: total cobrado y búsqueda ── */
@@ -21,9 +22,9 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 18px 16px;
-  border-radius: 18px;
-  background: var(--ion-color-primary);
+  padding: 20px 16px;
+  border-radius: var(--app-radius-xl);
+  background: var(--app-accent);
   color: var(--app-on-accent);
   box-shadow: var(--app-shadow-primary);
   margin-bottom: 8px;
@@ -99,10 +100,11 @@ ion-button.ir-alumnos {
 
 .form-card {
   background: var(--app-surface);
-  border-radius: 18px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
   padding: 16px;
   margin-top: 14px;
-  box-shadow: var(--app-shadow-card);
+  box-shadow: var(--app-shadow-flat);
 
   .fila-selects {
     display: flex;
@@ -138,7 +140,8 @@ ion-button.ir-alumnos {
       --color: var(--app-text-strong);
       font-size: 0.9rem;
       border: 1px solid var(--app-border);
-      border-radius: 12px;
+      /* Mismo radio que el fondo interno del select/input para no duplicar la curva */
+      border-radius: var(--app-radius-sm);
     }
   }
 
@@ -188,10 +191,11 @@ ion-button.btn-wa {
 
 .bloque {
   background: var(--app-surface);
-  border-radius: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
   padding: 14px 16px;
   margin-top: 14px;
-  box-shadow: var(--app-shadow-card);
+  box-shadow: var(--app-shadow-flat);
 
   .bloque-titulo {
     margin: 0 0 6px;
@@ -230,7 +234,7 @@ ion-button.btn-wa {
 
     ion-icon {
       font-size: 18px;
-      color: var(--app-success);
+      color: var(--app-text-muted);
       flex-shrink: 0;
     }
 
@@ -264,13 +268,14 @@ ion-button.btn-wa {
 
 .comprobante {
   background: var(--app-surface);
-  border-radius: 20px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xl);
   overflow: hidden;
   box-shadow: var(--app-shadow-lifted);
 }
 
 .comprobante-cabecera {
-  background: var(--ion-color-primary);
+  background: var(--app-accent);
   color: var(--app-on-accent);
   text-align: center;
   padding: 22px 18px 24px;
@@ -323,13 +328,14 @@ ion-button.btn-wa {
   }
 
   .sello {
-    background: var(--app-success-wash-strong);
-    color: var(--app-success-text);
-    font-size: 0.68rem;
+    background: var(--app-success-wash);
+    border: 1px solid var(--app-success-border);
+    color: var(--app-text-strong);
+    font-size: 0.66rem;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     padding: 5px 20px;
-    border-radius: 999px;
+    border-radius: var(--app-radius-xs);
   }
 
   .comprobante-filas {

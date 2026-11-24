@@ -10,12 +10,15 @@ export interface Tema {
   primarioTint: string;
 }
 
+/**
+ * Temas de la app: variantes de borgoña/vino.
+ * Todos tienen contraste suficiente con texto blanco en los botones.
+ */
 export const TEMAS: Tema[] = [
-  { id: 'bordeaux', nombre: 'Bordó', primario: '#550000', primarioRgb: '85, 0, 0', primarioShade: '#4c0000', primarioTint: '#690000' },
-  { id: 'azul', nombre: 'Azul noche', primario: '#1a2c56', primarioRgb: '26, 44, 86', primarioShade: '#16243f', primarioTint: '#2c3f6b' },
-  { id: 'verde', nombre: 'Verde bosque', primario: '#1e5140', primarioRgb: '30, 81, 64', primarioShade: '#184134', primarioTint: '#2c6350' },
-  { id: 'violeta', nombre: 'Violeta', primario: '#4a1d5e', primarioRgb: '74, 29, 94', primarioShade: '#3b174b', primarioTint: '#5d2f72' },
-  { id: 'petroleo', nombre: 'Petróleo', primario: '#00504f', primarioRgb: '0, 80, 79', primarioShade: '#00403f', primarioTint: '#15605f' },
+  { id: 'borgona', nombre: 'Borgoña', primario: '#6a1220', primarioRgb: '106, 18, 32', primarioShade: '#54101a', primarioTint: '#8c2f3c' },
+  { id: 'vino', nombre: 'Vino', primario: '#8c2f3c', primarioRgb: '140, 47, 60', primarioShade: '#6a1220', primarioTint: '#a3546a' },
+  { id: 'cereza', nombre: 'Cereza', primario: '#a03246', primarioRgb: '160, 50, 70', primarioShade: '#8c2f3c', primarioTint: '#b8576a' },
+  { id: 'cepas', nombre: 'Cepas', primario: '#54101a', primarioRgb: '84, 16, 26', primarioShade: '#3d0a12', primarioTint: '#6a1220' },
 ];
 
 @Injectable({ providedIn: 'root' })

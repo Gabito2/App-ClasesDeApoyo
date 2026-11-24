@@ -121,12 +121,12 @@ export class ComprobanteService {
     const anchoTarjeta = ancho - margen * 2;
     const centro = ancho / 2;
 
-    ctx.fillStyle = '#f4f4f6';
+    ctx.fillStyle = '#f4f1f2';
     ctx.fillRect(0, 0, ancho, alto);
 
     // Tarjeta blanca con sombra suave
     ctx.save();
-    ctx.shadowColor = 'rgba(16, 24, 40, 0.12)';
+    ctx.shadowColor = 'rgba(26, 26, 26, 0.12)';
     ctx.shadowBlur = 30;
     ctx.shadowOffsetY = 10;
     this.rectanguloRedondeado(ctx, margen, margen, anchoTarjeta, alto - margen * 2, 28);
@@ -158,7 +158,7 @@ export class ComprobanteService {
     ctx.fillText(`Nº ${this.numeroTexto(comprobante.numero)}`, centro, 232);
 
     // Monto cobrado
-    ctx.fillStyle = '#9a9aa0';
+    ctx.fillStyle = '#6b6b6b';
     ctx.font = '600 20px Arial, sans-serif';
     ctx.fillText('MONTO ABONADO', centro, 410);
 
@@ -168,10 +168,10 @@ export class ComprobanteService {
     ctx.fillText(monto, centro, 505);
 
     // Sello "PAGADO"
-    ctx.fillStyle = 'rgba(80, 120, 88, 0.14)';
+    ctx.fillStyle = 'rgba(106, 18, 32, 0.10)';
     this.rectanguloRedondeado(ctx, centro - 100, 540, 200, 52, 26);
     ctx.fill();
-    ctx.fillStyle = '#40704a';
+    ctx.fillStyle = '#6a1220';
     ctx.font = '700 22px Arial, sans-serif';
     ctx.fillText('PAGADO', centro, 575);
 
@@ -191,7 +191,7 @@ export class ComprobanteService {
     let y = 705;
     for (const fila of filas) {
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#9a9aa0';
+      ctx.fillStyle = '#6b6b6b';
       ctx.font = '600 20px Arial, sans-serif';
       ctx.fillText(fila.etiqueta, izquierda, y);
 
@@ -203,11 +203,11 @@ export class ComprobanteService {
     }
 
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#555555';
+    ctx.fillStyle = '#6b6b6b';
     ctx.font = '600 26px Arial, sans-serif';
     ctx.fillText('Gracias por tu pago', centro, 1045);
 
-    ctx.fillStyle = '#9a9aa0';
+    ctx.fillStyle = '#6b6b6b';
     ctx.font = '400 18px Arial, sans-serif';
     ctx.fillText('Comprobante generado desde la app', centro, 1085);
 
@@ -219,11 +219,11 @@ export class ComprobanteService {
     });
   }
 
-  /** Color primario del tema activo, con el bordó de la app como respaldo. */
+  /** Color primario del tema activo, con el borgoña de la app como respaldo. */
   private colorPrimario(): string {
-    if (typeof document === 'undefined') return '#550000';
+    if (typeof document === 'undefined') return '#6a1220';
     const valor = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-primary').trim();
-    return valor || '#550000';
+    return valor || '#6a1220';
   }
 
   /** Reduce el tamaño de fuente hasta que el texto entre en el ancho disponible. */
@@ -237,7 +237,7 @@ export class ComprobanteService {
   }
 
   private linea(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number): void {
-    ctx.strokeStyle = '#ececf0';
+    ctx.strokeStyle = '#ece7e8';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(x1, y1);

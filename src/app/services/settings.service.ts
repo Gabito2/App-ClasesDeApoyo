@@ -9,7 +9,7 @@ export interface AppSettings {
 }
 
 const DEFAULTS: AppSettings = {
-  tema: 'bordeaux',
+  tema: 'borgona',
   recordatorios: true,
   horaRecordatorio: 12,
 };

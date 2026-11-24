@@ -1,42 +1,88 @@
+ion-tabs {
+  background: var(--app-bg);
+  position: relative;
+}
+
+/* Barra de tabs en vidrio esmerilado.
+   Va absoluta sobre el contenido para que las listas pasen por detrás
+   y el blur se note; las pantallas ya reservan 112px de padding inferior. */
 ion-tab-bar {
-  --background: var(--app-surface);
-  border-top: 1px solid var(--app-border);
-  height: 62px;
-  padding: 0;
-  box-shadow: var(--app-shadow-bar);
+  --background: rgba(255, 255, 255, 0.62);
+  --border: transparent;
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(8px + var(--ion-safe-area-bottom, 0px));
+  width: auto;
+  height: 64px;
+  margin: 0;
+  padding: 0 4px;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 1px rgba(26, 26, 26, 0.06),
+    0 10px 30px rgba(26, 26, 26, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  overflow: hidden;
 }
 
 ion-tab-button {
+  --background: transparent;
   --color: var(--app-text-muted);
   --color-selected: var(--ion-color-primary);
-  --ripple-color: rgba(var(--ion-color-primary-rgb), 0.06);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.1px;
-  padding-top: 8px;
-  padding-bottom: 6px;
-  /* Cinco pestañas: menos padding lateral para que entren las etiquetas */
-  --padding-start: 4px;
-  --padding-end: 4px;
-  /* Cinco pestañas: se permite encoger y recortar la etiqueta en pantallas angostas */
+  --ripple-color: rgba(106, 18, 32, 0.08);
+  --padding-start: 2px;
+  --padding-end: 2px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  /* Cinco pestañas: se permite encoger y recortar la etiqueta */
   min-width: 0;
+  position: relative;
+  margin: 7px 2px;
+  border-radius: var(--app-radius-md);
+
+  &::part(native) {
+    border-radius: var(--app-radius-md);
+    transition: background 0.18s ease;
+  }
 
   ion-icon {
-    font-size: 23px;
+    font-size: 21px;
     margin-bottom: 3px;
     transition: transform 0.15s ease;
   }
 
   ion-label {
     max-width: 100%;
-    font-size: 0.66rem;
+    font-size: 0.64rem;
     letter-spacing: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  &.tab-selected ion-icon {
-    transform: scale(1.06);
+  /* Pastilla de selección: vidrio tintado en borgoña */
+  &.tab-selected {
+    --background: rgba(106, 18, 32, 0.1);
+
+    ion-icon {
+      transform: translateY(-1px);
+    }
+
+    ion-label {
+      font-weight: 700;
+    }
+  }
+}
+
+/* Fallback opaco donde no hay backdrop-filter (WebViews viejos) */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  ion-tab-bar {
+    --background: rgba(255, 255, 255, 0.97);
+    background: rgba(255, 255, 255, 0.97);
   }
 }

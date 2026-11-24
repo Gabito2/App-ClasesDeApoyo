@@ -28,7 +28,7 @@ export class Tab5Page {
 
   private importInput = viewChild.required<ElementRef<HTMLInputElement>>('archivoInput');
 
-  temaSeleccionado = 'bordeaux';
+  temaSeleccionado = 'borgona';
   temas: Tema[] = TEMAS;
   recordatoriosActivos = true;
   horaRecordatorio = 12;
@@ -63,7 +63,8 @@ export class Tab5Page {
 
   ionViewWillEnter() {
     const ajustes = this.settingsService.get();
-    this.temaSeleccionado = ajustes.tema;
+    // Normaliza temas viejos o desconocidos al tema actual.
+    this.temaSeleccionado = this.themeService.getById(ajustes.tema).id;
     this.recordatoriosActivos = ajustes.recordatorios;
     this.horaRecordatorio = ajustes.horaRecordatorio;
   }

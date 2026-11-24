@@ -1,16 +1,48 @@
 ion-toolbar {
-  --background: var(--ion-color-primary);
-  --color: #ffffff;
+  --background: var(--app-header);
+  --color: var(--app-text-strong);
   --border-width: 0;
+  --min-height: 54px;
   font-weight: 500;
+  border-bottom: 1px solid var(--app-border);
 
   ion-title {
     font-weight: 600;
-    letter-spacing: 0.3px;
+    font-size: 0.98rem;
+    letter-spacing: -0.01em;
+  }
+
+  ion-buttons ion-button {
+    --color: var(--app-text-strong);
+  }
+
+  ion-back-button {
+    --color: var(--app-text-strong);
   }
 }
 
+/* Cabeceras de modal: borgoña sólido */
+.modal-header ion-toolbar {
+  --background: var(--app-accent);
+  --color: var(--app-on-accent);
+  border-bottom: 0;
+
+  ion-buttons ion-button,
+  ion-back-button {
+    --color: var(--app-on-accent);
+  }
+}
+
+/* Título grande dentro del contenido (patrón condense de Ionic) */
 ion-content ion-header ion-toolbar {
   --background: var(--app-bg);
-  --color: var(--ion-color-primary);
+  --color: var(--app-text-strong);
+  --border-width: 0;
+  border-bottom: 0;
+
+  ion-title {
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
 }

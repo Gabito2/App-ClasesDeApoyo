@@ -3,7 +3,7 @@
 }
 
 .ajustes-page {
-  padding: 4px 16px 28px;
+  padding: 4px 16px 112px;
   max-width: 640px;
   margin: 0 auto;
 }
@@ -11,9 +11,9 @@
 .grupo-titulo {
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 1.1px;
   text-transform: uppercase;
-  color: var(--ion-color-primary);
+  color: var(--app-text-muted);
   margin: 22px 4px 8px;
 
   &:first-of-type {
@@ -23,8 +23,9 @@
 
 .grupo-card {
   background: var(--app-surface);
-  border-radius: 16px;
-  box-shadow: var(--app-shadow-card);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  box-shadow: var(--app-shadow-flat);
   overflow: hidden;
 }
 
@@ -43,8 +44,8 @@
   box-sizing: border-box;
 
   > ion-icon:first-child {
-    font-size: 22px;
-    color: var(--ion-color-primary);
+    font-size: 21px;
+    color: var(--app-accent-bright);
     flex-shrink: 0;
   }
 
@@ -131,7 +132,7 @@ ion-select.hora-select {
   max-width: 96px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--ion-color-primary);
+  color: var(--app-accent-bright);
 }
 
 .nota {

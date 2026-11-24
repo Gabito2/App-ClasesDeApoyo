@@ -19,14 +19,15 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  border-radius: 16px;
-  background: var(--app-danger-soft);
-  border: 1px solid var(--app-danger-border);
+  border-radius: var(--app-radius-lg);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-left: 3px solid var(--app-accent-bright);
   margin: 14px 0;
 
   > ion-icon {
-    font-size: 26px;
-    color: var(--app-danger);
+    font-size: 24px;
+    color: var(--app-accent-bright);
     flex-shrink: 0;
   }
 
@@ -52,8 +53,9 @@
   }
 
   &.sin-deuda {
-    background: var(--app-success-soft);
-    border-color: var(--app-success-border);
+    background: var(--app-surface);
+    border-color: var(--app-border);
+    border-left-color: var(--app-border-strong);
 
     > ion-icon {
       color: var(--app-success);
@@ -73,10 +75,11 @@
 
 .bloque {
   background: var(--app-surface);
-  border-radius: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
   padding: 14px 16px;
   margin-bottom: 14px;
-  box-shadow: var(--app-shadow-card);
+  box-shadow: var(--app-shadow-flat);
 
   .bloque-titulo {
     margin: 0 0 6px;
@@ -118,7 +121,7 @@
       flex-shrink: 0;
 
       &.pagado {
-        color: var(--app-success);
+        color: var(--app-text-strong);
       }
     }
   }
