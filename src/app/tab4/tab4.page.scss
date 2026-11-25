@@ -15,52 +15,60 @@
 }
 
 ion-grid {
-  padding: 12px 12px;
+  padding: 10px;
 }
 
 ion-card {
-  margin: 6px;
-  border-radius: 14px;
-  box-shadow: var(--app-shadow-raised);
-  border: none;
+  margin: 5px;
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-card);
+  border: 1px solid var(--app-border);
   background: var(--app-surface);
 
   ion-card-header {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 16px 16px 0;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 14px 16px 0;
 
+    /* Ícono en pastilla neutra: da ritmo sin competir con el número */
     ion-icon {
-      font-size: 20px;
+      font-size: 15px;
+      width: 28px;
+      height: 28px;
+      padding: 6.5px;
+      border-radius: var(--app-radius-sm);
+      background: var(--app-surface-sunken);
     }
 
     ion-card-title {
-      font-size: 0.72rem;
-      font-weight: 600;
+      font-size: 0.66rem;
+      font-weight: 650;
       color: var(--app-text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.1em;
     }
   }
 
   ion-card-content {
-    padding: 6px 16px 16px;
+    padding: 10px 16px 16px;
 
     h1 {
-      font-size: 2rem;
+      font-size: 1.9rem;
       font-weight: 700;
       margin: 0;
       color: var(--app-text-strong);
-      letter-spacing: -0.5px;
+      letter-spacing: -0.045em;
+      font-variant-numeric: tabular-nums;
     }
 
     h2 {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 700;
       margin: 4px 0;
       color: var(--app-text-strong);
-      letter-spacing: -0.3px;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
     }
   }
 }
@@ -70,8 +78,9 @@ ion-card {
 .icon-danger { color: var(--app-danger); }
 
 .empty-card {
-  margin: 16px 6px;
-  border: 1.5px dashed var(--app-border-strong);
+  margin: 16px 5px;
+  border: 1px dashed var(--app-border-strong);
+  box-shadow: none;
 
   ion-card-content {
     padding: 32px 24px;
@@ -108,11 +117,13 @@ ion-card {
     }
 
     .empty-btn {
-      --background: var(--ion-color-primary);
+      --background: var(--app-accent);
       --background-hover: var(--ion-color-primary-tint);
-      --border-radius: var(--app-radius-sm);
-      font-weight: 600;
-      height: 48px;
+      --background-activated: var(--ion-color-primary-shade);
+      --border-radius: var(--app-radius-lg);
+      --box-shadow: 0 6px 16px rgba(var(--ion-color-primary-rgb), 0.16);
+      font-weight: 650;
+      height: 50px;
       text-transform: none;
       margin: 0;
     }
@@ -410,10 +421,11 @@ ion-card {
 
       .anual-value {
         display: block;
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 700;
         color: var(--app-text-strong);
-        letter-spacing: -0.3px;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
       }
     }
   }

@@ -3,8 +3,9 @@
 }
 
 .tab2-content {
-  /* Deja lugar a la barra de tabs flotante (64px + margen + safe area) */
-  --padding-bottom: 112px;
+  /* Deja lugar a la barra de tabs flotante: 64px + 8px de margen + safe area
+     del sistema, más 24px de aire para la última fila. */
+  --padding-bottom: calc(96px + var(--ion-safe-area-bottom, 0px));
 }
 
 /* ── Panel superior: acción masiva ── */
@@ -20,9 +21,9 @@
 .deuda-panel {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: var(--app-radius-md);
+  gap: 9px;
+  padding: 12px 15px;
+  border-radius: var(--app-radius-lg);
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-left: 3px solid var(--app-accent-bright);
@@ -52,13 +53,14 @@ ion-button.wa-masivo {
   --background-hover: var(--app-wa-shade);
   --background-activated: var(--app-wa-shade);
   --color: var(--app-on-accent);
-  --border-radius: var(--app-radius-md);
+  --border-radius: var(--app-radius-lg);
   --box-shadow: var(--app-shadow-wa);
-  font-weight: 600;
+  font-weight: 650;
   font-size: 0.85rem;
-  height: 46px;
-  margin: 0 0 4px;
+  height: 48px;
+  margin: 0 0 6px;
   text-transform: none;
+  letter-spacing: -0.01em;
 
   ion-icon {
     font-size: 19px;
@@ -71,12 +73,12 @@ ion-button.wa-masivo {
   display: flex;
   align-items: center;
   gap: 7px;
-  margin: 12px 0 6px;
+  margin: 14px 0 8px;
   padding: 0 20px;
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.68rem;
+  font-weight: 650;
   text-transform: uppercase;
-  letter-spacing: 0.9px;
+  letter-spacing: 0.1em;
   color: var(--app-text-muted);
 
   ion-icon {
@@ -91,8 +93,8 @@ ion-button.wa-masivo {
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0;
-    padding: 2px 8px;
-    border-radius: 999px;
+    padding: 3px 9px;
+    border-radius: var(--app-radius-pill);
     color: inherit;
     background: var(--app-neutral-wash-strong);
   }
@@ -361,7 +363,7 @@ ion-grid.meses-grid {
   align-items: center;
   gap: 4px;
   padding: 14px 8px;
-  border-radius: var(--app-radius-sm);
+  border-radius: var(--app-radius-md);
   border: 1px solid var(--app-border);
   background: var(--app-surface);
   text-align: center;

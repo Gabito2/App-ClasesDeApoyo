@@ -3,15 +3,15 @@
 }
 
 .ajustes-page {
-  padding: 4px 16px 112px;
+  padding: 4px 16px calc(96px + var(--ion-safe-area-bottom, 0px));
   max-width: 640px;
   margin: 0 auto;
 }
 
 .grupo-titulo {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 1.1px;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--app-text-muted);
   margin: 22px 4px 8px;
@@ -24,17 +24,17 @@
 .grupo-card {
   background: var(--app-surface);
   border: 1px solid var(--app-border);
-  border-radius: var(--app-radius-lg);
-  box-shadow: var(--app-shadow-flat);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-card);
   overflow: hidden;
 }
 
 .grupo-row {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 13px;
   width: 100%;
-  padding: 16px;
+  padding: 15px 16px;
   margin: 0;
   background: transparent;
   border: none;
@@ -44,8 +44,13 @@
   box-sizing: border-box;
 
   > ion-icon:first-child {
-    font-size: 21px;
-    color: var(--app-accent-bright);
+    font-size: 15px;
+    width: 30px;
+    height: 30px;
+    padding: 7.5px;
+    border-radius: var(--app-radius-sm);
+    background: var(--app-accent-wash);
+    color: var(--app-accent);
     flex-shrink: 0;
   }
 
@@ -55,10 +60,11 @@
 
     h2 {
       margin: 0;
-      font-size: 0.95rem;
-      font-weight: 600;
+      font-size: 0.94rem;
+      font-weight: 650;
       color: var(--app-text-strong);
       line-height: 1.25;
+      letter-spacing: -0.01em;
     }
 
     p {
@@ -70,9 +76,10 @@
   }
 
   .chevron {
-    font-size: 18px;
+    font-size: 17px;
     color: var(--app-icon-muted);
     flex-shrink: 0;
+    opacity: 0.7;
   }
 
   &.accion {

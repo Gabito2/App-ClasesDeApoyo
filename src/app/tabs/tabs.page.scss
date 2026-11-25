@@ -5,9 +5,11 @@ ion-tabs {
 
 /* Barra de tabs en vidrio esmerilado.
    Va absoluta sobre el contenido para que las listas pasen por detrás
-   y el blur se note; las pantallas ya reservan 112px de padding inferior. */
+   y el blur se note; las pantallas reservan
+   calc(96px + safe area) de padding inferior para que la última fila
+   quede por encima de la barra. */
 ion-tab-bar {
-  --background: rgba(255, 255, 255, 0.62);
+  --background: rgba(252, 251, 251, 0.82);
   --border: transparent;
   position: absolute;
   left: 12px;
@@ -16,33 +18,36 @@ ion-tab-bar {
   width: auto;
   height: 64px;
   margin: 0;
-  padding: 0 4px;
+  padding: 0 2px;
+  /* El safe area lo aporta `bottom`, no el padding interno de Ionic:
+     así la barra ocupa 64px + 8px + safe area y el contenido reserva eso mismo. */
+  padding-bottom: 0;
   z-index: 20;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: 18px;
+  background: rgba(252, 251, 251, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
   box-shadow:
-    0 0 0 1px rgba(26, 26, 26, 0.06),
-    0 10px 30px rgba(26, 26, 26, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+    0 0 0 1px rgba(23, 22, 26, 0.05),
+    0 12px 28px rgba(23, 22, 26, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   overflow: hidden;
 }
 
 ion-tab-button {
   --background: transparent;
   --color: var(--app-text-muted);
-  --color-selected: var(--ion-color-primary);
-  --ripple-color: rgba(106, 18, 32, 0.08);
-  --padding-start: 2px;
-  --padding-end: 2px;
+  --color-selected: var(--app-accent);
+  --ripple-color: var(--app-accent-wash);
+  --padding-start: 1px;
+  --padding-end: 1px;
   --padding-top: 0;
   --padding-bottom: 0;
   /* Cinco pestañas: se permite encoger y recortar la etiqueta */
   min-width: 0;
   position: relative;
-  margin: 7px 2px;
+  margin: 7px 1px;
   border-radius: var(--app-radius-md);
 
   &::part(native) {
@@ -51,15 +56,16 @@ ion-tab-button {
   }
 
   ion-icon {
-    font-size: 21px;
-    margin-bottom: 3px;
+    font-size: 20px;
+    margin-bottom: 2px;
     transition: transform 0.15s ease;
   }
 
   ion-label {
     max-width: 100%;
-    font-size: 0.64rem;
-    letter-spacing: 0;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -67,7 +73,7 @@ ion-tab-button {
 
   /* Pastilla de selección: vidrio tintado en borgoña */
   &.tab-selected {
-    --background: rgba(106, 18, 32, 0.1);
+    --background: var(--app-accent-wash);
 
     ion-icon {
       transform: translateY(-1px);

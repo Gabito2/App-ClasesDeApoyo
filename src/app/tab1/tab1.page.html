@@ -1,6 +1,12 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>Alumnos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="btn-agregar" (click)="abrirModalNuevo()" aria-label="Agregar alumno">
+        <ion-icon slot="start" name="person-add"></ion-icon>
+        Agregar
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -46,7 +52,7 @@
     </div>
     @if (filtroEstado === 'activos') {
     <h2>No hay alumnos registrados</h2>
-    <p class="vacio-hint">Tocá el botón + para agregar el primero</p>
+    <p class="vacio-hint">Usá el botón Agregar para sumar al primero</p>
     } @else {
     <h2>No hay alumnos dados de baja</h2>
     }
@@ -111,14 +117,6 @@
     }
   </ion-list>
 
-  @if (filtroEstado === 'activos') {
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button class="glass" (click)="abrirModalNuevo()" aria-label="Agregar alumno">
-      <ion-icon name="person-add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-  }
-
   <!-- Modal Agregar / Editar -->
   <ion-modal [isOpen]="isModalOpen" (didDismiss)="cerrarModal()">
     <ng-template>
@@ -132,28 +130,62 @@
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
+
       <ion-content class="modal-content">
         <div class="form-wrapper">
-          <ion-input class="form-input" label="Nombre y apellido" labelPlacement="stacked" fill="outline"
-            [(ngModel)]="formNombreCompleto" type="text"></ion-input>
+          <section class="form-grupo">
+            <h3 class="form-grupo-titulo">Datos del alumno</h3>
 
-          <ion-input class="form-input" label="Monto mensual ($)" labelPlacement="stacked" fill="outline"
-            [(ngModel)]="formMontoMensual" type="number" min="0" inputmode="numeric"></ion-input>
+            <ion-input class="form-input" label="Nombre" label-placement="stacked" fill="outline"
+              [(ngModel)]="formNombre" type="text" autocomplete="given-name" autocapitalize="words">
+              <ion-icon slot="start" name="person-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
 
-          <ion-input class="form-input" label="Teléfono (WhatsApp, opcional)" labelPlacement="stacked" fill="outline"
-            [(ngModel)]="formTelefono" type="tel"></ion-input>
+            <ion-input class="form-input" label="Apellido (opcional)" label-placement="stacked" fill="outline"
+              [(ngModel)]="formApellido" type="text" autocomplete="family-name" autocapitalize="words">
+              <ion-icon slot="start" name="person-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
 
-          <div class="form-grupo">
-            <div class="form-label">Día de pago</div>
-            <ion-datetime class="calendario" [value]="formFecha" presentation="date"
-              (ionChange)="onFechaChange($event)" locale="es-AR" [showDefaultButtons]="false"></ion-datetime>
-          </div>
+            <ion-input class="form-input" label="Teléfono (opcional)" label-placement="stacked" fill="outline"
+              [(ngModel)]="formTelefono" type="tel" inputmode="tel" autocomplete="tel"
+              helper-text="Se usa para enviarle recordatorios y comprobantes por WhatsApp">
+              <ion-icon slot="start" name="logo-whatsapp" aria-hidden="true"></ion-icon>
+            </ion-input>
+          </section>
 
-          <ion-button expand="full" (click)="guardar()" class="save-btn">
-            {{ editando ? 'Guardar cambios' : 'Agregar alumno' }}
-          </ion-button>
+          <section class="form-grupo">
+            <h3 class="form-grupo-titulo">Cuota mensual</h3>
+
+            <ion-input class="form-input" label="Monto mensual" label-placement="stacked" fill="outline"
+              [(ngModel)]="formMontoMensual" type="number" min="0" inputmode="numeric" placeholder="0">
+              <span slot="start" class="moneda">$</span>
+            </ion-input>
+
+            <ion-select class="form-input" label="Día de pago" label-placement="stacked" fill="outline"
+              [(ngModel)]="formDiaEntrada" interface="popover" aria-label="Día de pago">
+              @for (d of dias; track d) {
+              <ion-select-option [value]="d">Día {{ d }}</ion-select-option>
+              }
+            </ion-select>
+
+            <p class="form-hint">Se cobra ese día de cada mes. Si el mes es más corto, se toma el último día.</p>
+
+            <div class="form-preview">
+              <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+              <span>Cuota de <strong>${{ (formMontoMensual || 0) | number }}</strong> el día
+                <strong>{{ formDiaEntrada }}</strong></span>
+            </div>
+          </section>
         </div>
       </ion-content>
+
+      <ion-footer class="form-footer">
+        <ion-toolbar>
+          <ion-button expand="block" class="save-btn" [disabled]="!formValido" (click)="guardar()">
+            {{ editando ? 'Guardar cambios' : 'Agregar alumno' }}
+          </ion-button>
+        </ion-toolbar>
+      </ion-footer>
     </ng-template>
   </ion-modal>
 

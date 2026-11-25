@@ -34,27 +34,32 @@
   --app-accent: var(--ion-color-primary);
   --app-accent-bright: #8c2f3c;
   --app-on-accent: #ffffff;
+  /* Tintas del acento derivadas del primario activo: ThemeService cambia
+     --ion-color-primary-rgb, así que acompañan el tema que elija el usuario. */
+  --app-accent-wash: rgba(var(--ion-color-primary-rgb), 0.07);
+  --app-accent-wash-strong: rgba(var(--ion-color-primary-rgb), 0.13);
+  --app-accent-ring: rgba(var(--ion-color-primary-rgb), 0.18);
 
   /* ── Superficies ── */
   --app-header: #ffffff;
-  --app-bg: #f6f4f4;
+  --app-bg: #f6f5f5;
   --app-surface: #ffffff;
-  --app-surface-alt: #faf8f8;
-  --app-surface-sunken: #f5f2f3;
-  --app-pressed: #f4eef0;
-  --app-track: #f0ebec;
-  --app-divider: #f0ebec;
-  --app-border: #e9e3e4;
-  --app-border-strong: #d9ced0;
+  --app-surface-alt: #faf9f9;
+  --app-surface-sunken: #f4f2f3;
+  --app-pressed: #f3eef0;
+  --app-track: #f1eeee;
+  --app-divider: #f1eeee;
+  --app-border: #eae6e6;
+  --app-border-strong: #dad3d4;
 
   /* ── Texto ──
      contrastes medidos sobre --app-surface:
      strong 16:1 · text 12:1 · muted 5.4:1 · subtle 5:1 */
-  --app-text-strong: #1a1a1a;
-  --app-text: #2d2d2d;
-  --app-text-muted: #6b6b6b;
-  --app-text-subtle: #707070;
-  --app-icon-muted: #6b6b6b;
+  --app-text-strong: #17161a;
+  --app-text: #2c2b30;
+  --app-text-muted: #68666d;
+  --app-text-subtle: #74727a;
+  --app-icon-muted: #68666d;
 
   /* ── Semánticos ──
      El borgoña marca atención (mora, deuda); el gris queda
@@ -102,7 +107,7 @@
 
   --app-neutral-wash: rgba(107, 107, 107, 0.08);
   --app-neutral-wash-strong: rgba(107, 107, 107, 0.12);
-  --app-primary-soft: rgba(106, 18, 32, 0.07);
+  --app-primary-soft: var(--app-accent-wash);
 
   /* ── WhatsApp (borgoña: el ícono identifica la acción) ── */
   --app-wa: #6a1220;
@@ -110,17 +115,17 @@
 
   /* ── Radios ── */
   --app-radius-xs: 6px;
-  --app-radius-sm: 8px;
-  --app-radius-md: 10px;
-  --app-radius-lg: 12px;
-  --app-radius-xl: 14px;
-  --app-radius-2xl: 16px;
+  --app-radius-sm: 10px;
+  --app-radius-md: 12px;
+  --app-radius-lg: 14px;
+  --app-radius-xl: 18px;
+  --app-radius-2xl: 22px;
   --app-radius-pill: 999px;
 
   /* ── Sombras ── */
-  --app-shadow-card: 0 1px 2px rgba(26, 26, 26, 0.04);
-  --app-shadow-flat: 0 1px 1px rgba(26, 26, 26, 0.03);
-  --app-shadow-raised: 0 1px 3px rgba(26, 26, 26, 0.06);
+  --app-shadow-card: 0 1px 2px rgba(23, 22, 26, 0.04), 0 1px 1px rgba(23, 22, 26, 0.02);
+  --app-shadow-flat: 0 1px 1px rgba(23, 22, 26, 0.03);
+  --app-shadow-raised: 0 1px 2px rgba(23, 22, 26, 0.04), 0 6px 16px rgba(23, 22, 26, 0.05);
   --app-shadow-primary: 0 8px 24px rgba(106, 18, 32, 0.16);
   --app-shadow-lifted: 0 2px 6px rgba(26, 26, 26, 0.04), 0 18px 40px rgba(26, 26, 26, 0.1);
   --app-shadow-bar: 0 10px 30px rgba(26, 26, 26, 0.12);
@@ -179,6 +184,15 @@ ion-content {
   --background: var(--app-bg);
 }
 
+/* ion-content mide el 100% del alto de la página pero arranca debajo del
+   header, así que sobresale de la pantalla justo el alto del header: por eso
+   la barra de tabs flotante tapaba la última ficha de las listas. Se recorta
+   con --offset-top, que es el alto del header que calcula Ionic (se adapta
+   solo a safe areas y al tamaño de la barra). */
+ion-tabs .ion-page > ion-content {
+  max-height: calc(100% - var(--offset-top, 0px));
+}
+
 body {
   background: var(--app-bg);
   color: var(--app-text);
@@ -186,22 +200,41 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Tipografía base ── */
+/* ── Tipografía y chrome base ── */
+
+ion-toolbar {
+  --background: var(--app-header);
+  --border-width: 0 0 1px 0;
+  --border-color: var(--app-border);
+  --min-height: 56px;
+  --padding-start: 10px;
+  --padding-end: 10px;
+}
 
 ion-title {
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 650;
+  font-size: 1.02rem;
+  letter-spacing: -0.015em;
+}
+
+/* Título grande de las cabeceras que colapsan al scrollear */
+ion-title[size='large'] {
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
 }
 
 ion-button {
   text-transform: none;
-  letter-spacing: 0;
+  letter-spacing: -0.005em;
   font-weight: 600;
   --border-radius: var(--app-radius-md);
 }
 
 ion-card {
   border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  box-shadow: var(--app-shadow-card);
 }
 
 /* ── Overlays ── */
@@ -291,10 +324,10 @@ ion-card:active {
   align-items: stretch;
   background: var(--app-surface);
   border: 1px solid var(--app-border);
-  border-radius: var(--app-radius-lg);
-  padding: 16px 4px;
+  border-radius: var(--app-radius-xl);
+  padding: 18px 4px 16px;
   margin-bottom: 14px;
-  box-shadow: var(--app-shadow-flat);
+  box-shadow: var(--app-shadow-card);
 }
 
 .resumen-item {
@@ -306,19 +339,19 @@ ion-card:active {
   min-width: 0;
 
   .resumen-valor {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    line-height: 1.05;
+    line-height: 1;
     color: var(--app-text-strong);
-    letter-spacing: -0.5px;
+    letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;
   }
 
   .resumen-label {
-    font-size: 0.64rem;
-    font-weight: 700;
+    font-size: 0.63rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.9px;
+    letter-spacing: 0.1em;
     color: var(--app-text-muted);
   }
 
@@ -345,7 +378,7 @@ ion-card:active {
 ion-searchbar.buscar {
   --background: var(--app-surface);
   --border-radius: var(--app-radius-md);
-  --box-shadow: 0 0 0 1px var(--app-border);
+  --box-shadow: 0 0 0 1px var(--app-border), 0 1px 2px rgba(23, 22, 26, 0.03);
   --placeholder-color: var(--app-text-subtle);
   --icon-color: var(--app-text-subtle);
   --color: var(--app-text-strong);
@@ -356,31 +389,30 @@ ion-searchbar.buscar {
 /* Estado vacío */
 .vacio {
   text-align: center;
-  padding: 56px 32px;
+  padding: 56px 28px;
   color: var(--app-text-muted);
 
   .vacio-icono {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     margin: 0 auto 18px;
-    border-radius: var(--app-radius-lg);
-    background: var(--app-surface);
-    border: 1px solid var(--app-border);
-    box-shadow: var(--app-shadow-flat);
+    border-radius: var(--app-radius-xl);
+    background: var(--app-accent-wash);
+    border: 1px solid var(--app-accent-ring);
     display: flex;
     align-items: center;
     justify-content: center;
 
     ion-icon {
-      font-size: 28px;
-      color: var(--app-accent-bright);
+      font-size: 26px;
+      color: var(--app-accent);
     }
   }
 
   h2 {
-    font-size: 1.02rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    letter-spacing: -0.2px;
+    letter-spacing: -0.02em;
     color: var(--app-text-strong);
     margin: 0 0 6px;
   }
@@ -398,9 +430,15 @@ ion-searchbar.buscar {
 .modal-header {
   --background: var(--app-accent);
   --color: var(--app-on-accent);
+  --border-color: transparent;
+
+  ion-toolbar {
+    --background: var(--app-accent);
+    --border-width: 0;
+  }
 
   ion-title {
-    font-weight: 600;
+    font-weight: 650;
     font-size: 0.98rem;
     letter-spacing: -0.01em;
   }
@@ -425,9 +463,13 @@ ion-item.ficha {
      de sombra sigue el mismo radio y evita la línea recta duplicada. */
   border: none;
   border-radius: var(--app-radius-lg);
-  box-shadow: 0 0 0 1px var(--app-border);
+  box-shadow: 0 0 0 1px var(--app-border), 0 1px 2px rgba(23, 22, 26, 0.03);
   transition: box-shadow 0.15s ease, background 0.15s ease;
   overflow: hidden;
+}
+
+ion-item.ficha:active {
+  --background: var(--app-pressed);
 }
 
 .ficha-contenido {
@@ -447,15 +489,15 @@ ion-item.ficha {
 }
 
 .ficha-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--app-radius-sm);
+  width: 46px;
+  height: 46px;
+  border-radius: var(--app-radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.04em;
   flex-shrink: 0;
   text-transform: uppercase;
   background: var(--app-surface-alt);
@@ -463,21 +505,21 @@ ion-item.ficha {
   color: var(--app-text-muted);
 
   &.ok {
-    background: var(--app-surface);
-    border-color: var(--app-border-strong);
+    background: var(--app-surface-alt);
+    border-color: var(--app-border);
     color: var(--app-text-muted);
   }
 
   &.pendiente {
-    background: var(--app-border-strong);
+    background: var(--app-surface-sunken);
     border-color: var(--app-border-strong);
-    color: var(--app-text-strong);
+    color: var(--app-text);
   }
 
   &.mora {
-    background: var(--app-accent);
-    border-color: var(--app-accent);
-    color: var(--app-on-accent);
+    background: var(--app-accent-wash);
+    border-color: var(--app-accent-ring);
+    color: var(--app-accent);
   }
 }
 
@@ -486,14 +528,14 @@ ion-item.ficha {
   flex: 1;
 
   h2 {
-    font-size: 0.94rem;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 650;
     color: var(--app-text-strong);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    letter-spacing: -0.15px;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -519,36 +561,36 @@ ion-item.ficha {
 .ficha-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   margin-top: 8px;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border: 1px solid transparent;
-  border-radius: var(--app-radius-xs);
-  font-size: 0.67rem;
+  border-radius: var(--app-radius-pill);
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.2px;
+  letter-spacing: 0;
 
   ion-icon {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
   }
 
   &.ok {
-    background: var(--app-surface-alt);
-    border-color: var(--app-border);
+    background: var(--app-neutral-wash);
+    border-color: transparent;
     color: var(--app-text-muted);
   }
 
   &.pendiente {
-    background: var(--app-surface);
-    border-color: var(--app-border-strong);
+    background: var(--app-surface-sunken);
+    border-color: var(--app-border);
     color: var(--app-text);
   }
 
   &.mora {
-    background: var(--app-accent);
-    border-color: var(--app-accent);
-    color: var(--app-on-accent);
-    font-weight: 700;
+    background: var(--app-accent-wash);
+    border-color: var(--app-accent-ring);
+    color: var(--app-accent);
+    font-weight: 650;
   }
 }
 

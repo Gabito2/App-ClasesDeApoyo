@@ -2,10 +2,10 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonButtons, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonToast, IonAlert, IonSegment, IonSegmentButton, IonFab, IonFabButton } from '@ionic/angular/standalone';
-import { ActionSheetButton, DatetimeCustomEvent } from '@ionic/angular';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonButtons, IonActionSheet, IonInput, IonSelect, IonSelectOption, IonSearchbar, IonToast, IonAlert, IonSegment, IonSegmentButton, IonFooter } from '@ionic/angular/standalone';
+import { ActionSheetButton } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { personAdd, create, trash, close, ellipsisVertical, personRemove, checkmarkCircle, closeCircle, searchOutline } from 'ionicons/icons';
+import { personAdd, create, trash, close, ellipsisVertical, personRemove, checkmarkCircle, closeCircle, searchOutline, personOutline, logoWhatsapp, calendarOutline } from 'ionicons/icons';
 import { AlumnoService } from '../services/alumno.service';
 import { Alumno } from '../models/alumno.model';
 import { NotificationService } from '../services/notification.service';
@@ -20,7 +20,7 @@ type Orden = 'nombre' | 'dia' | 'monto';
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonActionSheet, IonInput, IonDatetime, IonSearchbar, IonButtons, IonToast, IonAlert, IonSegment, IonSegmentButton, IonFab, IonFabButton, EntradaListaDirective],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonModal, IonButton, IonActionSheet, IonInput, IonSelect, IonSelectOption, IonSearchbar, IonButtons, IonToast, IonAlert, IonSegment, IonSegmentButton, IonFooter, EntradaListaDirective],
 })
 export class Tab1Page {
   private alumnoService = inject(AlumnoService);
@@ -39,11 +39,14 @@ export class Tab1Page {
   showActions = false;
   selectedAlumno: Alumno | null = null;
 
-  formNombreCompleto = '';
+  formNombre = '';
+  formApellido = '';
   formDiaEntrada = 1;
-  formMontoMensual = 0;
+  /** null = campo vacío: se muestra el placeholder en lugar de un 0 incómodo. */
+  formMontoMensual: number | null = null;
   formTelefono = '';
-  formFecha: string = new Date().toISOString();
+  /** Días elegibles para el cobro mensual. */
+  readonly dias = Array.from({ length: 31 }, (_, i) => i + 1);
 
   toastOpen = false;
   toastMsg = '';
@@ -65,7 +68,7 @@ export class Tab1Page {
   ];
 
   constructor() {
-    addIcons({ personAdd, create, trash, close, ellipsisVertical, personRemove, checkmarkCircle, closeCircle, searchOutline });
+    addIcons({ personAdd, create, trash, close, ellipsisVertical, personRemove, checkmarkCircle, closeCircle, searchOutline, personOutline, logoWhatsapp, calendarOutline });
   }
 
   get alumnosFiltrados(): Alumno[] {
@@ -125,26 +128,29 @@ export class Tab1Page {
     this.estadoCache.clear();
   }
 
+  /** El botón de guardar se habilita recién con nombre y monto cargados. */
+  get formValido(): boolean {
+    return this.formNombre.trim().length > 0 && Number(this.formMontoMensual) > 0 && this.formDiaEntrada >= 1;
+  }
+
   abrirModalNuevo() {
     this.editando = null;
-    this.formNombreCompleto = '';
-    this.formDiaEntrada = 1;
-    this.formMontoMensual = 0;
+    this.formNombre = '';
+    this.formApellido = '';
+    // Arranca en el día de hoy: es el día en que el alumno empieza a cursar.
+    this.formDiaEntrada = new Date().getDate();
+    this.formMontoMensual = null;
     this.formTelefono = '';
-    this.formFecha = new Date().toISOString();
     this.isModalOpen = true;
   }
 
   abrirModalEditar(alumno: Alumno) {
     this.editando = alumno;
-    this.formNombreCompleto = `${alumno.nombre} ${alumno.apellido}`;
+    this.formNombre = alumno.nombre;
+    this.formApellido = alumno.apellido;
     this.formDiaEntrada = alumno.diaEntrada;
     this.formMontoMensual = alumno.montoMensual;
     this.formTelefono = alumno.telefono ?? '';
-    // El calendario muestra el día real de pago del alumno (ajustado al último día del mes si aplica)
-    const ahora = new Date();
-    const ultimoDia = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0).getDate();
-    this.formFecha = new Date(ahora.getFullYear(), ahora.getMonth(), Math.min(alumno.diaEntrada, ultimoDia), 12, 0, 0).toISOString();
     this.isModalOpen = true;
   }
 
@@ -153,33 +159,26 @@ export class Tab1Page {
     this.editando = null;
   }
 
-  onFechaChange(event: DatetimeCustomEvent) {
-    const value = event.detail.value;
-    if (typeof value !== 'string') return;
-    const date = new Date(value);
-    this.formDiaEntrada = date.getDate();
-  }
-
   guardar() {
-    if (!this.formNombreCompleto.trim()) {
+    const nombre = this.formNombre.trim();
+    const apellido = this.formApellido.trim();
+
+    if (!nombre) {
       this.mostrarToast('Ingresá el nombre del alumno');
       return;
     }
-    if (this.formMontoMensual <= 0) {
+    const monto = Number(this.formMontoMensual);
+    if (monto <= 0) {
       this.mostrarToast('El monto mensual debe ser mayor a $0');
       return;
     }
-
-    const partes = this.formNombreCompleto.trim().split(' ');
-    const nombre = partes[0];
-    const apellido = partes.slice(1).join(' ') || '';
 
     if (this.editando) {
       this.alumnoService.actualizar(this.editando.id, {
         nombre,
         apellido,
         diaEntrada: this.formDiaEntrada,
-        montoMensual: this.formMontoMensual,
+        montoMensual: monto,
         telefono: this.formTelefono.trim() || undefined,
       });
       this.mostrarToast('Alumno actualizado');
@@ -188,7 +187,7 @@ export class Tab1Page {
         nombre,
         apellido,
         diaEntrada: this.formDiaEntrada,
-        montoMensual: this.formMontoMensual,
+        montoMensual: monto,
         telefono: this.formTelefono.trim() || undefined,
       });
       this.mostrarToast('Alumno agregado');

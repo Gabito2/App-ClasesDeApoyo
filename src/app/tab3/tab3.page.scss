@@ -3,8 +3,9 @@
 }
 
 .tab3-content {
-  /* Deja lugar a la barra de tabs flotante (64px + margen + safe area) */
-  --padding-bottom: 112px;
+  /* Deja lugar a la barra de tabs flotante: 64px + 8px de margen + safe area
+     del sistema, más 24px de aire para la última fila. */
+  --padding-bottom: calc(96px + var(--ion-safe-area-bottom, 0px));
 }
 
 /* ── Panel superior: total cobrado y búsqueda ── */
@@ -20,42 +21,45 @@
 .tarjeta-total {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 20px 16px;
-  border-radius: var(--app-radius-xl);
-  background: var(--app-accent);
+  align-items: flex-start;
+  gap: 4px;
+  padding: 20px 20px 18px;
+  border-radius: var(--app-radius-2xl);
+  background: linear-gradient(155deg, var(--app-accent) 0%, var(--ion-color-primary-shade) 100%);
   color: var(--app-on-accent);
-  box-shadow: var(--app-shadow-primary);
-  margin-bottom: 8px;
+  box-shadow: 0 10px 26px rgba(var(--ion-color-primary-rgb), 0.24);
+  margin-bottom: 10px;
 
   .total-label {
-    font-size: 0.66rem;
+    font-size: 0.63rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    opacity: 0.78;
+    letter-spacing: 0.12em;
+    opacity: 0.8;
   }
 
   .total-valor {
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 700;
-    letter-spacing: -0.8px;
-    line-height: 1.15;
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
   }
 
   .total-cantidad {
-    font-size: 0.75rem;
-    opacity: 0.82;
+    font-size: 0.74rem;
+    font-weight: 500;
+    opacity: 0.78;
   }
 }
 
 .pista {
-  margin: 0 6px 10px;
-  font-size: 0.78rem;
+  margin: 0 8px 10px;
+  font-size: 0.77rem;
   color: var(--app-text-muted);
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
 }
 
 ion-button.ir-alumnos {
@@ -155,12 +159,14 @@ ion-button.ir-alumnos {
 
 ion-button.btn-crear,
 ion-button.btn-compartir {
-  --background: var(--ion-color-primary);
-  --border-radius: var(--app-radius-md);
-  --box-shadow: none;
-  font-weight: 600;
-  height: 48px;
+  --background: var(--app-accent);
+  --background-activated: var(--ion-color-primary-shade);
+  --border-radius: var(--app-radius-lg);
+  --box-shadow: 0 6px 16px rgba(var(--ion-color-primary-rgb), 0.16);
+  font-weight: 650;
+  height: 50px;
   text-transform: none;
+  letter-spacing: -0.01em;
 
   ion-icon {
     font-size: 19px;
@@ -178,11 +184,12 @@ ion-button.btn-compartir {
 ion-button.btn-wa {
   --background: var(--app-wa);
   --color: var(--app-on-accent);
-  --border-radius: var(--app-radius-md);
+  --border-radius: var(--app-radius-lg);
   margin: 10px 0 0;
-  font-weight: 600;
-  height: 48px;
+  font-weight: 650;
+  height: 50px;
   text-transform: none;
+  letter-spacing: -0.01em;
 
   ion-icon {
     font-size: 19px;
