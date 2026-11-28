@@ -9,6 +9,16 @@ export interface Pago {
   numeroComprobante?: number;
 }
 
+/** Operación real de cobro. Puede haber varias para un mismo mes. */
+export interface Cobro {
+  id: number;
+  mes: number;
+  anio: number;
+  monto: number;
+  fechaPago: string;
+  numeroComprobante?: number;
+}
+
 /** Pago ya cobrado, con los datos necesarios para emitir su comprobante. */
 export interface Comprobante {
   numero: number;
@@ -52,6 +62,8 @@ export interface EstadoCuenta {
   impagos: MesImpago[];
   /** Pagos cobrados, del más reciente al más antiguo. */
   pagos: PagoCuenta[];
+  /** Operaciones reales de cobro, del más reciente al más antiguo. */
+  cobros: Cobro[];
   /** Cambios de cuota, del más reciente al más antiguo. */
   historialMontos: HistorialMonto[];
   totalCobrado: number;
@@ -66,6 +78,8 @@ export interface Alumno {
   diaEntrada: number;
   montoMensual: number;
   pagos: Pago[];
+  /** Operaciones reales de cobro. Opcional por compatibilidad con datos anteriores. */
+  cobros?: Cobro[];
   activo: boolean;
   telefono?: string;
   historialMontos?: HistorialMonto[];

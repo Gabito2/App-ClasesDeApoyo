@@ -63,6 +63,7 @@ describe('EstadoCuentaPage', () => {
     expect(component.iniciales).toBe('AP');
     expect(component.cuenta?.deuda).toEqual({ meses: 2, monto: 20000 });
     expect(component.cuenta?.pagos.length).toBe(2);
+    expect(component.cuenta?.cobros.length).toBe(2);
     expect(component.estado.pasado).toBeTrue();
     expect(component.claseEstado()).toBe('mora');
   });

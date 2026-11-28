@@ -80,6 +80,31 @@
     </div>
     }
 
+    @if (cuenta.cobros.length > 0) {
+    <div class="bloque">
+      <h3 class="bloque-titulo">Cobros registrados</h3>
+      @for (c of cuenta.cobros; track c.id) {
+      <div class="fila-dato">
+        <div class="fila-izq">
+          <ion-icon name="checkmark-circle" class="pagado"></ion-icon>
+          <div class="fila-texto">
+            <span class="fila-mes">{{ mesLabel(c.mes) }} {{ c.anio }}</span>
+            @if (c.fechaPago) {
+            <span class="fila-sub">Cobrado el {{ c.fechaPago | date:"dd/MM/yyyy" }}</span>
+            }
+          </div>
+        </div>
+        <div class="fila-der">
+          <span class="fila-valor">${{ c.monto | number }}</span>
+          @if (c.numeroComprobante) {
+          <span class="fila-sub">Comprobante Nº {{ c.numeroComprobante }}</span>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+
     <div class="bloque">
       <h3 class="bloque-titulo">Historial de pagos</h3>
       @if (cuenta.pagos.length === 0) {

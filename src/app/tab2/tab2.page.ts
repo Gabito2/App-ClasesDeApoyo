@@ -2,12 +2,12 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonSearchbar, IonButton, IonButtons, IonAlert, IonToast, IonModal, IonGrid, IonRow, IonCol } from '@ionic/angular/standalone';
-import { AlertButton, AlertInput } from '@ionic/angular';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonSearchbar, IonButton, IonButtons, IonAlert, IonToast, IonModal, IonInput, IonFooter } from '@ionic/angular/standalone';
+import { AlertButton } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { calendar, checkmarkCircle, closeCircle, search, logoWhatsapp, chevronForward, chevronBack, cashOutline, calendarOutline, alertCircle, hourglassOutline, close } from 'ionicons/icons';
 import { AlumnoService } from '../services/alumno.service';
-import { Alumno, Pago, HistorialMonto } from '../models/alumno.model';
+import { Alumno, HistorialMonto } from '../models/alumno.model';
 import { WhatsappService, TipoMensaje } from '../services/whatsapp.service';
 import { NotificationService } from '../services/notification.service';
 import { coincideAlumno } from '../utils/texto';
@@ -32,7 +32,7 @@ interface MesInfo {
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonSearchbar, IonButton, IonButtons, IonAlert, IonToast, IonModal, IonGrid, IonRow, IonCol, EntradaListaDirective],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonIcon, IonSearchbar, IonButton, IonButtons, IonAlert, IonToast, IonModal, IonInput, IonFooter, EntradaListaDirective],
 })
 export class Tab2Page {
   private alumnoService = inject(AlumnoService);
@@ -49,22 +49,16 @@ export class Tab2Page {
     { text: 'Enviar', handler: () => this.enviarRecordatorioMasivo() },
   ];
 
-  // ── Registro de pago con monto editable ──
-  isPagoAlertOpen = false;
+  // ── Confirmación visual de pago ──
+  isPagoModalOpen = false;
   pagoAlerta = { mes: 0, anio: 0 };
-  pagoAlertMessage = '';
-  pagoAlertInputs: AlertInput[] = [];
-  pagoAlertButtons: AlertButton[] = [
-    { text: 'Cancelar', role: 'cancel' },
-    { text: 'Registrar pago', handler: (datos?: { monto?: string | number }) => this.confirmarPago(datos?.monto) },
-  ];
+  pagoMonto: number | null = null;
 
   toastOpen = false;
   toastMsg = '';
 
   // ── Modal de pagos ──
   selectedAlumno: Alumno | null = null;
-  historialPagos: Pago[] = [];
   meses: MesInfo[] = [];
   isModalOpen = false;
   anioSeleccionado = new Date().getFullYear();
@@ -186,7 +180,6 @@ export class Tab2Page {
     this.selectedAlumno = a;
     this.anioSeleccionado = new Date().getFullYear();
     this.generarMeses(a);
-    this.historialPagos = this.alumnoService.getHistorialPagos(a.id);
     this.estadoDetalle = this.alumnoService.getEstadoPagoMes(a);
     this.deudaDetalle = this.alumnoService.getDeudaAlumno(a);
     this.historialMontos = [...(a.historialMontos ?? [])].slice().reverse();
@@ -242,28 +235,31 @@ export class Tab2Page {
       return;
     }
 
-    // Marcar como pagado: se pide el monto real, con la cuota como sugerencia
+    // Confirmación visual: solo monto cobrado, sin fecha manual.
     this.pagoAlerta = { mes: mes.mes, anio: mes.anio };
-    this.pagoAlertMessage = `Cuota de ${mes.label}. Podés ajustar el monto si cobraste otra cosa.`;
-    this.pagoAlertInputs = [
-      { name: 'monto', type: 'number', value: String(this.selectedAlumno.montoMensual), min: 1, placeholder: 'Monto cobrado' },
-    ];
-    this.isPagoAlertOpen = true;
+    this.pagoMonto = this.selectedAlumno.montoMensual;
+    this.isPagoModalOpen = true;
   }
 
-  confirmarPago(monto?: string | number) {
+  cerrarPagoModal() {
+    this.isPagoModalOpen = false;
+    this.pagoMonto = null;
+  }
+
+  confirmarPago() {
     if (!this.selectedAlumno) return;
-    const valor = Number(monto);
+    const valor = Number(this.pagoMonto);
     if (!Number.isFinite(valor) || valor <= 0) {
       this.mostrarToast('El monto debe ser mayor a $0');
       return;
     }
 
-    const actualizado = this.alumnoService.registrarPago(this.selectedAlumno.id, this.pagoAlerta.mes, this.pagoAlerta.anio, valor);
+    const actualizado = this.alumnoService.registrarCobro(this.selectedAlumno.id, this.pagoAlerta.mes, this.pagoAlerta.anio, valor);
     if (!actualizado) return;
 
     const mes = this.meses.find((m) => m.mes === this.pagoAlerta.mes && m.anio === this.pagoAlerta.anio);
     this.refrescar(mes);
+    this.cerrarPagoModal();
 
     const numero = actualizado.pagos.find((p) => p.mes === this.pagoAlerta.mes && p.anio === this.pagoAlerta.anio)?.numeroComprobante;
     this.mostrarToast(numero
@@ -278,7 +274,6 @@ export class Tab2Page {
     if (actualizado) this.selectedAlumno = actualizado;
     if (mes) mes.pagado = this.alumnoService.estaPagadoMes(this.selectedAlumno, mes.mes, mes.anio);
 
-    this.historialPagos = this.alumnoService.getHistorialPagos(this.selectedAlumno.id);
     this.estadoDetalle = this.alumnoService.getEstadoPagoMes(this.selectedAlumno);
     this.deudaDetalle = this.alumnoService.getDeudaAlumno(this.selectedAlumno);
     this.notificationService.checkAndSchedule();

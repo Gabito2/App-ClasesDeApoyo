@@ -448,6 +448,179 @@ ion-searchbar.buscar {
   --background: var(--app-bg);
 }
 
+/* Modal profesional de confirmación de cobros */
+.pago-modal {
+  --width: min(460px, calc(100% - 32px));
+  --height: auto;
+  --border-radius: var(--app-radius-xl);
+  --box-shadow: 0 2px 6px rgba(26, 26, 26, 0.04), 0 18px 40px rgba(26, 26, 26, 0.1);
+  --backdrop-opacity: 0.38;
+  align-items: center;
+}
+
+.pago-modal-header ion-toolbar {
+  --background: var(--app-accent);
+  --color: var(--app-on-accent);
+  --min-height: 64px;
+  --padding-start: 18px;
+  --padding-end: 12px;
+  border-bottom: 0;
+
+  ion-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+  }
+
+  .pago-cerrar {
+    --width: 36px;
+    --height: 36px;
+    --padding-start: 0;
+    --padding-end: 0;
+    --border-radius: var(--app-radius-pill);
+    --color: var(--app-on-accent);
+    --background: rgba(255, 255, 255, 0.14);
+  }
+}
+
+.pago-modal-content {
+  --background: var(--app-surface);
+  --padding-start: 22px;
+  --padding-end: 22px;
+  --padding-top: 20px;
+  --padding-bottom: 12px;
+}
+
+.pago-confirmacion {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  .pago-resumen {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
+    background: var(--app-surface-alt);
+  }
+
+  .pago-resumen-icono {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    height: 44px;
+    border-radius: var(--app-radius-md);
+    background: var(--app-accent-wash);
+    color: var(--app-accent);
+
+    ion-icon {
+      font-size: 22px;
+    }
+  }
+
+  .pago-resumen-texto {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--app-text-strong);
+      font-size: 0.92rem;
+    }
+  }
+
+  .pago-periodo {
+    color: var(--app-text-muted);
+    font-size: 0.76rem;
+    font-weight: 650;
+    text-transform: uppercase;
+  }
+
+  .pago-monto-input {
+    width: 100%;
+    --border-radius: var(--app-radius-md);
+    --border-width: 1px;
+    --border-color: var(--app-border-strong);
+    --highlight-height: 2px;
+    --highlight-color-focused: var(--app-accent);
+    min-height: 64px;
+
+    &::part(native) {
+      font-size: 1.18rem;
+      font-weight: 700;
+    }
+  }
+
+  .moneda {
+    color: var(--app-text-muted);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .pago-ayuda {
+    margin: -6px 0 0;
+    color: var(--app-text-muted);
+    font-size: 0.76rem;
+  }
+}
+
+.pago-modal-footer {
+  background: var(--app-surface);
+  padding: 10px 22px calc(10px + var(--ion-safe-area-bottom, 0px));
+
+  ion-toolbar {
+    --background: transparent;
+    --border-width: 0;
+  }
+
+  .pago-actions {
+    display: grid;
+    grid-template-columns: minmax(110px, 0.8fr) minmax(150px, 1.2fr);
+    gap: 10px;
+  }
+
+  ion-button {
+    height: 50px;
+    margin: 0;
+    text-transform: none;
+  }
+
+  ion-button.pago-cancelar {
+    --color: var(--app-text);
+    --border-radius: var(--app-radius-md);
+    font-weight: 650;
+  }
+
+  ion-button.pago-confirmar {
+    --background: var(--app-accent);
+    --background-hover: var(--ion-color-primary-tint);
+    --background-activated: var(--ion-color-primary-shade);
+    --border-radius: var(--app-radius-md);
+    --color: var(--app-on-accent);
+    --box-shadow: 0 8px 24px rgba(var(--ion-color-primary-rgb), 0.2);
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 480px) {
+  .pago-modal {
+    --width: 100%;
+    --border-radius: var(--app-radius-xl) var(--app-radius-xl) 0 0;
+    align-items: end;
+  }
+
+  .pago-modal-header ion-toolbar,
+  .pago-modal-content,
+  .pago-modal-footer {
+    --padding-start: 16px;
+    --padding-end: 16px;
+  }
+}
+
 /* Ficha de alumno: item de lista con avatar, datos y estado */
 ion-item.ficha {
   --background: var(--app-surface);

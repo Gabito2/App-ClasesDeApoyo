@@ -353,69 +353,123 @@ ion-button.cuenta-btn {
   }
 }
 
-ion-grid.meses-grid {
-  padding: 0;
+.meses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  padding: 2px 0 8px;
 }
 
 .mes-card {
   display: flex;
+  min-width: 0;
+  min-height: 94px;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 14px 8px;
-  border-radius: var(--app-radius-md);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 9px;
+  padding: 11px;
   border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
   background: var(--app-surface);
-  text-align: center;
+  box-shadow: var(--app-shadow-card);
+  color: var(--app-text);
+  text-align: left;
   cursor: pointer;
-  margin-bottom: 10px;
-  min-height: 84px;
+  transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+  -webkit-tap-highlight-color: transparent;
 
-  ion-icon {
-    font-size: 24px;
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--app-accent-ring);
+    outline-offset: 2px;
+  }
+
+  .mes-card-cabecera {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mes-card-icono {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: var(--app-radius-sm);
+    background: var(--app-surface-sunken);
+    color: var(--app-icon-muted);
+
+    ion-icon {
+      font-size: 16px;
+    }
   }
 
   .mes-label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--app-text);
-    line-height: 1.2;
+    overflow: hidden;
+    max-width: 100%;
+    color: var(--app-text-strong);
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    text-transform: capitalize;
+    white-space: nowrap;
   }
 
-  .tap-hint {
+  .mes-estado {
+    color: var(--app-text-muted);
     font-size: 0.66rem;
-    color: var(--app-icon-muted);
-    font-weight: 400;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .mes-actual {
+    overflow: hidden;
+    padding: 3px 6px;
+    border-radius: var(--app-radius-pill);
+    background: var(--app-accent-wash);
+    color: var(--app-accent);
+    font-size: 0.58rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
 
   &.pagado {
-    background: var(--app-success-soft);
-    border-color: var(--app-border);
+    border-color: var(--app-accent-ring);
+    background: var(--app-accent-wash);
 
-    ion-icon {
-      color: var(--app-text-muted);
+    .mes-card-icono {
+      background: var(--app-accent);
+      color: var(--app-on-accent);
     }
 
-    .tap-hint {
-      color: var(--app-text-muted);
-      font-weight: 500;
-    }
-  }
-
-  &.pendiente {
-    background: var(--app-surface);
-    border: 1px solid var(--app-border);
-
-    ion-icon {
-      color: var(--app-icon-muted);
+    .mes-estado {
+      color: var(--app-accent);
     }
   }
 
-  &.actual.pendiente {
-    border-color: var(--app-accent-bright);
+  &.actual:not(.pagado) {
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 2px var(--app-accent-ring);
+  }
+}
 
-    ion-icon {
-      color: var(--app-accent-bright);
-    }
+@media (max-width: 360px) {
+  .meses-grid {
+    gap: 7px;
+  }
+
+  .mes-card {
+    min-height: 88px;
+    padding: 9px;
   }
 }

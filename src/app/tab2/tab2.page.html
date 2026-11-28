@@ -156,9 +156,52 @@
     [message]="'Se abrirá WhatsApp con un mensaje para cada uno de los ' + vencidosConTelefono.length + ' alumno(s) con cuota vencida. ¿Continuar?'"
     [buttons]="bulkAlertButtons" (didDismiss)="isBulkAlertOpen = false"></ion-alert>
 
-  <!-- Registro de pago con monto editable -->
-  <ion-alert [isOpen]="isPagoAlertOpen" header="Registrar pago" [message]="pagoAlertMessage"
-    [inputs]="pagoAlertInputs" [buttons]="pagoAlertButtons" (didDismiss)="isPagoAlertOpen = false"></ion-alert>
+  <!-- Confirmación visual del cobro -->
+  <ion-modal class="pago-modal" [isOpen]="isPagoModalOpen" (didDismiss)="cerrarPagoModal()">
+    <ng-template>
+      <ion-header class="pago-modal-header">
+        <ion-toolbar>
+          <ion-title>Confirmar cobro</ion-title>
+          <ion-buttons slot="end">
+            <ion-button class="pago-cerrar" (click)="cerrarPagoModal()" aria-label="Cancelar">
+              <ion-icon name="close" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="pago-modal-content">
+        <div class="pago-confirmacion">
+          <div class="pago-resumen">
+            <div class="pago-resumen-icono">
+              <ion-icon name="cash-outline"></ion-icon>
+            </div>
+            <div class="pago-resumen-texto">
+              <span class="pago-periodo">{{ mesLabel(pagoAlerta.mes) }} {{ pagoAlerta.anio }}</span>
+              <strong>{{ selectedAlumno?.nombre }} {{ selectedAlumno?.apellido }}</strong>
+            </div>
+          </div>
+
+          <ion-input class="pago-monto-input" label="Monto cobrado" label-placement="stacked" fill="outline"
+            [(ngModel)]="pagoMonto" type="number" min="1" inputmode="decimal" placeholder="0">
+            <span slot="start" class="moneda">$</span>
+          </ion-input>
+
+          <p class="pago-ayuda">El cobro se registrará con la fecha actual.</p>
+        </div>
+      </ion-content>
+      <ion-footer class="pago-modal-footer">
+        <ion-toolbar>
+          <div class="pago-actions">
+            <ion-button fill="clear" class="pago-cancelar" (click)="cerrarPagoModal()">Cancelar</ion-button>
+            <ion-button class="pago-confirmar" [disabled]="!pagoMonto || pagoMonto <= 0"
+              (click)="confirmarPago()">
+              Confirmar cobro
+            </ion-button>
+          </div>
+        </ion-toolbar>
+      </ion-footer>
+    </ng-template>
+  </ion-modal>
 
   <ion-toast [isOpen]="toastOpen" [message]="toastMsg" [duration]="2500" (didDismiss)="toastOpen = false"></ion-toast>
 
@@ -244,28 +287,6 @@
           </div>
           }
 
-          @if (historialPagos.length > 0) {
-          <div class="bloque">
-            <h3 class="bloque-titulo">Historial de pagos</h3>
-            @for (p of historialPagos; track p.mes + '-' + p.anio) {
-            <div class="fila-dato">
-              <div class="fila-izq">
-                <ion-icon [name]="p.pagado ? 'checkmark-circle' : 'close-circle'" [class.pagado]="p.pagado"
-                  [class.pendiente]="!p.pagado"></ion-icon>
-                <span class="fila-mes">{{ mesLabel(p.mes) }} {{ p.anio }}</span>
-              </div>
-              <span class="fila-estado" [class.pagado]="p.pagado">
-                @if (p.pagado) {
-                ${{ (p.montoPagado ?? selectedAlumno?.montoMensual) | number }}{{ p.fechaPago ? ' · ' + (p.fechaPago | date:'dd/MM') : '' }}
-                } @else {
-                Pendiente
-                }
-              </span>
-            </div>
-            }
-          </div>
-          }
-
           <div class="anio-nav">
             <ion-button fill="clear" (click)="cambiarAnio(-1)" aria-label="Año anterior">
               <ion-icon name="chevron-back" slot="icon-only"></ion-icon>
@@ -276,20 +297,24 @@
             </ion-button>
           </div>
 
-          <ion-grid class="meses-grid">
-            <ion-row>
-              @for (m of meses; track m.mes + '-' + m.anio) {
-              <ion-col size="6">
-                <div class="mes-card" [class.pagado]="m.pagado" [class.pendiente]="!m.pagado"
-                  [class.actual]="m.esActual" (click)="toggleMes(m)">
-                  <ion-icon [name]="m.pagado ? 'checkmark-circle' : 'close-circle'"></ion-icon>
-                  <span class="mes-label">{{ m.label }}</span>
-                  <span class="tap-hint">{{ m.pagado ? 'Pagado' : 'Tocá para marcar' }}</span>
-                </div>
-              </ion-col>
-              }
-            </ion-row>
-          </ion-grid>
+          <div class="meses-grid" role="group" [attr.aria-label]="'Estado de pagos ' + anioSeleccionado">
+            @for (m of meses; track m.mes + '-' + m.anio) {
+            <button type="button" class="mes-card" [class.pagado]="m.pagado" [class.actual]="m.esActual"
+              [attr.aria-label]="m.label + (m.pagado ? ': pagado' : ': pendiente')" [attr.aria-pressed]="m.pagado"
+              (click)="toggleMes(m)">
+              <span class="mes-card-cabecera">
+                <span class="mes-card-icono">
+                  <ion-icon [name]="m.pagado ? 'checkmark-circle' : 'calendar-outline'"></ion-icon>
+                </span>
+                @if (m.esActual) {
+                <span class="mes-actual">Actual</span>
+                }
+              </span>
+              <span class="mes-label">{{ m.label.split(' ')[0] }}</span>
+              <span class="mes-estado">{{ m.pagado ? 'Pagado' : 'Pendiente' }}</span>
+            </button>
+            }
+          </div>
         </div>
       </ion-content>
     </ng-template>

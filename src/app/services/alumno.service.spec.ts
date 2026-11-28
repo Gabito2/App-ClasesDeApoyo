@@ -140,6 +140,46 @@ describe('AlumnoService pagos y comprobantes', () => {
     expect(svc.getStats().montoCobrado).toBe(0);
   });
 
+  it('permite registrar varios cobros reales para el mismo mes', () => {
+    const alumno = svc.crear({ nombre: 'Ana', apellido: '', diaEntrada: 5, montoMensual: 15000 });
+
+    const actualizado = svc.registrarCobro(alumno.id, 10, 2026, 7000, '2026-10-05T10:00:00.000Z');
+    svc.registrarCobro(alumno.id, 10, 2026, 8000, '2026-10-12T10:00:00.000Z');
+
+    const cobros = svc.getCobros(actualizado!.id);
+    expect(cobros.length).toBe(2);
+    expect(cobros.map((cobro) => cobro.monto)).toEqual([8000, 7000]);
+    expect(cobros.every((cobro) => cobro.numeroComprobante !== undefined)).toBeTrue();
+  });
+
+  it('desmarcar el mes conserva los cobros reales', () => {
+    const alumno = svc.crear({ nombre: 'Ana', apellido: '', diaEntrada: 5, montoMensual: 15000 });
+    svc.registrarCobro(alumno.id, 10, 2026, 7000, '2026-10-05T10:00:00.000Z');
+
+    const actualizado = svc.desmarcarPago(alumno.id, 10, 2026);
+
+    expect(actualizado?.pagos.find((pago) => pago.mes === 10 && pago.anio === 2026)?.pagado).toBeFalse();
+    expect(svc.getCobros(alumno.id).length).toBe(1);
+  });
+
+  it('migra pagos legacy a cobros reales una sola vez', () => {
+    localStorage.setItem('alumnos', JSON.stringify([
+      {
+        id: 1, nombre: 'Ana', apellido: '', diaEntrada: 1, montoMensual: 10000, activo: true,
+        fechaRegistro: '2026-01-01T12:00:00', historialMontos: [],
+        pagos: [{ mes: 10, anio: 2026, pagado: true, montoPagado: 10000, fechaPago: '2026-10-05T10:00:00.000Z', numeroComprobante: 7 }],
+      },
+    ]));
+    svc['invalidar']();
+
+    const cobros = svc.getCobros(1);
+    expect(cobros.length).toBe(1);
+    expect(cobros[0].numeroComprobante).toBe(7);
+
+    svc['invalidar']();
+    expect(svc.getCobros(1).length).toBe(1);
+  });
+
   it('numera los pagos viejos en orden cronológico al leerlos', () => {
     localStorage.setItem('alumnos', JSON.stringify([
       {

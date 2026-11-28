@@ -71,4 +71,16 @@ describe('Tab2Page', () => {
   it('solo ofrece el reclamo masivo para los vencidos con teléfono', () => {
     expect(component.vencidosConTelefono.map((a) => a.nombre)).toEqual(['Carla']);
   });
+
+  it('abre un modal visual para confirmar el cobro sin pedir fecha', () => {
+    const alumno = component.porVencer.find((item) => item.id === 1)!;
+    component.abrirModal(alumno);
+    const mes = component.meses.find((item) => item.mes === 10 && item.anio === 2026)!;
+
+    component.toggleMes(mes);
+
+    expect(component.isPagoModalOpen).toBeTrue();
+    expect(component.pagoMonto).toBe(10000);
+  });
+
 });

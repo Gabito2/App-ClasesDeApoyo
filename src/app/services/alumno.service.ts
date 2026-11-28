@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Alumno, Comprobante, EstadoCuenta, MesImpago, Pago, PagoCuenta } from '../models/alumno.model';
+import { Alumno, Cobro, Comprobante, EstadoCuenta, MesImpago, Pago, PagoCuenta } from '../models/alumno.model';
 import { StorageService } from './storage.service';
 
 interface AlumnoLegado extends Partial<Alumno> {
@@ -21,9 +21,19 @@ export class AlumnoService {
     this.cache = data
       .filter((a): a is AlumnoLegado => !!a && typeof a.id === 'number' && typeof a.nombre === 'string')
       .map((a) => this.migrar(a));
+    let persistir = this.migrarCobrosLegacy(this.cache);
     // Los pagos anteriores a los comprobantes no tienen número: se completa acá
     // (una sola vez) para que el historial no cambie de numeración después.
     if (this.asegurarNumerosComprobantes(this.cache)) {
+      persistir = true;
+    }
+    if (this.migrarCobrosLegacy(this.cache)) {
+      persistir = true;
+    }
+    if (this.asegurarNumerosCobros(this.cache)) {
+      persistir = true;
+    }
+    if (persistir) {
       this.storage.setData(this.STORAGE_KEY, this.cache);
     }
     return [...this.cache];
@@ -62,8 +72,43 @@ export class AlumnoService {
       alumno.pagos = [{ mes: ahora.getMonth() + 1, anio: ahora.getFullYear(), pagado: a.pagado ?? false, fechaPago: a.fechaPago }];
     }
     if (!alumno.historialMontos) alumno.historialMontos = [];
+    if (!alumno.cobros) alumno.cobros = [];
     if (!alumno.telefono) alumno.telefono = undefined;
     return alumno as Alumno;
+  }
+
+  private migrarCobrosLegacy(alumnos: Alumno[]): boolean {
+    let cambios = false;
+    for (const alumno of alumnos) {
+      alumno.cobros ??= [];
+      for (const pago of alumno.pagos) {
+        if (!pago.pagado) continue;
+        const existente = alumno.cobros.find((cobro) => cobro.mes === pago.mes && cobro.anio === pago.anio);
+        if (existente) {
+          if (existente.numeroComprobante === undefined && pago.numeroComprobante !== undefined) {
+            existente.numeroComprobante = pago.numeroComprobante;
+            cambios = true;
+          }
+          continue;
+        }
+        alumno.cobros.push({
+          id: this.generarIdCobro(alumnos),
+          mes: pago.mes,
+          anio: pago.anio,
+          monto: pago.montoPagado ?? alumno.montoMensual,
+          fechaPago: pago.fechaPago ?? '',
+          numeroComprobante: pago.numeroComprobante,
+        });
+        cambios = true;
+      }
+    }
+    return cambios;
+  }
+
+  private generarIdCobro(alumnos: Alumno[]): number {
+    let id = Date.now();
+    while (alumnos.some((alumno) => alumno.cobros?.some((cobro) => cobro.id === id))) id++;
+    return id;
   }
 
   getActivos(): Alumno[] {
@@ -134,41 +179,66 @@ export class AlumnoService {
       : this.registrarPago(id, mes, anio);
   }
 
+  /** Devuelve las operaciones reales de cobro de un alumno, más recientes primero. */
+  getCobros(id: number): Cobro[] {
+    const alumno = this.getById(id);
+    if (!alumno) return [];
+    return [...(alumno.cobros ?? [])].sort((a, b) => {
+      const fecha = (b.fechaPago || '').localeCompare(a.fechaPago || '');
+      return fecha || b.anio * 12 + b.mes - (a.anio * 12 + a.mes);
+    });
+  }
+
   /**
    * Registra el cobro de un mes. El monto es opcional: si no se indica se usa
    * la cuota actual del alumno. El pago queda con fecha, monto real y número
    * de comprobante para poder reenviarlo más adelante.
    */
   registrarPago(id: number, mes: number, anio: number, monto?: number, fechaPago?: string): Alumno | undefined {
+    return this.registrarCobro(id, mes, anio, monto, fechaPago);
+  }
+
+  /** Registra una operación real y sincroniza el estado resumido del mes. */
+  registrarCobro(id: number, mes: number, anio: number, monto?: number, fechaPago?: string): Alumno | undefined {
     const alumno = this.getById(id);
     if (!alumno) return undefined;
 
     const montoValido = monto !== undefined && Number.isFinite(monto) && monto >= 0;
     const montoFinal = montoValido ? monto : alumno.montoMensual;
+    const fechaFinal = fechaPago ?? new Date().toISOString();
+    const numeroComprobante = this.proximoNumeroComprobante();
+    alumno.cobros ??= [];
+    alumno.cobros.push({
+      id: this.generarIdCobro(this.getAll()),
+      mes,
+      anio,
+      monto: montoFinal,
+      fechaPago: fechaFinal,
+      numeroComprobante,
+    });
+
     const existe = alumno.pagos.find((p) => p.mes === mes && p.anio === anio);
 
     if (existe) {
       existe.pagado = true;
       existe.montoPagado = montoFinal;
-      existe.fechaPago = fechaPago ?? new Date().toISOString();
-      if (existe.numeroComprobante === undefined) {
-        existe.numeroComprobante = this.proximoNumeroComprobante();
-      }
+      existe.fechaPago = fechaFinal;
+      existe.numeroComprobante = numeroComprobante;
     } else {
       alumno.pagos.push({
         mes,
         anio,
         pagado: true,
         montoPagado: montoFinal,
-        fechaPago: fechaPago ?? new Date().toISOString(),
-        numeroComprobante: this.proximoNumeroComprobante(),
+        fechaPago: fechaFinal,
+        numeroComprobante,
       });
     }
 
-    return this.actualizar(id, { pagos: alumno.pagos });
+    return this.actualizar(id, { pagos: alumno.pagos, cobros: alumno.cobros });
   }
 
-  /** Deshace un cobro (pago marcado por error) y libera su número de comprobante. */
+  /** Desmarca el resumen mensual sin eliminar las operaciones reales registradas. */
   desmarcarPago(id: number, mes: number, anio: number): Alumno | undefined {
     const alumno = this.getById(id);
     if (!alumno) return undefined;
@@ -182,6 +252,34 @@ export class AlumnoService {
     }
 
     return this.actualizar(id, { pagos: alumno.pagos });
+  }
+
+  /** Elimina una operación real. El estado mensual se libera si ya no quedan cobros de ese mes. */
+  eliminarCobro(id: number, cobroId: number): Alumno | undefined {
+    const alumno = this.getById(id);
+    if (!alumno) return undefined;
+    const cobro = alumno.cobros?.find((item) => item.id === cobroId);
+    if (!cobro) return undefined;
+
+    alumno.cobros = (alumno.cobros ?? []).filter((item) => item.id !== cobroId);
+    const restante = alumno.cobros
+      .filter((item) => item.mes === cobro.mes && item.anio === cobro.anio)
+      .sort((a, b) => (b.fechaPago || '').localeCompare(a.fechaPago || '') || b.id - a.id)[0];
+    const pago = alumno.pagos.find((item) => item.mes === cobro.mes && item.anio === cobro.anio);
+    if (pago) {
+      if (!restante) {
+        pago.pagado = false;
+        pago.fechaPago = undefined;
+        pago.montoPagado = undefined;
+        pago.numeroComprobante = undefined;
+      } else {
+        pago.pagado = true;
+        pago.fechaPago = restante.fechaPago;
+        pago.montoPagado = restante.monto;
+        pago.numeroComprobante = restante.numeroComprobante;
+      }
+    }
+    return this.actualizar(id, { pagos: alumno.pagos, cobros: alumno.cobros });
   }
 
   estaPagadoMes(alumno: Alumno, mes: number, anio: number): boolean {
@@ -199,18 +297,17 @@ export class AlumnoService {
   getComprobantes(filtro: { mes?: number; anio?: number } = {}): Comprobante[] {
     const resultado: Comprobante[] = [];
     for (const alumno of this.getAll()) {
-      for (const pago of alumno.pagos) {
-        if (!pago.pagado) continue;
-        if (filtro.mes !== undefined && pago.mes !== filtro.mes) continue;
-        if (filtro.anio !== undefined && pago.anio !== filtro.anio) continue;
+      for (const cobro of alumno.cobros ?? []) {
+        if (filtro.mes !== undefined && cobro.mes !== filtro.mes) continue;
+        if (filtro.anio !== undefined && cobro.anio !== filtro.anio) continue;
         resultado.push({
-          numero: pago.numeroComprobante ?? 0,
+          numero: cobro.numeroComprobante ?? 0,
           alumnoId: alumno.id,
           alumnoNombre: `${alumno.nombre} ${alumno.apellido}`.trim(),
-          mes: pago.mes,
-          anio: pago.anio,
-          monto: pago.montoPagado ?? alumno.montoMensual,
-          fechaPago: pago.fechaPago ?? '',
+          mes: cobro.mes,
+          anio: cobro.anio,
+          monto: cobro.monto,
+          fechaPago: cobro.fechaPago,
           telefono: alumno.telefono,
         });
       }
@@ -226,6 +323,11 @@ export class AlumnoService {
       for (const pago of alumno.pagos) {
         if (pago.numeroComprobante && pago.numeroComprobante > maximo) {
           maximo = pago.numeroComprobante;
+        }
+      }
+      for (const cobro of alumno.cobros ?? []) {
+        if (cobro.numeroComprobante && cobro.numeroComprobante > maximo) {
+          maximo = cobro.numeroComprobante;
         }
       }
     }
@@ -259,6 +361,31 @@ export class AlumnoService {
     });
     for (const pago of pendientes) {
       pago.numeroComprobante = ++maximo;
+    }
+    return true;
+  }
+
+  private asegurarNumerosCobros(alumnos: Alumno[]): boolean {
+    let maximo = 0;
+    const pendientes: Cobro[] = [];
+    for (const alumno of alumnos) {
+      for (const cobro of alumno.cobros ?? []) {
+        if (typeof cobro.numeroComprobante === 'number') {
+          maximo = Math.max(maximo, cobro.numeroComprobante);
+        } else {
+          pendientes.push(cobro);
+        }
+      }
+    }
+    if (pendientes.length === 0) return false;
+
+    pendientes.sort((a, b) => {
+      const fechaA = a.fechaPago || '';
+      const fechaB = b.fechaPago || '';
+      return fechaA.localeCompare(fechaB) || a.anio * 12 + a.mes - (b.anio * 12 + b.mes);
+    });
+    for (const cobro of pendientes) {
+      cobro.numeroComprobante = ++maximo;
     }
     return true;
   }
@@ -499,6 +626,7 @@ export class AlumnoService {
       deuda: this.getDeudaAlumno(alumno),
       impagos: this.getMesesImpagosLista(alumno),
       pagos,
+      cobros: this.getCobros(alumnoId),
       historialMontos: [...(alumno.historialMontos ?? [])].reverse(),
       totalCobrado: pagos.reduce((suma, p) => suma + p.monto, 0),
       cantidadPagos: pagos.length,
